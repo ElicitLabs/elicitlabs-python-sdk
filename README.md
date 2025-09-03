@@ -1,7 +1,7 @@
 # Modal Python API library
 
 <!-- prettier-ignore -->
-[![PyPI version](https://img.shields.io/pypi/v/elicit.svg?label=pypi%20(stable))](https://pypi.org/project/elicit/)
+[![PyPI version](https://img.shields.io/pypi/v/elicitlabs.svg?label=pypi%20(stable))](https://pypi.org/project/elicitlabs/)
 
 The Modal Python library provides convenient access to the Modal REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
@@ -16,12 +16,9 @@ The REST API documentation can be found on [elicitlabs.ai](https://elicitlabs.ai
 ## Installation
 
 ```sh
-# install from the production repo
-pip install git+ssh://git@github.com/ElicitLabs/modal-python-sdk.git
+# install from PyPI
+pip install elicitlabs
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://www.stainless.com/docs/guides/publish), this will become: `pip install elicit`
 
 ## Usage
 
@@ -93,8 +90,8 @@ By default, the async client uses `httpx` for HTTP requests. However, for improv
 You can enable this by installing `aiohttp`:
 
 ```sh
-# install from the production repo
-pip install 'elicit[aiohttp] @ git+ssh://git@github.com/ElicitLabs/modal-python-sdk.git'
+# install from PyPI
+pip install elicitlabs[aiohttp]
 ```
 
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:

@@ -1,5 +1,5 @@
 [project]
-name = "elicit"
+name = "elicitlabs"
 version = "0.0.1"
 description = "The official Python library for the modal API"
 dynamic = ["readme"]
