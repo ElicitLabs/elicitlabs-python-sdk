@@ -21,5 +21,11 @@ class DataIngestParams(TypedDict, total=False):
     filename: Optional[str]
     """Filename of the uploaded file"""
 
+    session_id: Optional[str]
+    """
+    Session ID for grouping related ingested content and enabling session-based
+    retrieval
+    """
+
     timestamp_override: Optional[str]
     """ISO-8601 timestamp to preserve original data moment"""

@@ -82,6 +82,7 @@ class TestMachine:
         machine = client.machine.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
+            filter_memory_types=["episodic", "identity"],
             session_id="session_123",
         )
         assert_matches_type(MachineQueryResponse, machine, path=["response"])
@@ -185,6 +186,7 @@ class TestAsyncMachine:
         machine = await async_client.machine.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
+            filter_memory_types=["episodic", "identity"],
             session_id="session_123",
         )
         assert_matches_type(MachineQueryResponse, machine, path=["response"])

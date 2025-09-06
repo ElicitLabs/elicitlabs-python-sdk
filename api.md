@@ -1,15 +1,3 @@
-# Inference
-
-Types:
-
-```python
-from elicit.types import InferenceProcessResponse
-```
-
-Methods:
-
-- <code title="post /v1/inference">client.inference.<a href="./src/elicit/resources/inference.py">process</a>(\*\*<a href="src/elicit/types/inference_process_params.py">params</a>) -> <a href="./src/elicit/types/inference_process_response.py">InferenceProcessResponse</a></code>
-
 # Users
 
 Types:

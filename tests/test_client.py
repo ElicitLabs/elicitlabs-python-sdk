@@ -712,38 +712,20 @@ class TestModal:
     @mock.patch("elicit._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, client: Modal) -> None:
-        respx_mock.post("/v1/inference").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/users").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.inference.with_streaming_response.process(
-                messages=[
-                    {
-                        "content": "bar",
-                        "role": "bar",
-                    }
-                ],
-                session_id="session_123",
-                user_id="123e4567-e89b-12d3-a456-426614174000",
-            ).__enter__()
+            client.users.with_streaming_response.create_or_get(email="user@example.com", name="John Doe").__enter__()
 
         assert _get_open_connections(self.client) == 0
 
     @mock.patch("elicit._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: Modal) -> None:
-        respx_mock.post("/v1/inference").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/users").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.inference.with_streaming_response.process(
-                messages=[
-                    {
-                        "content": "bar",
-                        "role": "bar",
-                    }
-                ],
-                session_id="session_123",
-                user_id="123e4567-e89b-12d3-a456-426614174000",
-            ).__enter__()
+            client.users.with_streaming_response.create_or_get(email="user@example.com", name="John Doe").__enter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -770,18 +752,9 @@ class TestModal:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = client.inference.with_raw_response.process(
-            messages=[
-                {
-                    "content": "bar",
-                    "role": "bar",
-                }
-            ],
-            session_id="session_123",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        )
+        response = client.users.with_raw_response.create_or_get(email="user@example.com", name="John Doe")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -801,18 +774,10 @@ class TestModal:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = client.inference.with_raw_response.process(
-            messages=[
-                {
-                    "content": "bar",
-                    "role": "bar",
-                }
-            ],
-            session_id="session_123",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            extra_headers={"x-stainless-retry-count": Omit()},
+        response = client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -834,18 +799,10 @@ class TestModal:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = client.inference.with_raw_response.process(
-            messages=[
-                {
-                    "content": "bar",
-                    "role": "bar",
-                }
-            ],
-            session_id="session_123",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            extra_headers={"x-stainless-retry-count": "42"},
+        response = client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
@@ -1570,18 +1527,11 @@ class TestAsyncModal:
     @mock.patch("elicit._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncModal) -> None:
-        respx_mock.post("/v1/inference").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/users").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.inference.with_streaming_response.process(
-                messages=[
-                    {
-                        "content": "bar",
-                        "role": "bar",
-                    }
-                ],
-                session_id="session_123",
-                user_id="123e4567-e89b-12d3-a456-426614174000",
+            await async_client.users.with_streaming_response.create_or_get(
+                email="user@example.com", name="John Doe"
             ).__aenter__()
 
         assert _get_open_connections(self.client) == 0
@@ -1589,18 +1539,11 @@ class TestAsyncModal:
     @mock.patch("elicit._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncModal) -> None:
-        respx_mock.post("/v1/inference").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/users").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.inference.with_streaming_response.process(
-                messages=[
-                    {
-                        "content": "bar",
-                        "role": "bar",
-                    }
-                ],
-                session_id="session_123",
-                user_id="123e4567-e89b-12d3-a456-426614174000",
+            await async_client.users.with_streaming_response.create_or_get(
+                email="user@example.com", name="John Doe"
             ).__aenter__()
         assert _get_open_connections(self.client) == 0
 
@@ -1629,18 +1572,9 @@ class TestAsyncModal:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = await client.inference.with_raw_response.process(
-            messages=[
-                {
-                    "content": "bar",
-                    "role": "bar",
-                }
-            ],
-            session_id="session_123",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        )
+        response = await client.users.with_raw_response.create_or_get(email="user@example.com", name="John Doe")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1663,18 +1597,10 @@ class TestAsyncModal:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = await client.inference.with_raw_response.process(
-            messages=[
-                {
-                    "content": "bar",
-                    "role": "bar",
-                }
-            ],
-            session_id="session_123",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            extra_headers={"x-stainless-retry-count": Omit()},
+        response = await client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -1697,18 +1623,10 @@ class TestAsyncModal:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = await client.inference.with_raw_response.process(
-            messages=[
-                {
-                    "content": "bar",
-                    "role": "bar",
-                }
-            ],
-            session_id="session_123",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            extra_headers={"x-stainless-retry-count": "42"},
+        response = await client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"

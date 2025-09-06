@@ -40,22 +40,8 @@ from .api_keys import (
     APIKeysResourceWithStreamingResponse,
     AsyncAPIKeysResourceWithStreamingResponse,
 )
-from .inference import (
-    InferenceResource,
-    AsyncInferenceResource,
-    InferenceResourceWithRawResponse,
-    AsyncInferenceResourceWithRawResponse,
-    InferenceResourceWithStreamingResponse,
-    AsyncInferenceResourceWithStreamingResponse,
-)
 
 __all__ = [
-    "InferenceResource",
-    "AsyncInferenceResource",
-    "InferenceResourceWithRawResponse",
-    "AsyncInferenceResourceWithRawResponse",
-    "InferenceResourceWithStreamingResponse",
-    "AsyncInferenceResourceWithStreamingResponse",
     "UsersResource",
     "AsyncUsersResource",
     "UsersResourceWithRawResponse",

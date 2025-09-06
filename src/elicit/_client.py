@@ -21,7 +21,7 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import users, health, machine, api_keys, inference
+from .resources import users, health, machine, api_keys
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import ModalError, APIStatusError
 from ._base_client import (
@@ -35,7 +35,6 @@ __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Modal", "A
 
 
 class Modal(SyncAPIClient):
-    inference: inference.InferenceResource
     users: users.UsersResource
     data: data.DataResource
     machine: machine.MachineResource
@@ -98,7 +97,6 @@ class Modal(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.inference = inference.InferenceResource(self)
         self.users = users.UsersResource(self)
         self.data = data.DataResource(self)
         self.machine = machine.MachineResource(self)
@@ -213,7 +211,6 @@ class Modal(SyncAPIClient):
 
 
 class AsyncModal(AsyncAPIClient):
-    inference: inference.AsyncInferenceResource
     users: users.AsyncUsersResource
     data: data.AsyncDataResource
     machine: machine.AsyncMachineResource
@@ -276,7 +273,6 @@ class AsyncModal(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.inference = inference.AsyncInferenceResource(self)
         self.users = users.AsyncUsersResource(self)
         self.data = data.AsyncDataResource(self)
         self.machine = machine.AsyncMachineResource(self)
@@ -392,7 +388,6 @@ class AsyncModal(AsyncAPIClient):
 
 class ModalWithRawResponse:
     def __init__(self, client: Modal) -> None:
-        self.inference = inference.InferenceResourceWithRawResponse(client.inference)
         self.users = users.UsersResourceWithRawResponse(client.users)
         self.data = data.DataResourceWithRawResponse(client.data)
         self.machine = machine.MachineResourceWithRawResponse(client.machine)
@@ -402,7 +397,6 @@ class ModalWithRawResponse:
 
 class AsyncModalWithRawResponse:
     def __init__(self, client: AsyncModal) -> None:
-        self.inference = inference.AsyncInferenceResourceWithRawResponse(client.inference)
         self.users = users.AsyncUsersResourceWithRawResponse(client.users)
         self.data = data.AsyncDataResourceWithRawResponse(client.data)
         self.machine = machine.AsyncMachineResourceWithRawResponse(client.machine)
@@ -412,7 +406,6 @@ class AsyncModalWithRawResponse:
 
 class ModalWithStreamedResponse:
     def __init__(self, client: Modal) -> None:
-        self.inference = inference.InferenceResourceWithStreamingResponse(client.inference)
         self.users = users.UsersResourceWithStreamingResponse(client.users)
         self.data = data.DataResourceWithStreamingResponse(client.data)
         self.machine = machine.MachineResourceWithStreamingResponse(client.machine)
@@ -422,7 +415,6 @@ class ModalWithStreamedResponse:
 
 class AsyncModalWithStreamedResponse:
     def __init__(self, client: AsyncModal) -> None:
-        self.inference = inference.AsyncInferenceResourceWithStreamingResponse(client.inference)
         self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)
         self.data = data.AsyncDataResourceWithStreamingResponse(client.data)
         self.machine = machine.AsyncMachineResourceWithStreamingResponse(client.machine)
