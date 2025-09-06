@@ -35,6 +35,7 @@ class TestData:
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
             user_id="abc-123",
             filename="filename",
+            session_id="session_id",
             timestamp_override="2024-01-01T12:00:00Z",
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
@@ -93,6 +94,7 @@ class TestAsyncData:
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
             user_id="abc-123",
             filename="filename",
+            session_id="session_id",
             timestamp_override="2024-01-01T12:00:00Z",
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])

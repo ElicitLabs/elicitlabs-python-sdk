@@ -7,7 +7,7 @@ from typing import Dict, Union, Iterable, Optional
 import httpx
 
 from ..types import machine_learn_params, machine_query_params
-from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven, SequenceNotStr
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -50,7 +50,6 @@ class MachineResource(SyncAPIResource):
         message: Union[Iterable[Dict[str, object]], Dict[str, object], str],
         user_id: str,
         datetime_input: Optional[str] | NotGiven = NOT_GIVEN,
-        debug: Optional[bool] | NotGiven = NOT_GIVEN,
         session_id: Optional[str] | NotGiven = NOT_GIVEN,
         speaker: str | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -68,14 +67,9 @@ class MachineResource(SyncAPIResource):
             - Validates authentication tokens
             - Processes conversation messages for memory extraction
             - Queues learning jobs for asynchronous processing (default)
-            - Supports synchronous processing in debug mode
             - Maintains conversation state and session continuity
 
             **Authentication**: Requires valid JWT token in Authorization header
-
-            **Processing Modes**:
-            - Normal mode (debug=false): Queues job to SQS for asynchronous processing
-            - Debug mode (debug=true): Processes synchronously for immediate results
 
         Args:
           message: Message content to learn from
@@ -83,8 +77,6 @@ class MachineResource(SyncAPIResource):
           user_id: Unique identifier for the user
 
           datetime_input: ISO format datetime string for the message timestamp
-
-          debug: Whether to process synchronously for debugging
 
           session_id: Optional session identifier for conversation context
 
@@ -105,7 +97,6 @@ class MachineResource(SyncAPIResource):
                     "message": message,
                     "user_id": user_id,
                     "datetime_input": datetime_input,
-                    "debug": debug,
                     "session_id": session_id,
                     "speaker": speaker,
                 },
@@ -122,6 +113,7 @@ class MachineResource(SyncAPIResource):
         *,
         question: str,
         user_id: str,
+        filter_memory_types: Optional[SequenceNotStr[str]] | NotGiven = NOT_GIVEN,
         session_id: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -139,13 +131,26 @@ class MachineResource(SyncAPIResource):
             - Retrieves relevant memories using semantic search
             - Returns structured memory data from all memory types
             - Supports optional session context for conversation continuity
+            - Supports filtering specific memory types for performance optimization
 
             **Authentication**: Requires valid JWT token in Authorization header
+
+            **Memory Types**:
+            - `episodic`: Past experiences and events
+            - `preference`: User preferences and choices
+            - `identity`: Personal attributes and characteristics
+            - `short_term`: Current session context and recent conversation
+
+            **Filtering**: Use `filter_memory_types` to exclude specific memory types from retrieval
 
         Args:
           question: The question to query against user's memories
 
           user_id: Unique identifier for the user
+
+          filter_memory_types:
+              Optional list of memory types to exclude from retrieval. Valid types:
+              'episodic', 'preference', 'identity', 'short_term'
 
           session_id: Optional session identifier for conversation context
 
@@ -163,6 +168,7 @@ class MachineResource(SyncAPIResource):
                 {
                     "question": question,
                     "user_id": user_id,
+                    "filter_memory_types": filter_memory_types,
                     "session_id": session_id,
                 },
                 machine_query_params.MachineQueryParams,
@@ -200,7 +206,6 @@ class AsyncMachineResource(AsyncAPIResource):
         message: Union[Iterable[Dict[str, object]], Dict[str, object], str],
         user_id: str,
         datetime_input: Optional[str] | NotGiven = NOT_GIVEN,
-        debug: Optional[bool] | NotGiven = NOT_GIVEN,
         session_id: Optional[str] | NotGiven = NOT_GIVEN,
         speaker: str | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -218,14 +223,9 @@ class AsyncMachineResource(AsyncAPIResource):
             - Validates authentication tokens
             - Processes conversation messages for memory extraction
             - Queues learning jobs for asynchronous processing (default)
-            - Supports synchronous processing in debug mode
             - Maintains conversation state and session continuity
 
             **Authentication**: Requires valid JWT token in Authorization header
-
-            **Processing Modes**:
-            - Normal mode (debug=false): Queues job to SQS for asynchronous processing
-            - Debug mode (debug=true): Processes synchronously for immediate results
 
         Args:
           message: Message content to learn from
@@ -233,8 +233,6 @@ class AsyncMachineResource(AsyncAPIResource):
           user_id: Unique identifier for the user
 
           datetime_input: ISO format datetime string for the message timestamp
-
-          debug: Whether to process synchronously for debugging
 
           session_id: Optional session identifier for conversation context
 
@@ -255,7 +253,6 @@ class AsyncMachineResource(AsyncAPIResource):
                     "message": message,
                     "user_id": user_id,
                     "datetime_input": datetime_input,
-                    "debug": debug,
                     "session_id": session_id,
                     "speaker": speaker,
                 },
@@ -272,6 +269,7 @@ class AsyncMachineResource(AsyncAPIResource):
         *,
         question: str,
         user_id: str,
+        filter_memory_types: Optional[SequenceNotStr[str]] | NotGiven = NOT_GIVEN,
         session_id: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -289,13 +287,26 @@ class AsyncMachineResource(AsyncAPIResource):
             - Retrieves relevant memories using semantic search
             - Returns structured memory data from all memory types
             - Supports optional session context for conversation continuity
+            - Supports filtering specific memory types for performance optimization
 
             **Authentication**: Requires valid JWT token in Authorization header
+
+            **Memory Types**:
+            - `episodic`: Past experiences and events
+            - `preference`: User preferences and choices
+            - `identity`: Personal attributes and characteristics
+            - `short_term`: Current session context and recent conversation
+
+            **Filtering**: Use `filter_memory_types` to exclude specific memory types from retrieval
 
         Args:
           question: The question to query against user's memories
 
           user_id: Unique identifier for the user
+
+          filter_memory_types:
+              Optional list of memory types to exclude from retrieval. Valid types:
+              'episodic', 'preference', 'identity', 'short_term'
 
           session_id: Optional session identifier for conversation context
 
@@ -313,6 +324,7 @@ class AsyncMachineResource(AsyncAPIResource):
                 {
                     "question": question,
                     "user_id": user_id,
+                    "filter_memory_types": filter_memory_types,
                     "session_id": session_id,
                 },
                 machine_query_params.MachineQueryParams,

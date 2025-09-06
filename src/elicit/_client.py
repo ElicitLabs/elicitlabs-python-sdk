@@ -21,7 +21,7 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import users, health, machine, api_keys, inference
+from .resources import users, health, machine, api_keys
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import ModalError, APIStatusError
 from ._base_client import (
@@ -35,10 +35,9 @@ __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Modal", "A
 
 
 class Modal(SyncAPIClient):
-    inference: inference.InferenceResource
+    machine: machine.MachineResource
     users: users.UsersResource
     data: data.DataResource
-    machine: machine.MachineResource
     api_keys: api_keys.APIKeysResource
     health: health.HealthResource
     with_raw_response: ModalWithRawResponse
@@ -98,10 +97,9 @@ class Modal(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.inference = inference.InferenceResource(self)
+        self.machine = machine.MachineResource(self)
         self.users = users.UsersResource(self)
         self.data = data.DataResource(self)
-        self.machine = machine.MachineResource(self)
         self.api_keys = api_keys.APIKeysResource(self)
         self.health = health.HealthResource(self)
         self.with_raw_response = ModalWithRawResponse(self)
@@ -213,10 +211,9 @@ class Modal(SyncAPIClient):
 
 
 class AsyncModal(AsyncAPIClient):
-    inference: inference.AsyncInferenceResource
+    machine: machine.AsyncMachineResource
     users: users.AsyncUsersResource
     data: data.AsyncDataResource
-    machine: machine.AsyncMachineResource
     api_keys: api_keys.AsyncAPIKeysResource
     health: health.AsyncHealthResource
     with_raw_response: AsyncModalWithRawResponse
@@ -276,10 +273,9 @@ class AsyncModal(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.inference = inference.AsyncInferenceResource(self)
+        self.machine = machine.AsyncMachineResource(self)
         self.users = users.AsyncUsersResource(self)
         self.data = data.AsyncDataResource(self)
-        self.machine = machine.AsyncMachineResource(self)
         self.api_keys = api_keys.AsyncAPIKeysResource(self)
         self.health = health.AsyncHealthResource(self)
         self.with_raw_response = AsyncModalWithRawResponse(self)
@@ -392,40 +388,36 @@ class AsyncModal(AsyncAPIClient):
 
 class ModalWithRawResponse:
     def __init__(self, client: Modal) -> None:
-        self.inference = inference.InferenceResourceWithRawResponse(client.inference)
+        self.machine = machine.MachineResourceWithRawResponse(client.machine)
         self.users = users.UsersResourceWithRawResponse(client.users)
         self.data = data.DataResourceWithRawResponse(client.data)
-        self.machine = machine.MachineResourceWithRawResponse(client.machine)
         self.api_keys = api_keys.APIKeysResourceWithRawResponse(client.api_keys)
         self.health = health.HealthResourceWithRawResponse(client.health)
 
 
 class AsyncModalWithRawResponse:
     def __init__(self, client: AsyncModal) -> None:
-        self.inference = inference.AsyncInferenceResourceWithRawResponse(client.inference)
+        self.machine = machine.AsyncMachineResourceWithRawResponse(client.machine)
         self.users = users.AsyncUsersResourceWithRawResponse(client.users)
         self.data = data.AsyncDataResourceWithRawResponse(client.data)
-        self.machine = machine.AsyncMachineResourceWithRawResponse(client.machine)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithRawResponse(client.api_keys)
         self.health = health.AsyncHealthResourceWithRawResponse(client.health)
 
 
 class ModalWithStreamedResponse:
     def __init__(self, client: Modal) -> None:
-        self.inference = inference.InferenceResourceWithStreamingResponse(client.inference)
+        self.machine = machine.MachineResourceWithStreamingResponse(client.machine)
         self.users = users.UsersResourceWithStreamingResponse(client.users)
         self.data = data.DataResourceWithStreamingResponse(client.data)
-        self.machine = machine.MachineResourceWithStreamingResponse(client.machine)
         self.api_keys = api_keys.APIKeysResourceWithStreamingResponse(client.api_keys)
         self.health = health.HealthResourceWithStreamingResponse(client.health)
 
 
 class AsyncModalWithStreamedResponse:
     def __init__(self, client: AsyncModal) -> None:
-        self.inference = inference.AsyncInferenceResourceWithStreamingResponse(client.inference)
+        self.machine = machine.AsyncMachineResourceWithStreamingResponse(client.machine)
         self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)
         self.data = data.AsyncDataResourceWithStreamingResponse(client.data)
-        self.machine = machine.AsyncMachineResourceWithStreamingResponse(client.machine)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithStreamingResponse(client.api_keys)
         self.health = health.AsyncHealthResourceWithStreamingResponse(client.health)
 

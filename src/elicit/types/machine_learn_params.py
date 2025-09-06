@@ -18,9 +18,6 @@ class MachineLearnParams(TypedDict, total=False):
     datetime_input: Optional[str]
     """ISO format datetime string for the message timestamp"""
 
-    debug: Optional[bool]
-    """Whether to process synchronously for debugging"""
-
     session_id: Optional[str]
     """Optional session identifier for conversation context"""
 

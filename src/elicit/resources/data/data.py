@@ -62,6 +62,7 @@ class DataResource(SyncAPIResource):
         payload: Union[str, Dict[str, object]],
         user_id: str,
         filename: Optional[str] | NotGiven = NOT_GIVEN,
+        session_id: Optional[str] | NotGiven = NOT_GIVEN,
         timestamp_override: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -96,6 +97,9 @@ class DataResource(SyncAPIResource):
 
           filename: Filename of the uploaded file
 
+          session_id: Session ID for grouping related ingested content and enabling session-based
+              retrieval
+
           timestamp_override: ISO-8601 timestamp to preserve original data moment
 
           extra_headers: Send extra headers
@@ -114,6 +118,7 @@ class DataResource(SyncAPIResource):
                     "payload": payload,
                     "user_id": user_id,
                     "filename": filename,
+                    "session_id": session_id,
                     "timestamp_override": timestamp_override,
                 },
                 data_ingest_params.DataIngestParams,
@@ -156,6 +161,7 @@ class AsyncDataResource(AsyncAPIResource):
         payload: Union[str, Dict[str, object]],
         user_id: str,
         filename: Optional[str] | NotGiven = NOT_GIVEN,
+        session_id: Optional[str] | NotGiven = NOT_GIVEN,
         timestamp_override: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -190,6 +196,9 @@ class AsyncDataResource(AsyncAPIResource):
 
           filename: Filename of the uploaded file
 
+          session_id: Session ID for grouping related ingested content and enabling session-based
+              retrieval
+
           timestamp_override: ISO-8601 timestamp to preserve original data moment
 
           extra_headers: Send extra headers
@@ -208,6 +217,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "payload": payload,
                     "user_id": user_id,
                     "filename": filename,
+                    "session_id": session_id,
                     "timestamp_override": timestamp_override,
                 },
                 data_ingest_params.DataIngestParams,

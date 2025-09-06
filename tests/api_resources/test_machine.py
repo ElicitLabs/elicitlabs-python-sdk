@@ -33,7 +33,6 @@ class TestMachine:
             message="I prefer to have coffee in the morning",
             user_id="123e4567-e89b-12d3-a456-426614174000",
             datetime_input="2024-01-01T10:00:00Z",
-            debug=False,
             session_id="session_123",
             speaker="user",
         )
@@ -82,6 +81,7 @@ class TestMachine:
         machine = client.machine.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
+            filter_memory_types=["episodic", "identity"],
             session_id="session_123",
         )
         assert_matches_type(MachineQueryResponse, machine, path=["response"])
@@ -136,7 +136,6 @@ class TestAsyncMachine:
             message="I prefer to have coffee in the morning",
             user_id="123e4567-e89b-12d3-a456-426614174000",
             datetime_input="2024-01-01T10:00:00Z",
-            debug=False,
             session_id="session_123",
             speaker="user",
         )
@@ -185,6 +184,7 @@ class TestAsyncMachine:
         machine = await async_client.machine.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
+            filter_memory_types=["episodic", "identity"],
             session_id="session_123",
         )
         assert_matches_type(MachineQueryResponse, machine, path=["response"])

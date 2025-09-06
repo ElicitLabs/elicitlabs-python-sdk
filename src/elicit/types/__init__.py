@@ -12,7 +12,5 @@ from .machine_learn_response import MachineLearnResponse as MachineLearnResponse
 from .machine_query_response import MachineQueryResponse as MachineQueryResponse
 from .api_key_create_response import APIKeyCreateResponse as APIKeyCreateResponse
 from .api_key_revoke_response import APIKeyRevokeResponse as APIKeyRevokeResponse
-from .inference_process_params import InferenceProcessParams as InferenceProcessParams
 from .user_create_or_get_params import UserCreateOrGetParams as UserCreateOrGetParams
-from .inference_process_response import InferenceProcessResponse as InferenceProcessResponse
 from .user_create_or_get_response import UserCreateOrGetResponse as UserCreateOrGetResponse
