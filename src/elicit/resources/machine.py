@@ -7,7 +7,7 @@ from typing import Dict, Union, Iterable, Optional
 import httpx
 
 from ..types import machine_learn_params, machine_query_params
-from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven, SequenceNotStr
+from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -49,15 +49,15 @@ class MachineResource(SyncAPIResource):
         *,
         message: Union[Iterable[Dict[str, object]], Dict[str, object], str],
         user_id: str,
-        datetime_input: Optional[str] | NotGiven = NOT_GIVEN,
-        session_id: Optional[str] | NotGiven = NOT_GIVEN,
-        speaker: str | NotGiven = NOT_GIVEN,
+        datetime_input: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        speaker: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineLearnResponse:
         """
         Process user messages to extract and store episodic memories, preferences, and
@@ -113,14 +113,14 @@ class MachineResource(SyncAPIResource):
         *,
         question: str,
         user_id: str,
-        filter_memory_types: Optional[SequenceNotStr[str]] | NotGiven = NOT_GIVEN,
-        session_id: Optional[str] | NotGiven = NOT_GIVEN,
+        filter_memory_types: Optional[SequenceNotStr[str]] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineQueryResponse:
         """
         Query user's stored memories, preferences, and identity attributes based on a
@@ -205,15 +205,15 @@ class AsyncMachineResource(AsyncAPIResource):
         *,
         message: Union[Iterable[Dict[str, object]], Dict[str, object], str],
         user_id: str,
-        datetime_input: Optional[str] | NotGiven = NOT_GIVEN,
-        session_id: Optional[str] | NotGiven = NOT_GIVEN,
-        speaker: str | NotGiven = NOT_GIVEN,
+        datetime_input: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        speaker: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineLearnResponse:
         """
         Process user messages to extract and store episodic memories, preferences, and
@@ -269,14 +269,14 @@ class AsyncMachineResource(AsyncAPIResource):
         *,
         question: str,
         user_id: str,
-        filter_memory_types: Optional[SequenceNotStr[str]] | NotGiven = NOT_GIVEN,
-        session_id: Optional[str] | NotGiven = NOT_GIVEN,
+        filter_memory_types: Optional[SequenceNotStr[str]] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineQueryResponse:
         """
         Query user's stored memories, preferences, and identity attributes based on a
