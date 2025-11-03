@@ -65,7 +65,7 @@ class UsersResource(SyncAPIResource):
             - Returns user details upon successful creation or retrieval
             - Uses "create or get" pattern for idempotent behavior
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
           email: User's email address
@@ -141,7 +141,7 @@ class AsyncUsersResource(AsyncAPIResource):
             - Returns user details upon successful creation or retrieval
             - Uses "create or get" pattern for idempotent behavior
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
           email: User's email address

@@ -52,13 +52,11 @@ Methods:
 Types:
 
 ```python
-from elicit.types import APIKeyCreateResponse, APIKeyListResponse, APIKeyRevokeResponse
+from elicit.types import APIKeyRevokeResponse
 ```
 
 Methods:
 
-- <code title="post /v1/api-keys/">client.api_keys.<a href="./src/elicit/resources/api_keys.py">create</a>(\*\*<a href="src/elicit/types/api_key_create_params.py">params</a>) -> <a href="./src/elicit/types/api_key_create_response.py">APIKeyCreateResponse</a></code>
-- <code title="get /v1/api-keys/">client.api_keys.<a href="./src/elicit/resources/api_keys.py">list</a>() -> <a href="./src/elicit/types/api_key_list_response.py">APIKeyListResponse</a></code>
 - <code title="delete /v1/api-keys/{api_key_id}">client.api_keys.<a href="./src/elicit/resources/api_keys.py">revoke</a>(api_key_id) -> <a href="./src/elicit/types/api_key_revoke_response.py">APIKeyRevokeResponse</a></code>
 
 # Health

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Union, Iterable, Optional
+from typing import Dict, Optional
 
 import httpx
 
@@ -47,11 +47,10 @@ class MachineResource(SyncAPIResource):
     def learn(
         self,
         *,
-        message: Union[Iterable[Dict[str, object]], Dict[str, object], str],
+        message: Dict[str, object],
         user_id: str,
         datetime_input: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        speaker: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -60,27 +59,35 @@ class MachineResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineLearnResponse:
         """
-        Process user messages to extract and store episodic memories, preferences, and
-        identity attributes.
+        Process a single user message and store it in conversation history.
 
             This endpoint:
             - Validates authentication tokens
-            - Processes conversation messages for memory extraction
-            - Queues learning jobs for asynchronous processing (default)
+            - Stores message in conversation_turns table immediately
+             - **Returns immediately** after storing the message (fast response ~50-100ms)
+            - Asynchronously processes memory updates in the background:
+              * Updates short-term memory when needed (every 10 turns)
+              * Checks and triggers long-term memory extraction when thresholds are met:
+                - 25+ unprocessed messages in session
+                - New session detected with old unprocessed messages
+                - Messages older than 2 hours unprocessed
             - Maintains conversation state and session continuity
+
+            **Performance**: Uses FastAPI BackgroundTasks with 120s graceful shutdown timeout.
+            Background tasks are guaranteed to complete unless deployments/restarts occur.
 
             **Authentication**: Requires valid JWT token in Authorization header
 
+            **Note**: This endpoint handles ALL conversation processing. Use `/v1/data/ingest` only for files and documents.
+
         Args:
-          message: Message content to learn from
+          message: Single message to learn from with 'role' and 'content' fields
 
           user_id: Unique identifier for the user
 
           datetime_input: ISO format datetime string for the message timestamp
 
           session_id: Optional session identifier for conversation context
-
-          speaker: Speaker of the message
 
           extra_headers: Send extra headers
 
@@ -98,7 +105,6 @@ class MachineResource(SyncAPIResource):
                     "user_id": user_id,
                     "datetime_input": datetime_input,
                     "session_id": session_id,
-                    "speaker": speaker,
                 },
                 machine_learn_params.MachineLearnParams,
             ),
@@ -203,11 +209,10 @@ class AsyncMachineResource(AsyncAPIResource):
     async def learn(
         self,
         *,
-        message: Union[Iterable[Dict[str, object]], Dict[str, object], str],
+        message: Dict[str, object],
         user_id: str,
         datetime_input: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        speaker: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -216,27 +221,35 @@ class AsyncMachineResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineLearnResponse:
         """
-        Process user messages to extract and store episodic memories, preferences, and
-        identity attributes.
+        Process a single user message and store it in conversation history.
 
             This endpoint:
             - Validates authentication tokens
-            - Processes conversation messages for memory extraction
-            - Queues learning jobs for asynchronous processing (default)
+            - Stores message in conversation_turns table immediately
+             - **Returns immediately** after storing the message (fast response ~50-100ms)
+            - Asynchronously processes memory updates in the background:
+              * Updates short-term memory when needed (every 10 turns)
+              * Checks and triggers long-term memory extraction when thresholds are met:
+                - 25+ unprocessed messages in session
+                - New session detected with old unprocessed messages
+                - Messages older than 2 hours unprocessed
             - Maintains conversation state and session continuity
+
+            **Performance**: Uses FastAPI BackgroundTasks with 120s graceful shutdown timeout.
+            Background tasks are guaranteed to complete unless deployments/restarts occur.
 
             **Authentication**: Requires valid JWT token in Authorization header
 
+            **Note**: This endpoint handles ALL conversation processing. Use `/v1/data/ingest` only for files and documents.
+
         Args:
-          message: Message content to learn from
+          message: Single message to learn from with 'role' and 'content' fields
 
           user_id: Unique identifier for the user
 
           datetime_input: ISO format datetime string for the message timestamp
 
           session_id: Optional session identifier for conversation context
-
-          speaker: Speaker of the message
 
           extra_headers: Send extra headers
 
@@ -254,7 +267,6 @@ class AsyncMachineResource(AsyncAPIResource):
                     "user_id": user_id,
                     "datetime_input": datetime_input,
                     "session_id": session_id,
-                    "speaker": speaker,
                 },
                 machine_learn_params.MachineLearnParams,
             ),
