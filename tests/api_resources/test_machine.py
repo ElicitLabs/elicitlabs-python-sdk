@@ -21,7 +21,10 @@ class TestMachine:
     @parametrize
     def test_method_learn(self, client: Modal) -> None:
         machine = client.machine.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
         assert_matches_type(MachineLearnResponse, machine, path=["response"])
@@ -30,11 +33,13 @@ class TestMachine:
     @parametrize
     def test_method_learn_with_all_params(self, client: Modal) -> None:
         machine = client.machine.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
             datetime_input="2024-01-01T10:00:00Z",
             session_id="session_123",
-            speaker="user",
         )
         assert_matches_type(MachineLearnResponse, machine, path=["response"])
 
@@ -42,7 +47,10 @@ class TestMachine:
     @parametrize
     def test_raw_response_learn(self, client: Modal) -> None:
         response = client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
 
@@ -55,7 +63,10 @@ class TestMachine:
     @parametrize
     def test_streaming_response_learn(self, client: Modal) -> None:
         with client.machine.with_streaming_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         ) as response:
             assert not response.is_closed
@@ -124,7 +135,10 @@ class TestAsyncMachine:
     @parametrize
     async def test_method_learn(self, async_client: AsyncModal) -> None:
         machine = await async_client.machine.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
         assert_matches_type(MachineLearnResponse, machine, path=["response"])
@@ -133,11 +147,13 @@ class TestAsyncMachine:
     @parametrize
     async def test_method_learn_with_all_params(self, async_client: AsyncModal) -> None:
         machine = await async_client.machine.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
             datetime_input="2024-01-01T10:00:00Z",
             session_id="session_123",
-            speaker="user",
         )
         assert_matches_type(MachineLearnResponse, machine, path=["response"])
 
@@ -145,7 +161,10 @@ class TestAsyncMachine:
     @parametrize
     async def test_raw_response_learn(self, async_client: AsyncModal) -> None:
         response = await async_client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
 
@@ -158,7 +177,10 @@ class TestAsyncMachine:
     @parametrize
     async def test_streaming_response_learn(self, async_client: AsyncModal) -> None:
         async with async_client.machine.with_streaming_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         ) as response:
             assert not response.is_closed

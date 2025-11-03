@@ -736,7 +736,11 @@ class TestModal:
 
         with pytest.raises(APITimeoutError):
             client.machine.with_streaming_response.learn(
-                message="I prefer to have coffee in the morning", user_id="123e4567-e89b-12d3-a456-426614174000"
+                message={
+                    "content": "bar",
+                    "role": "bar",
+                },
+                user_id="123e4567-e89b-12d3-a456-426614174000",
             ).__enter__()
 
         assert _get_open_connections(client) == 0
@@ -748,7 +752,11 @@ class TestModal:
 
         with pytest.raises(APIStatusError):
             client.machine.with_streaming_response.learn(
-                message="I prefer to have coffee in the morning", user_id="123e4567-e89b-12d3-a456-426614174000"
+                message={
+                    "content": "bar",
+                    "role": "bar",
+                },
+                user_id="123e4567-e89b-12d3-a456-426614174000",
             ).__enter__()
         assert _get_open_connections(client) == 0
 
@@ -779,7 +787,11 @@ class TestModal:
         respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
 
         response = client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning", user_id="123e4567-e89b-12d3-a456-426614174000"
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
+            user_id="123e4567-e89b-12d3-a456-426614174000",
         )
 
         assert response.retries_taken == failures_before_success
@@ -803,7 +815,10 @@ class TestModal:
         respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
 
         response = client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
             extra_headers={"x-stainless-retry-count": Omit()},
         )
@@ -830,7 +845,10 @@ class TestModal:
         respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
 
         response = client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
             extra_headers={"x-stainless-retry-count": "42"},
         )
@@ -1578,7 +1596,11 @@ class TestAsyncModal:
 
         with pytest.raises(APITimeoutError):
             await async_client.machine.with_streaming_response.learn(
-                message="I prefer to have coffee in the morning", user_id="123e4567-e89b-12d3-a456-426614174000"
+                message={
+                    "content": "bar",
+                    "role": "bar",
+                },
+                user_id="123e4567-e89b-12d3-a456-426614174000",
             ).__aenter__()
 
         assert _get_open_connections(async_client) == 0
@@ -1590,7 +1612,11 @@ class TestAsyncModal:
 
         with pytest.raises(APIStatusError):
             await async_client.machine.with_streaming_response.learn(
-                message="I prefer to have coffee in the morning", user_id="123e4567-e89b-12d3-a456-426614174000"
+                message={
+                    "content": "bar",
+                    "role": "bar",
+                },
+                user_id="123e4567-e89b-12d3-a456-426614174000",
             ).__aenter__()
         assert _get_open_connections(async_client) == 0
 
@@ -1621,7 +1647,11 @@ class TestAsyncModal:
         respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
 
         response = await client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning", user_id="123e4567-e89b-12d3-a456-426614174000"
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
+            user_id="123e4567-e89b-12d3-a456-426614174000",
         )
 
         assert response.retries_taken == failures_before_success
@@ -1647,7 +1677,10 @@ class TestAsyncModal:
         respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
 
         response = await client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
             extra_headers={"x-stainless-retry-count": Omit()},
         )
@@ -1674,7 +1707,10 @@ class TestAsyncModal:
         respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
 
         response = await client.machine.with_raw_response.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
             extra_headers={"x-stainless-retry-count": "42"},
         )

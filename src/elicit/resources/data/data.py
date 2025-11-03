@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Iterable, Optional
 
 import httpx
 
@@ -59,7 +59,7 @@ class DataResource(SyncAPIResource):
         self,
         *,
         content_type: str,
-        payload: Union[str, Dict[str, object]],
+        payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
         filename: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -91,7 +91,7 @@ class DataResource(SyncAPIResource):
         Args:
           content_type: MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')
 
-          payload: Raw content as string, object, or base64 encoded data
+          payload: Raw content as string, object, list (for messages), or base64 encoded data
 
           user_id: User ID to associate the data with
 
@@ -158,7 +158,7 @@ class AsyncDataResource(AsyncAPIResource):
         self,
         *,
         content_type: str,
-        payload: Union[str, Dict[str, object]],
+        payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
         filename: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -190,7 +190,7 @@ class AsyncDataResource(AsyncAPIResource):
         Args:
           content_type: MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')
 
-          payload: Raw content as string, object, or base64 encoded data
+          payload: Raw content as string, object, list (for messages), or base64 encoded data
 
           user_id: User ID to associate the data with
 

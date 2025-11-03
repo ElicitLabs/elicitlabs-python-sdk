@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Dict, Union, Iterable, Optional
+from typing import Dict, Optional
 from typing_extensions import Required, TypedDict
 
 __all__ = ["MachineLearnParams"]
 
 
 class MachineLearnParams(TypedDict, total=False):
-    message: Required[Union[Iterable[Dict[str, object]], Dict[str, object], str]]
-    """Message content to learn from"""
+    message: Required[Dict[str, object]]
+    """Single message to learn from with 'role' and 'content' fields"""
 
     user_id: Required[str]
     """Unique identifier for the user"""
@@ -20,6 +20,3 @@ class MachineLearnParams(TypedDict, total=False):
 
     session_id: Optional[str]
     """Optional session identifier for conversation context"""
-
-    speaker: str
-    """Speaker of the message"""

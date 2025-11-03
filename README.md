@@ -33,7 +33,10 @@ client = Modal(
 )
 
 response = client.machine.learn(
-    message="I prefer to have coffee in the morning",
+    message={
+        "content": "bar",
+        "role": "bar",
+    },
     user_id="123e4567-e89b-12d3-a456-426614174000",
 )
 print(response.session_id)
@@ -60,7 +63,10 @@ client = AsyncModal(
 
 async def main() -> None:
     response = await client.machine.learn(
-        message="I prefer to have coffee in the morning",
+        message={
+            "content": "bar",
+            "role": "bar",
+        },
         user_id="123e4567-e89b-12d3-a456-426614174000",
     )
     print(response.session_id)
@@ -96,7 +102,10 @@ async def main() -> None:
         http_client=DefaultAioHttpClient(),
     ) as client:
         response = await client.machine.learn(
-            message="I prefer to have coffee in the morning",
+            message={
+                "content": "bar",
+                "role": "bar",
+            },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
         print(response.session_id)
@@ -131,7 +140,10 @@ client = Modal()
 
 try:
     client.machine.learn(
-        message="I prefer to have coffee in the morning",
+        message={
+            "content": "bar",
+            "role": "bar",
+        },
         user_id="123e4567-e89b-12d3-a456-426614174000",
     )
 except elicit.APIConnectionError as e:
@@ -177,7 +189,10 @@ client = Modal(
 
 # Or, configure per-request:
 client.with_options(max_retries=5).machine.learn(
-    message="I prefer to have coffee in the morning",
+    message={
+        "content": "bar",
+        "role": "bar",
+    },
     user_id="123e4567-e89b-12d3-a456-426614174000",
 )
 ```
@@ -203,7 +218,10 @@ client = Modal(
 
 # Override per-request:
 client.with_options(timeout=5.0).machine.learn(
-    message="I prefer to have coffee in the morning",
+    message={
+        "content": "bar",
+        "role": "bar",
+    },
     user_id="123e4567-e89b-12d3-a456-426614174000",
 )
 ```
@@ -247,7 +265,10 @@ from elicit import Modal
 
 client = Modal()
 response = client.machine.with_raw_response.learn(
-    message="I prefer to have coffee in the morning",
+    message={
+        "content": "bar",
+        "role": "bar",
+    },
     user_id="123e4567-e89b-12d3-a456-426614174000",
 )
 print(response.headers.get('X-My-Header'))
@@ -268,7 +289,10 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 
 ```python
 with client.machine.with_streaming_response.learn(
-    message="I prefer to have coffee in the morning",
+    message={
+        "content": "bar",
+        "role": "bar",
+    },
     user_id="123e4567-e89b-12d3-a456-426614174000",
 ) as response:
     print(response.headers.get("X-My-Header"))
