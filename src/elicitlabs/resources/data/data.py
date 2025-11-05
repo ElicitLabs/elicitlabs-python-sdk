@@ -63,7 +63,7 @@ class DataResource(SyncAPIResource):
         user_id: str,
         filename: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        timestamp_override: Optional[str] | Omit = omit,
+        timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -72,21 +72,39 @@ class DataResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DataIngestResponse:
         """
-        Generic data ingestion endpoint that accepts various content types and v1 them
-        for processing.
+        Ingest data for asynchronous processing and memory integration.
 
-            This endpoint follows the "thin edge, fat worker" pattern:
-            - Validates authentication and request data
-            - Uploads content to S3 storage
-            - Queues processing job for async workers
-            - Returns immediately with job tracking information
+            Accepts various content types (text, messages, files) and processes them to extract information
+            and integrate it into the user's memory system. Returns a job_id for tracking status.
 
-            **Payload Formats:**
-            - Raw string content
-            - JSON object with structured data
-            - Base64 encoded binary data (for file content)
+            **Request Parameters:**
+            - user_id (str, required): User or persona ID
+            - content_type (str, required): One of: "text", "text/plain", "text/markdown", "messages", "application/json", "file:application/pdf", "file:image/png", "file:image/jpeg"
+            - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
+            - session_id (str, optional): Groups related content for session-based retrieval
+            - timestamp (str, optional): ISO-8601 timestamp for historical data
+            - filename (str, optional): Original filename for file uploads
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Response:**
+            - job_id (str): Unique identifier for tracking the processing job
+            - user_id (str): Confirmed user ID
+            - content_type (str): Confirmed content type
+            - status (str): Job status ('queued', 'accepted')
+            - message (str): Status message
+            - created_at (str): ISO-8601 timestamp
+            - success (bool): True if accepted
+
+            **Example:**
+            ```json
+            {
+                "user_id": "user-123",
+                "content_type": "text",
+                "payload": "Meeting notes from today's discussion"
+            }
+            ```
+
+            Returns 202 Accepted with job_id. Use /job/status to check processing status.
+            Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
 
         Args:
           content_type: MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')
@@ -100,7 +118,7 @@ class DataResource(SyncAPIResource):
           session_id: Session ID for grouping related ingested content and enabling session-based
               retrieval
 
-          timestamp_override: ISO-8601 timestamp to preserve original data moment
+          timestamp: ISO-8601 timestamp to preserve original data moment
 
           extra_headers: Send extra headers
 
@@ -119,7 +137,7 @@ class DataResource(SyncAPIResource):
                     "user_id": user_id,
                     "filename": filename,
                     "session_id": session_id,
-                    "timestamp_override": timestamp_override,
+                    "timestamp": timestamp,
                 },
                 data_ingest_params.DataIngestParams,
             ),
@@ -162,7 +180,7 @@ class AsyncDataResource(AsyncAPIResource):
         user_id: str,
         filename: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        timestamp_override: Optional[str] | Omit = omit,
+        timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -171,21 +189,39 @@ class AsyncDataResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DataIngestResponse:
         """
-        Generic data ingestion endpoint that accepts various content types and v1 them
-        for processing.
+        Ingest data for asynchronous processing and memory integration.
 
-            This endpoint follows the "thin edge, fat worker" pattern:
-            - Validates authentication and request data
-            - Uploads content to S3 storage
-            - Queues processing job for async workers
-            - Returns immediately with job tracking information
+            Accepts various content types (text, messages, files) and processes them to extract information
+            and integrate it into the user's memory system. Returns a job_id for tracking status.
 
-            **Payload Formats:**
-            - Raw string content
-            - JSON object with structured data
-            - Base64 encoded binary data (for file content)
+            **Request Parameters:**
+            - user_id (str, required): User or persona ID
+            - content_type (str, required): One of: "text", "text/plain", "text/markdown", "messages", "application/json", "file:application/pdf", "file:image/png", "file:image/jpeg"
+            - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
+            - session_id (str, optional): Groups related content for session-based retrieval
+            - timestamp (str, optional): ISO-8601 timestamp for historical data
+            - filename (str, optional): Original filename for file uploads
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Response:**
+            - job_id (str): Unique identifier for tracking the processing job
+            - user_id (str): Confirmed user ID
+            - content_type (str): Confirmed content type
+            - status (str): Job status ('queued', 'accepted')
+            - message (str): Status message
+            - created_at (str): ISO-8601 timestamp
+            - success (bool): True if accepted
+
+            **Example:**
+            ```json
+            {
+                "user_id": "user-123",
+                "content_type": "text",
+                "payload": "Meeting notes from today's discussion"
+            }
+            ```
+
+            Returns 202 Accepted with job_id. Use /job/status to check processing status.
+            Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
 
         Args:
           content_type: MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')
@@ -199,7 +235,7 @@ class AsyncDataResource(AsyncAPIResource):
           session_id: Session ID for grouping related ingested content and enabling session-based
               retrieval
 
-          timestamp_override: ISO-8601 timestamp to preserve original data moment
+          timestamp: ISO-8601 timestamp to preserve original data moment
 
           extra_headers: Send extra headers
 
@@ -218,7 +254,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "user_id": user_id,
                     "filename": filename,
                     "session_id": session_id,
-                    "timestamp_override": timestamp_override,
+                    "timestamp": timestamp,
                 },
                 data_ingest_params.DataIngestParams,
             ),

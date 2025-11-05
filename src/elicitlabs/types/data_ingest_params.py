@@ -27,5 +27,5 @@ class DataIngestParams(TypedDict, total=False):
     retrieval
     """
 
-    timestamp_override: Optional[str]
+    timestamp: Optional[str]
     """ISO-8601 timestamp to preserve original data moment"""

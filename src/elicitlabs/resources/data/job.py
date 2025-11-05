@@ -53,13 +53,26 @@ class JobResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> JobRetrieveStatusResponse:
         """
-        return the job status for a specific job.
+        Retrieve the current processing status of an ingestion job.
 
-            This endpoint:
-            - Validates authentication tokens
-            - Retrieves job status and metadata from the queue
+            Use the job_id returned from /ingest to check if processing is complete.
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Request Parameters:**
+            - job_id (str, required): Unique identifier from /ingest response
+
+            **Response:**
+            - job_id (str): The requested job identifier
+            - status (str): Current status - "queued", "processing", "completed", "failed", or "cancelled"
+
+            **Example:**
+            ```json
+            {
+                "job_id": "123e4567-e89b-12d3-a456-426614174000"
+            }
+            ```
+
+            Returns 200 OK with current status. Poll periodically until status is "completed" or "failed".
+            Requires JWT authentication.
 
         Args:
           job_id: Unique identifier for the job
@@ -114,13 +127,26 @@ class AsyncJobResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> JobRetrieveStatusResponse:
         """
-        return the job status for a specific job.
+        Retrieve the current processing status of an ingestion job.
 
-            This endpoint:
-            - Validates authentication tokens
-            - Retrieves job status and metadata from the queue
+            Use the job_id returned from /ingest to check if processing is complete.
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Request Parameters:**
+            - job_id (str, required): Unique identifier from /ingest response
+
+            **Response:**
+            - job_id (str): The requested job identifier
+            - status (str): Current status - "queued", "processing", "completed", "failed", or "cancelled"
+
+            **Example:**
+            ```json
+            {
+                "job_id": "123e4567-e89b-12d3-a456-426614174000"
+            }
+            ```
+
+            Returns 200 OK with current status. Poll periodically until status is "completed" or "failed".
+            Requires JWT authentication.
 
         Args:
           job_id: Unique identifier for the job
