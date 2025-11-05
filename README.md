@@ -32,7 +32,7 @@ client = Elicit(
     api_key=os.environ.get("ELICIT_LABS_API_KEY"),  # This is the default and can be omitted
 )
 
-response = client.machine.learn(
+response = client.modal.learn(
     message={
         "content": "bar",
         "role": "bar",
@@ -62,7 +62,7 @@ client = AsyncElicit(
 
 
 async def main() -> None:
-    response = await client.machine.learn(
+    response = await client.modal.learn(
         message={
             "content": "bar",
             "role": "bar",
@@ -101,7 +101,7 @@ async def main() -> None:
         api_key="My API Key",
         http_client=DefaultAioHttpClient(),
     ) as client:
-        response = await client.machine.learn(
+        response = await client.modal.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -139,7 +139,7 @@ from elicitlabs import Elicit
 client = Elicit()
 
 try:
-    client.machine.learn(
+    client.modal.learn(
         message={
             "content": "bar",
             "role": "bar",
@@ -188,7 +188,7 @@ client = Elicit(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).machine.learn(
+client.with_options(max_retries=5).modal.learn(
     message={
         "content": "bar",
         "role": "bar",
@@ -217,7 +217,7 @@ client = Elicit(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).machine.learn(
+client.with_options(timeout=5.0).modal.learn(
     message={
         "content": "bar",
         "role": "bar",
@@ -264,7 +264,7 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from elicitlabs import Elicit
 
 client = Elicit()
-response = client.machine.with_raw_response.learn(
+response = client.modal.with_raw_response.learn(
     message={
         "content": "bar",
         "role": "bar",
@@ -273,8 +273,8 @@ response = client.machine.with_raw_response.learn(
 )
 print(response.headers.get('X-My-Header'))
 
-machine = response.parse()  # get the object that `machine.learn()` would have returned
-print(machine.session_id)
+modal = response.parse()  # get the object that `modal.learn()` would have returned
+print(modal.session_id)
 ```
 
 These methods return an [`APIResponse`](https://github.com/ElicitLabs/elicitlabs-python-sdk/tree/main/src/elicitlabs/_response.py) object.
@@ -288,7 +288,7 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.machine.with_streaming_response.learn(
+with client.modal.with_streaming_response.learn(
     message={
         "content": "bar",
         "role": "bar",

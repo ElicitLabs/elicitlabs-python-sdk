@@ -732,10 +732,10 @@ class TestElicit:
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, client: Elicit) -> None:
-        respx_mock.post("/v1/machine/learn").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/modal/learn").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.machine.with_streaming_response.learn(
+            client.modal.with_streaming_response.learn(
                 message={
                     "content": "bar",
                     "role": "bar",
@@ -748,10 +748,10 @@ class TestElicit:
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: Elicit) -> None:
-        respx_mock.post("/v1/machine/learn").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/modal/learn").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.machine.with_streaming_response.learn(
+            client.modal.with_streaming_response.learn(
                 message={
                     "content": "bar",
                     "role": "bar",
@@ -784,9 +784,9 @@ class TestElicit:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/modal/learn").mock(side_effect=retry_handler)
 
-        response = client.machine.with_raw_response.learn(
+        response = client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -814,9 +814,9 @@ class TestElicit:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/modal/learn").mock(side_effect=retry_handler)
 
-        response = client.machine.with_raw_response.learn(
+        response = client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -844,9 +844,9 @@ class TestElicit:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/modal/learn").mock(side_effect=retry_handler)
 
-        response = client.machine.with_raw_response.learn(
+        response = client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -1596,10 +1596,10 @@ class TestAsyncElicit:
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncElicit) -> None:
-        respx_mock.post("/v1/machine/learn").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/modal/learn").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.machine.with_streaming_response.learn(
+            await async_client.modal.with_streaming_response.learn(
                 message={
                     "content": "bar",
                     "role": "bar",
@@ -1612,10 +1612,10 @@ class TestAsyncElicit:
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncElicit) -> None:
-        respx_mock.post("/v1/machine/learn").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/modal/learn").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.machine.with_streaming_response.learn(
+            await async_client.modal.with_streaming_response.learn(
                 message={
                     "content": "bar",
                     "role": "bar",
@@ -1648,9 +1648,9 @@ class TestAsyncElicit:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/modal/learn").mock(side_effect=retry_handler)
 
-        response = await client.machine.with_raw_response.learn(
+        response = await client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -1678,9 +1678,9 @@ class TestAsyncElicit:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/modal/learn").mock(side_effect=retry_handler)
 
-        response = await client.machine.with_raw_response.learn(
+        response = await client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -1708,9 +1708,9 @@ class TestAsyncElicit:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/machine/learn").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/modal/learn").mock(side_effect=retry_handler)
 
-        response = await client.machine.with_raw_response.learn(
+        response = await client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",

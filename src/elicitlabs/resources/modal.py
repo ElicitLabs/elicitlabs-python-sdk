@@ -6,7 +6,7 @@ from typing import Dict, Optional
 
 import httpx
 
-from ..types import machine_learn_params, machine_query_params
+from ..types import modal_learn_params, modal_query_params
 from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -18,31 +18,31 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.machine_learn_response import MachineLearnResponse
-from ..types.machine_query_response import MachineQueryResponse
+from ..types.modal_learn_response import ModalLearnResponse
+from ..types.modal_query_response import ModalQueryResponse
 
-__all__ = ["MachineResource", "AsyncMachineResource"]
+__all__ = ["ModalResource", "AsyncModalResource"]
 
 
-class MachineResource(SyncAPIResource):
+class ModalResource(SyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> MachineResourceWithRawResponse:
+    def with_raw_response(self) -> ModalResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/ElicitLabs/elicitlabs-python-sdk#accessing-raw-response-data-eg-headers
         """
-        return MachineResourceWithRawResponse(self)
+        return ModalResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> MachineResourceWithStreamingResponse:
+    def with_streaming_response(self) -> ModalResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/ElicitLabs/elicitlabs-python-sdk#with_streaming_response
         """
-        return MachineResourceWithStreamingResponse(self)
+        return ModalResourceWithStreamingResponse(self)
 
     def learn(
         self,
@@ -57,7 +57,7 @@ class MachineResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> MachineLearnResponse:
+    ) -> ModalLearnResponse:
         """
         Process a conversation message and update the user's memory system.
 
@@ -109,7 +109,7 @@ class MachineResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/v1/machine/learn",
+            "/v1/modal/learn",
             body=maybe_transform(
                 {
                     "message": message,
@@ -117,12 +117,12 @@ class MachineResource(SyncAPIResource):
                     "datetime_input": datetime_input,
                     "session_id": session_id,
                 },
-                machine_learn_params.MachineLearnParams,
+                modal_learn_params.ModalLearnParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=MachineLearnResponse,
+            cast_to=ModalLearnResponse,
         )
 
     def query(
@@ -138,7 +138,7 @@ class MachineResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> MachineQueryResponse:
+    ) -> ModalQueryResponse:
         """
         Query user's stored memories, preferences, and identity based on a natural
         language question.
@@ -190,7 +190,7 @@ class MachineResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/v1/machine/query",
+            "/v1/modal/query",
             body=maybe_transform(
                 {
                     "question": question,
@@ -198,34 +198,34 @@ class MachineResource(SyncAPIResource):
                     "filter_memory_types": filter_memory_types,
                     "session_id": session_id,
                 },
-                machine_query_params.MachineQueryParams,
+                modal_query_params.ModalQueryParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=MachineQueryResponse,
+            cast_to=ModalQueryResponse,
         )
 
 
-class AsyncMachineResource(AsyncAPIResource):
+class AsyncModalResource(AsyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> AsyncMachineResourceWithRawResponse:
+    def with_raw_response(self) -> AsyncModalResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/ElicitLabs/elicitlabs-python-sdk#accessing-raw-response-data-eg-headers
         """
-        return AsyncMachineResourceWithRawResponse(self)
+        return AsyncModalResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> AsyncMachineResourceWithStreamingResponse:
+    def with_streaming_response(self) -> AsyncModalResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/ElicitLabs/elicitlabs-python-sdk#with_streaming_response
         """
-        return AsyncMachineResourceWithStreamingResponse(self)
+        return AsyncModalResourceWithStreamingResponse(self)
 
     async def learn(
         self,
@@ -240,7 +240,7 @@ class AsyncMachineResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> MachineLearnResponse:
+    ) -> ModalLearnResponse:
         """
         Process a conversation message and update the user's memory system.
 
@@ -292,7 +292,7 @@ class AsyncMachineResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/v1/machine/learn",
+            "/v1/modal/learn",
             body=await async_maybe_transform(
                 {
                     "message": message,
@@ -300,12 +300,12 @@ class AsyncMachineResource(AsyncAPIResource):
                     "datetime_input": datetime_input,
                     "session_id": session_id,
                 },
-                machine_learn_params.MachineLearnParams,
+                modal_learn_params.ModalLearnParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=MachineLearnResponse,
+            cast_to=ModalLearnResponse,
         )
 
     async def query(
@@ -321,7 +321,7 @@ class AsyncMachineResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> MachineQueryResponse:
+    ) -> ModalQueryResponse:
         """
         Query user's stored memories, preferences, and identity based on a natural
         language question.
@@ -373,7 +373,7 @@ class AsyncMachineResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/v1/machine/query",
+            "/v1/modal/query",
             body=await async_maybe_transform(
                 {
                     "question": question,
@@ -381,58 +381,58 @@ class AsyncMachineResource(AsyncAPIResource):
                     "filter_memory_types": filter_memory_types,
                     "session_id": session_id,
                 },
-                machine_query_params.MachineQueryParams,
+                modal_query_params.ModalQueryParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=MachineQueryResponse,
+            cast_to=ModalQueryResponse,
         )
 
 
-class MachineResourceWithRawResponse:
-    def __init__(self, machine: MachineResource) -> None:
-        self._machine = machine
+class ModalResourceWithRawResponse:
+    def __init__(self, modal: ModalResource) -> None:
+        self._modal = modal
 
         self.learn = to_raw_response_wrapper(
-            machine.learn,
+            modal.learn,
         )
         self.query = to_raw_response_wrapper(
-            machine.query,
+            modal.query,
         )
 
 
-class AsyncMachineResourceWithRawResponse:
-    def __init__(self, machine: AsyncMachineResource) -> None:
-        self._machine = machine
+class AsyncModalResourceWithRawResponse:
+    def __init__(self, modal: AsyncModalResource) -> None:
+        self._modal = modal
 
         self.learn = async_to_raw_response_wrapper(
-            machine.learn,
+            modal.learn,
         )
         self.query = async_to_raw_response_wrapper(
-            machine.query,
+            modal.query,
         )
 
 
-class MachineResourceWithStreamingResponse:
-    def __init__(self, machine: MachineResource) -> None:
-        self._machine = machine
+class ModalResourceWithStreamingResponse:
+    def __init__(self, modal: ModalResource) -> None:
+        self._modal = modal
 
         self.learn = to_streamed_response_wrapper(
-            machine.learn,
+            modal.learn,
         )
         self.query = to_streamed_response_wrapper(
-            machine.query,
+            modal.query,
         )
 
 
-class AsyncMachineResourceWithStreamingResponse:
-    def __init__(self, machine: AsyncMachineResource) -> None:
-        self._machine = machine
+class AsyncModalResourceWithStreamingResponse:
+    def __init__(self, modal: AsyncModalResource) -> None:
+        self._modal = modal
 
         self.learn = async_to_streamed_response_wrapper(
-            machine.learn,
+            modal.learn,
         )
         self.query = async_to_streamed_response_wrapper(
-            machine.query,
+            modal.query,
         )

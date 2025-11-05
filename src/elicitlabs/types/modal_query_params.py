@@ -7,10 +7,10 @@ from typing_extensions import Required, TypedDict
 
 from .._types import SequenceNotStr
 
-__all__ = ["MachineQueryParams"]
+__all__ = ["ModalQueryParams"]
 
 
-class MachineQueryParams(TypedDict, total=False):
+class ModalQueryParams(TypedDict, total=False):
     question: Required[str]
     """The question to query against user's memories"""
 
