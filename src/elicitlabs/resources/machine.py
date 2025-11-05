@@ -59,26 +59,37 @@ class MachineResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineLearnResponse:
         """
-        Process a single user message and store it in conversation history.
+        Process a conversation message and update the user's memory system.
 
-            This endpoint:
-            - Validates authentication tokens
-            - Stores message in conversation_turns table immediately
-             - **Returns immediately** after storing the message (fast response ~50-100ms)
-            - Asynchronously processes memory updates in the background:
-              * Updates short-term memory when needed (every 10 turns)
-              * Checks and triggers long-term memory extraction when thresholds are met:
-                - 25+ unprocessed messages in session
-                - New session detected with old unprocessed messages
-                - Messages older than 2 hours unprocessed
-            - Maintains conversation state and session continuity
+            Stores the message in conversation history and triggers memory extraction when thresholds are met.
+            Returns immediately after storing the message, with memory processing happening in the background.
 
-            **Performance**: Uses FastAPI BackgroundTasks with 120s graceful shutdown timeout.
-            Background tasks are guaranteed to complete unless deployments/restarts occur.
+            **Request Parameters:**
+            - user_id (str, required): User or persona ID
+            - message (str, required): User message content
+            - role (str, required): Message role - "user" or "assistant"
+            - session_id (str, optional): Session identifier for conversation grouping
+            - timestamp (str, optional): ISO-8601 timestamp for the message
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Response:**
+            - success (bool): True if message was stored
+            - message (str): Status message
+            - session_id (str): Confirmed session ID
+            - turn_id (str): Unique identifier for this conversation turn
 
-            **Note**: This endpoint handles ALL conversation processing. Use `/v1/data/ingest` only for files and documents.
+            **Example:**
+            ```json
+            {
+                "user_id": "user-123",
+                "message": "I prefer working in the morning",
+                "role": "user",
+                "session_id": "session-abc"
+            }
+            ```
+
+            Returns 200 OK immediately. Memory extraction runs asynchronously in background.
+            Use this endpoint for conversation messages. Use /v1/data/ingest for files and documents.
+            Requires JWT authentication.
 
         Args:
           message: Single message to learn from with 'role' and 'content' fields
@@ -129,25 +140,35 @@ class MachineResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineQueryResponse:
         """
-        Query user's stored memories, preferences, and identity attributes based on a
-        natural language question.
+        Query user's stored memories, preferences, and identity based on a natural
+        language question.
 
-            This endpoint:
-            - Validates authentication tokens
-            - Retrieves relevant memories using semantic search
-            - Returns structured memory data from all memory types
-            - Supports optional session context for conversation continuity
-            - Supports filtering specific memory types for performance optimization
+            Retrieves relevant information from the user's memory system using semantic search across
+            all memory types: episodic memories, preferences, identity attributes, and short-term context.
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Request Parameters:**
+            - question (str, required): Natural language question to query
+            - user_id (str, required): User or persona ID
+            - session_id (str, optional): Session identifier for conversation context
+            - filter_memory_types (list[str], optional): Memory types to exclude - valid values: "episodic", "preference", "identity", "short_term"
 
-            **Memory Types**:
-            - `episodic`: Past experiences and events
-            - `preference`: User preferences and choices
-            - `identity`: Personal attributes and characteristics
-            - `short_term`: Current session context and recent conversation
+            **Response:**
+            - new_prompt (str): Enhanced prompt with retrieved memory context
+            - raw_results (dict): Structured memory data from retrieval
+            - success (bool): True if query succeeded
 
-            **Filtering**: Use `filter_memory_types` to exclude specific memory types from retrieval
+            **Example:**
+            ```json
+            {
+                "question": "What are my preferences for morning routines?",
+                "user_id": "user-123",
+                "session_id": "session-abc",
+                "filter_memory_types": ["episodic"]
+            }
+            ```
+
+            Returns 200 OK with memory data. Use filter_memory_types to optimize performance.
+            Requires JWT authentication.
 
         Args:
           question: The question to query against user's memories
@@ -221,26 +242,37 @@ class AsyncMachineResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineLearnResponse:
         """
-        Process a single user message and store it in conversation history.
+        Process a conversation message and update the user's memory system.
 
-            This endpoint:
-            - Validates authentication tokens
-            - Stores message in conversation_turns table immediately
-             - **Returns immediately** after storing the message (fast response ~50-100ms)
-            - Asynchronously processes memory updates in the background:
-              * Updates short-term memory when needed (every 10 turns)
-              * Checks and triggers long-term memory extraction when thresholds are met:
-                - 25+ unprocessed messages in session
-                - New session detected with old unprocessed messages
-                - Messages older than 2 hours unprocessed
-            - Maintains conversation state and session continuity
+            Stores the message in conversation history and triggers memory extraction when thresholds are met.
+            Returns immediately after storing the message, with memory processing happening in the background.
 
-            **Performance**: Uses FastAPI BackgroundTasks with 120s graceful shutdown timeout.
-            Background tasks are guaranteed to complete unless deployments/restarts occur.
+            **Request Parameters:**
+            - user_id (str, required): User or persona ID
+            - message (str, required): User message content
+            - role (str, required): Message role - "user" or "assistant"
+            - session_id (str, optional): Session identifier for conversation grouping
+            - timestamp (str, optional): ISO-8601 timestamp for the message
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Response:**
+            - success (bool): True if message was stored
+            - message (str): Status message
+            - session_id (str): Confirmed session ID
+            - turn_id (str): Unique identifier for this conversation turn
 
-            **Note**: This endpoint handles ALL conversation processing. Use `/v1/data/ingest` only for files and documents.
+            **Example:**
+            ```json
+            {
+                "user_id": "user-123",
+                "message": "I prefer working in the morning",
+                "role": "user",
+                "session_id": "session-abc"
+            }
+            ```
+
+            Returns 200 OK immediately. Memory extraction runs asynchronously in background.
+            Use this endpoint for conversation messages. Use /v1/data/ingest for files and documents.
+            Requires JWT authentication.
 
         Args:
           message: Single message to learn from with 'role' and 'content' fields
@@ -291,25 +323,35 @@ class AsyncMachineResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MachineQueryResponse:
         """
-        Query user's stored memories, preferences, and identity attributes based on a
-        natural language question.
+        Query user's stored memories, preferences, and identity based on a natural
+        language question.
 
-            This endpoint:
-            - Validates authentication tokens
-            - Retrieves relevant memories using semantic search
-            - Returns structured memory data from all memory types
-            - Supports optional session context for conversation continuity
-            - Supports filtering specific memory types for performance optimization
+            Retrieves relevant information from the user's memory system using semantic search across
+            all memory types: episodic memories, preferences, identity attributes, and short-term context.
 
-            **Authentication**: Requires valid JWT token in Authorization header
+            **Request Parameters:**
+            - question (str, required): Natural language question to query
+            - user_id (str, required): User or persona ID
+            - session_id (str, optional): Session identifier for conversation context
+            - filter_memory_types (list[str], optional): Memory types to exclude - valid values: "episodic", "preference", "identity", "short_term"
 
-            **Memory Types**:
-            - `episodic`: Past experiences and events
-            - `preference`: User preferences and choices
-            - `identity`: Personal attributes and characteristics
-            - `short_term`: Current session context and recent conversation
+            **Response:**
+            - new_prompt (str): Enhanced prompt with retrieved memory context
+            - raw_results (dict): Structured memory data from retrieval
+            - success (bool): True if query succeeded
 
-            **Filtering**: Use `filter_memory_types` to exclude specific memory types from retrieval
+            **Example:**
+            ```json
+            {
+                "question": "What are my preferences for morning routines?",
+                "user_id": "user-123",
+                "session_id": "session-abc",
+                "filter_memory_types": ["episodic"]
+            }
+            ```
+
+            Returns 200 OK with memory data. Use filter_memory_types to optimize performance.
+            Requires JWT authentication.
 
         Args:
           question: The question to query against user's memories
