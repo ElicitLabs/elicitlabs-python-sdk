@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.0 (2025-11-05)
+
+Full Changelog: [v0.3.0...v0.4.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.3.0...v0.4.0)
+
+### Features
+
+* **api:** manual updates ([0818987](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/0818987037d4e3386070e610340acd320081fc91))
+
+
+### Chores
+
+* update SDK settings ([70d0789](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/70d07899aa34ad2e85281141bb9e732365be7571))
+
 ## 0.3.0 (2025-11-05)
 
 Full Changelog: [v0.2.0...v0.3.0](https://github.com/ElicitLabs/modal-python-sdk/compare/v0.2.0...v0.3.0)

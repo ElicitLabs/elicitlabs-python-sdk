@@ -1,15 +1,15 @@
-# Machine
+# Modal
 
 Types:
 
 ```python
-from elicitlabs.types import MachineLearnResponse, MachineQueryResponse
+from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
 ```
 
 Methods:
 
-- <code title="post /v1/machine/learn">client.machine.<a href="./src/elicitlabs/resources/machine.py">learn</a>(\*\*<a href="src/elicitlabs/types/machine_learn_params.py">params</a>) -> <a href="./src/elicitlabs/types/machine_learn_response.py">MachineLearnResponse</a></code>
-- <code title="post /v1/machine/query">client.machine.<a href="./src/elicitlabs/resources/machine.py">query</a>(\*\*<a href="src/elicitlabs/types/machine_query_params.py">params</a>) -> <a href="./src/elicitlabs/types/machine_query_response.py">MachineQueryResponse</a></code>
+- <code title="post /v1/modal/learn">client.modal.<a href="./src/elicitlabs/resources/modal.py">learn</a>(\*\*<a href="src/elicitlabs/types/modal_learn_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_learn_response.py">ModalLearnResponse</a></code>
+- <code title="post /v1/modal/query">client.modal.<a href="./src/elicitlabs/resources/modal.py">query</a>(\*\*<a href="src/elicitlabs/types/modal_query_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_query_response.py">ModalQueryResponse</a></code>
 
 # Users
 

@@ -21,7 +21,7 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import users, health, machine
+from .resources import modal, users, health
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import ElicitError, APIStatusError
 from ._base_client import (
@@ -35,7 +35,7 @@ __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Elicit", "
 
 
 class Elicit(SyncAPIClient):
-    machine: machine.MachineResource
+    modal: modal.ModalResource
     users: users.UsersResource
     data: data.DataResource
     health: health.HealthResource
@@ -96,7 +96,7 @@ class Elicit(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.machine = machine.MachineResource(self)
+        self.modal = modal.ModalResource(self)
         self.users = users.UsersResource(self)
         self.data = data.DataResource(self)
         self.health = health.HealthResource(self)
@@ -209,7 +209,7 @@ class Elicit(SyncAPIClient):
 
 
 class AsyncElicit(AsyncAPIClient):
-    machine: machine.AsyncMachineResource
+    modal: modal.AsyncModalResource
     users: users.AsyncUsersResource
     data: data.AsyncDataResource
     health: health.AsyncHealthResource
@@ -270,7 +270,7 @@ class AsyncElicit(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.machine = machine.AsyncMachineResource(self)
+        self.modal = modal.AsyncModalResource(self)
         self.users = users.AsyncUsersResource(self)
         self.data = data.AsyncDataResource(self)
         self.health = health.AsyncHealthResource(self)
@@ -384,7 +384,7 @@ class AsyncElicit(AsyncAPIClient):
 
 class ElicitWithRawResponse:
     def __init__(self, client: Elicit) -> None:
-        self.machine = machine.MachineResourceWithRawResponse(client.machine)
+        self.modal = modal.ModalResourceWithRawResponse(client.modal)
         self.users = users.UsersResourceWithRawResponse(client.users)
         self.data = data.DataResourceWithRawResponse(client.data)
         self.health = health.HealthResourceWithRawResponse(client.health)
@@ -392,7 +392,7 @@ class ElicitWithRawResponse:
 
 class AsyncElicitWithRawResponse:
     def __init__(self, client: AsyncElicit) -> None:
-        self.machine = machine.AsyncMachineResourceWithRawResponse(client.machine)
+        self.modal = modal.AsyncModalResourceWithRawResponse(client.modal)
         self.users = users.AsyncUsersResourceWithRawResponse(client.users)
         self.data = data.AsyncDataResourceWithRawResponse(client.data)
         self.health = health.AsyncHealthResourceWithRawResponse(client.health)
@@ -400,7 +400,7 @@ class AsyncElicitWithRawResponse:
 
 class ElicitWithStreamedResponse:
     def __init__(self, client: Elicit) -> None:
-        self.machine = machine.MachineResourceWithStreamingResponse(client.machine)
+        self.modal = modal.ModalResourceWithStreamingResponse(client.modal)
         self.users = users.UsersResourceWithStreamingResponse(client.users)
         self.data = data.DataResourceWithStreamingResponse(client.data)
         self.health = health.HealthResourceWithStreamingResponse(client.health)
@@ -408,7 +408,7 @@ class ElicitWithStreamedResponse:
 
 class AsyncElicitWithStreamedResponse:
     def __init__(self, client: AsyncElicit) -> None:
-        self.machine = machine.AsyncMachineResourceWithStreamingResponse(client.machine)
+        self.modal = modal.AsyncModalResourceWithStreamingResponse(client.modal)
         self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)
         self.data = data.AsyncDataResourceWithStreamingResponse(client.data)
         self.health = health.AsyncHealthResourceWithStreamingResponse(client.health)

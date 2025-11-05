@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Dict, Optional
 from typing_extensions import Required, TypedDict
 
-__all__ = ["MachineLearnParams"]
+__all__ = ["ModalLearnParams"]
 
 
-class MachineLearnParams(TypedDict, total=False):
+class ModalLearnParams(TypedDict, total=False):
     message: Required[Dict[str, object]]
     """Single message to learn from with 'role' and 'content' fields"""
 

@@ -9,30 +9,30 @@ import pytest
 
 from elicitlabs import Elicit, AsyncElicit
 from tests.utils import assert_matches_type
-from elicitlabs.types import MachineLearnResponse, MachineQueryResponse
+from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 
-class TestMachine:
+class TestModal:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_method_learn(self, client: Elicit) -> None:
-        machine = client.machine.learn(
+        modal = client.modal.learn(
             message={
                 "content": "bar",
                 "role": "bar",
             },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
-        assert_matches_type(MachineLearnResponse, machine, path=["response"])
+        assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_method_learn_with_all_params(self, client: Elicit) -> None:
-        machine = client.machine.learn(
+        modal = client.modal.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -41,12 +41,12 @@ class TestMachine:
             datetime_input="2024-01-01T10:00:00Z",
             session_id="session_123",
         )
-        assert_matches_type(MachineLearnResponse, machine, path=["response"])
+        assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_raw_response_learn(self, client: Elicit) -> None:
-        response = client.machine.with_raw_response.learn(
+        response = client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -56,13 +56,13 @@ class TestMachine:
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        machine = response.parse()
-        assert_matches_type(MachineLearnResponse, machine, path=["response"])
+        modal = response.parse()
+        assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_streaming_response_learn(self, client: Elicit) -> None:
-        with client.machine.with_streaming_response.learn(
+        with client.modal.with_streaming_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -72,61 +72,61 @@ class TestMachine:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            machine = response.parse()
-            assert_matches_type(MachineLearnResponse, machine, path=["response"])
+            modal = response.parse()
+            assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_method_query(self, client: Elicit) -> None:
-        machine = client.machine.query(
+        modal = client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
-        assert_matches_type(MachineQueryResponse, machine, path=["response"])
+        assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_method_query_with_all_params(self, client: Elicit) -> None:
-        machine = client.machine.query(
+        modal = client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
             filter_memory_types=["episodic", "identity"],
             session_id="session_123",
         )
-        assert_matches_type(MachineQueryResponse, machine, path=["response"])
+        assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_raw_response_query(self, client: Elicit) -> None:
-        response = client.machine.with_raw_response.query(
+        response = client.modal.with_raw_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        machine = response.parse()
-        assert_matches_type(MachineQueryResponse, machine, path=["response"])
+        modal = response.parse()
+        assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     def test_streaming_response_query(self, client: Elicit) -> None:
-        with client.machine.with_streaming_response.query(
+        with client.modal.with_streaming_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            machine = response.parse()
-            assert_matches_type(MachineQueryResponse, machine, path=["response"])
+            modal = response.parse()
+            assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
 
-class TestAsyncMachine:
+class TestAsyncModal:
     parametrize = pytest.mark.parametrize(
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
@@ -134,19 +134,19 @@ class TestAsyncMachine:
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_method_learn(self, async_client: AsyncElicit) -> None:
-        machine = await async_client.machine.learn(
+        modal = await async_client.modal.learn(
             message={
                 "content": "bar",
                 "role": "bar",
             },
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
-        assert_matches_type(MachineLearnResponse, machine, path=["response"])
+        assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_method_learn_with_all_params(self, async_client: AsyncElicit) -> None:
-        machine = await async_client.machine.learn(
+        modal = await async_client.modal.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -155,12 +155,12 @@ class TestAsyncMachine:
             datetime_input="2024-01-01T10:00:00Z",
             session_id="session_123",
         )
-        assert_matches_type(MachineLearnResponse, machine, path=["response"])
+        assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_raw_response_learn(self, async_client: AsyncElicit) -> None:
-        response = await async_client.machine.with_raw_response.learn(
+        response = await async_client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -170,13 +170,13 @@ class TestAsyncMachine:
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        machine = await response.parse()
-        assert_matches_type(MachineLearnResponse, machine, path=["response"])
+        modal = await response.parse()
+        assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_streaming_response_learn(self, async_client: AsyncElicit) -> None:
-        async with async_client.machine.with_streaming_response.learn(
+        async with async_client.modal.with_streaming_response.learn(
             message={
                 "content": "bar",
                 "role": "bar",
@@ -186,55 +186,55 @@ class TestAsyncMachine:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            machine = await response.parse()
-            assert_matches_type(MachineLearnResponse, machine, path=["response"])
+            modal = await response.parse()
+            assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_method_query(self, async_client: AsyncElicit) -> None:
-        machine = await async_client.machine.query(
+        modal = await async_client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
-        assert_matches_type(MachineQueryResponse, machine, path=["response"])
+        assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_method_query_with_all_params(self, async_client: AsyncElicit) -> None:
-        machine = await async_client.machine.query(
+        modal = await async_client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
             filter_memory_types=["episodic", "identity"],
             session_id="session_123",
         )
-        assert_matches_type(MachineQueryResponse, machine, path=["response"])
+        assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_raw_response_query(self, async_client: AsyncElicit) -> None:
-        response = await async_client.machine.with_raw_response.query(
+        response = await async_client.modal.with_raw_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
         )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        machine = await response.parse()
-        assert_matches_type(MachineQueryResponse, machine, path=["response"])
+        modal = await response.parse()
+        assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
     async def test_streaming_response_query(self, async_client: AsyncElicit) -> None:
-        async with async_client.machine.with_streaming_response.query(
+        async with async_client.modal.with_streaming_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            machine = await response.parse()
-            assert_matches_type(MachineQueryResponse, machine, path=["response"])
+            modal = await response.parse()
+            assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True

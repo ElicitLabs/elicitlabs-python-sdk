@@ -4,10 +4,10 @@ from typing import Optional
 
 from .._models import BaseModel
 
-__all__ = ["MachineLearnResponse"]
+__all__ = ["ModalLearnResponse"]
 
 
-class MachineLearnResponse(BaseModel):
+class ModalLearnResponse(BaseModel):
     message: str
     """Status message about the learning process"""
 

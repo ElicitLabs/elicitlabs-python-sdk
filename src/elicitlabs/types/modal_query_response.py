@@ -4,10 +4,10 @@ from typing import Dict, Optional
 
 from .._models import BaseModel
 
-__all__ = ["MachineQueryResponse"]
+__all__ = ["ModalQueryResponse"]
 
 
-class MachineQueryResponse(BaseModel):
+class ModalQueryResponse(BaseModel):
     new_prompt: str
     """Edited prompt for the query"""
 
