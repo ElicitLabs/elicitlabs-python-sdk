@@ -1,5 +1,13 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+from .auth import (
+    AuthResource,
+    AsyncAuthResource,
+    AuthResourceWithRawResponse,
+    AsyncAuthResourceWithRawResponse,
+    AuthResourceWithStreamingResponse,
+    AsyncAuthResourceWithStreamingResponse,
+)
 from .data import (
     DataResource,
     AsyncDataResource,
@@ -32,6 +40,22 @@ from .health import (
     HealthResourceWithStreamingResponse,
     AsyncHealthResourceWithStreamingResponse,
 )
+from .personas import (
+    PersonasResource,
+    AsyncPersonasResource,
+    PersonasResourceWithRawResponse,
+    AsyncPersonasResourceWithRawResponse,
+    PersonasResourceWithStreamingResponse,
+    AsyncPersonasResourceWithStreamingResponse,
+)
+from .inference import (
+    InferenceResource,
+    AsyncInferenceResource,
+    InferenceResourceWithRawResponse,
+    AsyncInferenceResourceWithRawResponse,
+    InferenceResourceWithStreamingResponse,
+    AsyncInferenceResourceWithStreamingResponse,
+)
 
 __all__ = [
     "ModalResource",
@@ -58,4 +82,22 @@ __all__ = [
     "AsyncHealthResourceWithRawResponse",
     "HealthResourceWithStreamingResponse",
     "AsyncHealthResourceWithStreamingResponse",
+    "AuthResource",
+    "AsyncAuthResource",
+    "AuthResourceWithRawResponse",
+    "AsyncAuthResourceWithRawResponse",
+    "AuthResourceWithStreamingResponse",
+    "AsyncAuthResourceWithStreamingResponse",
+    "PersonasResource",
+    "AsyncPersonasResource",
+    "PersonasResourceWithRawResponse",
+    "AsyncPersonasResourceWithRawResponse",
+    "PersonasResourceWithStreamingResponse",
+    "AsyncPersonasResourceWithStreamingResponse",
+    "InferenceResource",
+    "AsyncInferenceResource",
+    "InferenceResourceWithRawResponse",
+    "AsyncInferenceResourceWithRawResponse",
+    "InferenceResourceWithStreamingResponse",
+    "AsyncInferenceResourceWithStreamingResponse",
 ]

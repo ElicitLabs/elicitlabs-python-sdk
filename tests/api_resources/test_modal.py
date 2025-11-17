@@ -7,7 +7,7 @@ from typing import Any, cast
 
 import pytest
 
-from elicitlabs import Elicit, AsyncElicit
+from elicitlabs import ElicitClient, AsyncElicitClient
 from tests.utils import assert_matches_type
 from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
 
@@ -19,7 +19,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_method_learn(self, client: Elicit) -> None:
+    def test_method_learn(self, client: ElicitClient) -> None:
         modal = client.modal.learn(
             message={
                 "content": "bar",
@@ -31,7 +31,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_method_learn_with_all_params(self, client: Elicit) -> None:
+    def test_method_learn_with_all_params(self, client: ElicitClient) -> None:
         modal = client.modal.learn(
             message={
                 "content": "bar",
@@ -45,7 +45,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_raw_response_learn(self, client: Elicit) -> None:
+    def test_raw_response_learn(self, client: ElicitClient) -> None:
         response = client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
@@ -61,7 +61,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_streaming_response_learn(self, client: Elicit) -> None:
+    def test_streaming_response_learn(self, client: ElicitClient) -> None:
         with client.modal.with_streaming_response.learn(
             message={
                 "content": "bar",
@@ -79,7 +79,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_method_query(self, client: Elicit) -> None:
+    def test_method_query(self, client: ElicitClient) -> None:
         modal = client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -88,7 +88,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_method_query_with_all_params(self, client: Elicit) -> None:
+    def test_method_query_with_all_params(self, client: ElicitClient) -> None:
         modal = client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -99,7 +99,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_raw_response_query(self, client: Elicit) -> None:
+    def test_raw_response_query(self, client: ElicitClient) -> None:
         response = client.modal.with_raw_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -112,7 +112,7 @@ class TestModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_streaming_response_query(self, client: Elicit) -> None:
+    def test_streaming_response_query(self, client: ElicitClient) -> None:
         with client.modal.with_streaming_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -133,7 +133,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_method_learn(self, async_client: AsyncElicit) -> None:
+    async def test_method_learn(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.learn(
             message={
                 "content": "bar",
@@ -145,7 +145,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_method_learn_with_all_params(self, async_client: AsyncElicit) -> None:
+    async def test_method_learn_with_all_params(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.learn(
             message={
                 "content": "bar",
@@ -159,7 +159,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_raw_response_learn(self, async_client: AsyncElicit) -> None:
+    async def test_raw_response_learn(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.modal.with_raw_response.learn(
             message={
                 "content": "bar",
@@ -175,7 +175,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_streaming_response_learn(self, async_client: AsyncElicit) -> None:
+    async def test_streaming_response_learn(self, async_client: AsyncElicitClient) -> None:
         async with async_client.modal.with_streaming_response.learn(
             message={
                 "content": "bar",
@@ -193,7 +193,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_method_query(self, async_client: AsyncElicit) -> None:
+    async def test_method_query(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -202,7 +202,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_method_query_with_all_params(self, async_client: AsyncElicit) -> None:
+    async def test_method_query_with_all_params(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -213,7 +213,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_raw_response_query(self, async_client: AsyncElicit) -> None:
+    async def test_raw_response_query(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.modal.with_raw_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
@@ -226,7 +226,7 @@ class TestAsyncModal:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_streaming_response_query(self, async_client: AsyncElicit) -> None:
+    async def test_streaming_response_query(self, async_client: AsyncElicitClient) -> None:
         async with async_client.modal.with_streaming_response.query(
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",

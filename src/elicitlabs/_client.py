@@ -21,26 +21,39 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import modal, users, health
+from .resources import modal, users, health, personas, inference
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import ElicitError, APIStatusError
+from ._exceptions import APIStatusError, ElicitClientError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
 )
+from .resources.auth import auth
 from .resources.data import data
 
-__all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Elicit", "AsyncElicit", "Client", "AsyncClient"]
+__all__ = [
+    "Timeout",
+    "Transport",
+    "ProxiesTypes",
+    "RequestOptions",
+    "ElicitClient",
+    "AsyncElicitClient",
+    "Client",
+    "AsyncClient",
+]
 
 
-class Elicit(SyncAPIClient):
+class ElicitClient(SyncAPIClient):
     modal: modal.ModalResource
     users: users.UsersResource
     data: data.DataResource
     health: health.HealthResource
-    with_raw_response: ElicitWithRawResponse
-    with_streaming_response: ElicitWithStreamedResponse
+    auth: auth.AuthResource
+    personas: personas.PersonasResource
+    inference: inference.InferenceResource
+    with_raw_response: ElicitClientWithRawResponse
+    with_streaming_response: ElicitClientWithStreamedResponse
 
     # client options
     api_key: str
@@ -68,20 +81,20 @@ class Elicit(SyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new synchronous Elicit client instance.
+        """Construct a new synchronous ElicitClient client instance.
 
         This automatically infers the `api_key` argument from the `ELICIT_LABS_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
             api_key = os.environ.get("ELICIT_LABS_API_KEY")
         if api_key is None:
-            raise ElicitError(
+            raise ElicitClientError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the ELICIT_LABS_API_KEY environment variable"
             )
         self.api_key = api_key
 
         if base_url is None:
-            base_url = os.environ.get("ELICIT_BASE_URL")
+            base_url = os.environ.get("ELICIT_CLIENT_BASE_URL")
         if base_url is None:
             base_url = f"https://api.elicitlabs.ai"
 
@@ -100,8 +113,11 @@ class Elicit(SyncAPIClient):
         self.users = users.UsersResource(self)
         self.data = data.DataResource(self)
         self.health = health.HealthResource(self)
-        self.with_raw_response = ElicitWithRawResponse(self)
-        self.with_streaming_response = ElicitWithStreamedResponse(self)
+        self.auth = auth.AuthResource(self)
+        self.personas = personas.PersonasResource(self)
+        self.inference = inference.InferenceResource(self)
+        self.with_raw_response = ElicitClientWithRawResponse(self)
+        self.with_streaming_response = ElicitClientWithStreamedResponse(self)
 
     @property
     @override
@@ -208,13 +224,16 @@ class Elicit(SyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class AsyncElicit(AsyncAPIClient):
+class AsyncElicitClient(AsyncAPIClient):
     modal: modal.AsyncModalResource
     users: users.AsyncUsersResource
     data: data.AsyncDataResource
     health: health.AsyncHealthResource
-    with_raw_response: AsyncElicitWithRawResponse
-    with_streaming_response: AsyncElicitWithStreamedResponse
+    auth: auth.AsyncAuthResource
+    personas: personas.AsyncPersonasResource
+    inference: inference.AsyncInferenceResource
+    with_raw_response: AsyncElicitClientWithRawResponse
+    with_streaming_response: AsyncElicitClientWithStreamedResponse
 
     # client options
     api_key: str
@@ -242,20 +261,20 @@ class AsyncElicit(AsyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new async AsyncElicit client instance.
+        """Construct a new async AsyncElicitClient client instance.
 
         This automatically infers the `api_key` argument from the `ELICIT_LABS_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
             api_key = os.environ.get("ELICIT_LABS_API_KEY")
         if api_key is None:
-            raise ElicitError(
+            raise ElicitClientError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the ELICIT_LABS_API_KEY environment variable"
             )
         self.api_key = api_key
 
         if base_url is None:
-            base_url = os.environ.get("ELICIT_BASE_URL")
+            base_url = os.environ.get("ELICIT_CLIENT_BASE_URL")
         if base_url is None:
             base_url = f"https://api.elicitlabs.ai"
 
@@ -274,8 +293,11 @@ class AsyncElicit(AsyncAPIClient):
         self.users = users.AsyncUsersResource(self)
         self.data = data.AsyncDataResource(self)
         self.health = health.AsyncHealthResource(self)
-        self.with_raw_response = AsyncElicitWithRawResponse(self)
-        self.with_streaming_response = AsyncElicitWithStreamedResponse(self)
+        self.auth = auth.AsyncAuthResource(self)
+        self.personas = personas.AsyncPersonasResource(self)
+        self.inference = inference.AsyncInferenceResource(self)
+        self.with_raw_response = AsyncElicitClientWithRawResponse(self)
+        self.with_streaming_response = AsyncElicitClientWithStreamedResponse(self)
 
     @property
     @override
@@ -382,38 +404,50 @@ class AsyncElicit(AsyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class ElicitWithRawResponse:
-    def __init__(self, client: Elicit) -> None:
+class ElicitClientWithRawResponse:
+    def __init__(self, client: ElicitClient) -> None:
         self.modal = modal.ModalResourceWithRawResponse(client.modal)
         self.users = users.UsersResourceWithRawResponse(client.users)
         self.data = data.DataResourceWithRawResponse(client.data)
         self.health = health.HealthResourceWithRawResponse(client.health)
+        self.auth = auth.AuthResourceWithRawResponse(client.auth)
+        self.personas = personas.PersonasResourceWithRawResponse(client.personas)
+        self.inference = inference.InferenceResourceWithRawResponse(client.inference)
 
 
-class AsyncElicitWithRawResponse:
-    def __init__(self, client: AsyncElicit) -> None:
+class AsyncElicitClientWithRawResponse:
+    def __init__(self, client: AsyncElicitClient) -> None:
         self.modal = modal.AsyncModalResourceWithRawResponse(client.modal)
         self.users = users.AsyncUsersResourceWithRawResponse(client.users)
         self.data = data.AsyncDataResourceWithRawResponse(client.data)
         self.health = health.AsyncHealthResourceWithRawResponse(client.health)
+        self.auth = auth.AsyncAuthResourceWithRawResponse(client.auth)
+        self.personas = personas.AsyncPersonasResourceWithRawResponse(client.personas)
+        self.inference = inference.AsyncInferenceResourceWithRawResponse(client.inference)
 
 
-class ElicitWithStreamedResponse:
-    def __init__(self, client: Elicit) -> None:
+class ElicitClientWithStreamedResponse:
+    def __init__(self, client: ElicitClient) -> None:
         self.modal = modal.ModalResourceWithStreamingResponse(client.modal)
         self.users = users.UsersResourceWithStreamingResponse(client.users)
         self.data = data.DataResourceWithStreamingResponse(client.data)
         self.health = health.HealthResourceWithStreamingResponse(client.health)
+        self.auth = auth.AuthResourceWithStreamingResponse(client.auth)
+        self.personas = personas.PersonasResourceWithStreamingResponse(client.personas)
+        self.inference = inference.InferenceResourceWithStreamingResponse(client.inference)
 
 
-class AsyncElicitWithStreamedResponse:
-    def __init__(self, client: AsyncElicit) -> None:
+class AsyncElicitClientWithStreamedResponse:
+    def __init__(self, client: AsyncElicitClient) -> None:
         self.modal = modal.AsyncModalResourceWithStreamingResponse(client.modal)
         self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)
         self.data = data.AsyncDataResourceWithStreamingResponse(client.data)
         self.health = health.AsyncHealthResourceWithStreamingResponse(client.health)
+        self.auth = auth.AsyncAuthResourceWithStreamingResponse(client.auth)
+        self.personas = personas.AsyncPersonasResourceWithStreamingResponse(client.personas)
+        self.inference = inference.AsyncInferenceResourceWithStreamingResponse(client.inference)
 
 
-Client = Elicit
+Client = ElicitClient
 
-AsyncClient = AsyncElicit
+AsyncClient = AsyncElicitClient
