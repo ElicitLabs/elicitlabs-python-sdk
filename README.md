@@ -32,14 +32,11 @@ client = Elicit(
     api_key=os.environ.get("ELICIT_LABS_API_KEY"),  # This is the default and can be omitted
 )
 
-response = client.modal.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+response = client.users.create_or_get(
+    email="user@example.com",
+    name="John Doe",
 )
-print(response.session_id)
+print(response.user_id)
 ```
 
 While you can provide an `api_key` keyword argument,
@@ -62,14 +59,11 @@ client = AsyncElicit(
 
 
 async def main() -> None:
-    response = await client.modal.learn(
-        message={
-            "content": "bar",
-            "role": "bar",
-        },
-        user_id="123e4567-e89b-12d3-a456-426614174000",
+    response = await client.users.create_or_get(
+        email="user@example.com",
+        name="John Doe",
     )
-    print(response.session_id)
+    print(response.user_id)
 
 
 asyncio.run(main())
@@ -101,14 +95,11 @@ async def main() -> None:
         api_key="My API Key",
         http_client=DefaultAioHttpClient(),
     ) as client:
-        response = await client.modal.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+        response = await client.users.create_or_get(
+            email="user@example.com",
+            name="John Doe",
         )
-        print(response.session_id)
+        print(response.user_id)
 
 
 asyncio.run(main())
@@ -139,12 +130,9 @@ from elicitlabs import Elicit
 client = Elicit()
 
 try:
-    client.modal.learn(
-        message={
-            "content": "bar",
-            "role": "bar",
-        },
-        user_id="123e4567-e89b-12d3-a456-426614174000",
+    client.users.create_or_get(
+        email="user@example.com",
+        name="John Doe",
     )
 except elicitlabs.APIConnectionError as e:
     print("The server could not be reached")
@@ -188,12 +176,9 @@ client = Elicit(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).modal.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+client.with_options(max_retries=5).users.create_or_get(
+    email="user@example.com",
+    name="John Doe",
 )
 ```
 
@@ -217,12 +202,9 @@ client = Elicit(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).modal.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+client.with_options(timeout=5.0).users.create_or_get(
+    email="user@example.com",
+    name="John Doe",
 )
 ```
 
@@ -264,17 +246,14 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from elicitlabs import Elicit
 
 client = Elicit()
-response = client.modal.with_raw_response.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+response = client.users.with_raw_response.create_or_get(
+    email="user@example.com",
+    name="John Doe",
 )
 print(response.headers.get('X-My-Header'))
 
-modal = response.parse()  # get the object that `modal.learn()` would have returned
-print(modal.session_id)
+user = response.parse()  # get the object that `users.create_or_get()` would have returned
+print(user.user_id)
 ```
 
 These methods return an [`APIResponse`](https://github.com/ElicitLabs/elicitlabs-python-sdk/tree/main/src/elicitlabs/_response.py) object.
@@ -288,12 +267,9 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.modal.with_streaming_response.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+with client.users.with_streaming_response.create_or_get(
+    email="user@example.com",
+    name="John Doe",
 ) as response:
     print(response.headers.get("X-My-Header"))
 

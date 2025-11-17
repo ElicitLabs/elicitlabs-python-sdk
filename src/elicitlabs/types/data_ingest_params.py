@@ -10,7 +10,10 @@ __all__ = ["DataIngestParams"]
 
 class DataIngestParams(TypedDict, total=False):
     content_type: Required[str]
-    """MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')"""
+    """
+    Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+    'messages', 'file')
+    """
 
     payload: Required[Union[str, Dict[str, object], Iterable[object]]]
     """Raw content as string, object, list (for messages), or base64 encoded data"""

@@ -8,14 +8,6 @@ from .data import (
     DataResourceWithStreamingResponse,
     AsyncDataResourceWithStreamingResponse,
 )
-from .modal import (
-    ModalResource,
-    AsyncModalResource,
-    ModalResourceWithRawResponse,
-    AsyncModalResourceWithRawResponse,
-    ModalResourceWithStreamingResponse,
-    AsyncModalResourceWithStreamingResponse,
-)
 from .users import (
     UsersResource,
     AsyncUsersResource,
@@ -34,12 +26,6 @@ from .health import (
 )
 
 __all__ = [
-    "ModalResource",
-    "AsyncModalResource",
-    "ModalResourceWithRawResponse",
-    "AsyncModalResourceWithRawResponse",
-    "ModalResourceWithStreamingResponse",
-    "AsyncModalResourceWithStreamingResponse",
     "UsersResource",
     "AsyncUsersResource",
     "UsersResourceWithRawResponse",

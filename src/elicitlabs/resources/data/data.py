@@ -79,7 +79,7 @@ class DataResource(SyncAPIResource):
 
             **Request Parameters:**
             - user_id (str, required): User or persona ID
-            - content_type (str, required): One of: "text", "text/plain", "text/markdown", "messages", "application/json", "file:application/pdf", "file:image/png", "file:image/jpeg"
+            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - session_id (str, optional): Groups related content for session-based retrieval
             - timestamp (str, optional): ISO-8601 timestamp for historical data
@@ -107,7 +107,8 @@ class DataResource(SyncAPIResource):
             Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
 
         Args:
-          content_type: MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')
+          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+              'messages', 'file')
 
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
@@ -196,7 +197,7 @@ class AsyncDataResource(AsyncAPIResource):
 
             **Request Parameters:**
             - user_id (str, required): User or persona ID
-            - content_type (str, required): One of: "text", "text/plain", "text/markdown", "messages", "application/json", "file:application/pdf", "file:image/png", "file:image/jpeg"
+            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - session_id (str, optional): Groups related content for session-based retrieval
             - timestamp (str, optional): ISO-8601 timestamp for historical data
@@ -224,7 +225,8 @@ class AsyncDataResource(AsyncAPIResource):
             Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
 
         Args:
-          content_type: MIME-ish content type string (e.g., 'email', 'text', 'file:text/plain')
+          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+              'messages', 'file')
 
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
