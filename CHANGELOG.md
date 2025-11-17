@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.5.0 (2025-11-17)
+
+Full Changelog: [v0.4.0...v0.5.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.4.0...v0.5.0)
+
+### Features
+
+* **api:** api update ([b1fcbd8](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/b1fcbd823d9bf5000c0626c598830a23ab2bcb7a))
+* **api:** api update ([6a8b0d0](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/6a8b0d042c95360a1d871a3ad2fb5e4ec6b1295a))
+* **api:** manual updates ([9db0c86](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/9db0c86a3ec44f6fb349f4502ae376b97d65968d))
+
+
+### Bug Fixes
+
+* compat with Python 3.14 ([808f6b0](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/808f6b07bbe32ffc705a5419c17c7862de67799f))
+* **compat:** update signatures of `model_dump` and `model_dump_json` for Pydantic v1 ([b8eee50](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/b8eee509abf2bb51c2f3b37af1f6cd2f789247a7))
+
+
+### Chores
+
+* **package:** drop Python 3.8 support ([faaa46f](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/faaa46fd3cea5183eed63b484b276649b461c382))
+
 ## 0.4.0 (2025-11-05)
 
 Full Changelog: [v0.3.0...v0.4.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.3.0...v0.4.0)
