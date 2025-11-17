@@ -1,9 +1,9 @@
-# Elicit Python API library
+# Elicit Client Python API library
 
 <!-- prettier-ignore -->
 [![PyPI version](https://img.shields.io/pypi/v/elicitlabs.svg?label=pypi%20(stable))](https://pypi.org/project/elicitlabs/)
 
-The Elicit Python library provides convenient access to the Elicit REST API from any Python 3.9+
+The Elicit Client Python library provides convenient access to the Elicit Client REST API from any Python 3.9+
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
@@ -26,20 +26,26 @@ The full API of this library can be found in [api.md](api.md).
 
 ```python
 import os
-from elicitlabs import Elicit
+from elicitlabs import ElicitClient
 
-client = Elicit(
+client = ElicitClient(
     api_key=os.environ.get("ELICIT_LABS_API_KEY"),  # This is the default and can be omitted
 )
 
-response = client.modal.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+response = client.inference.generate_completion(
+    content=[
+        {
+            "content": "You are a helpful AI assistant.",
+            "role": "system",
+        },
+        {
+            "content": "Hello, how are you?",
+            "role": "user",
+        },
+    ],
+    user_id="user-123",
 )
-print(response.session_id)
+print(response.messages)
 ```
 
 While you can provide an `api_key` keyword argument,
@@ -49,27 +55,33 @@ so that your API Key is not stored in source control.
 
 ## Async usage
 
-Simply import `AsyncElicit` instead of `Elicit` and use `await` with each API call:
+Simply import `AsyncElicitClient` instead of `ElicitClient` and use `await` with each API call:
 
 ```python
 import os
 import asyncio
-from elicitlabs import AsyncElicit
+from elicitlabs import AsyncElicitClient
 
-client = AsyncElicit(
+client = AsyncElicitClient(
     api_key=os.environ.get("ELICIT_LABS_API_KEY"),  # This is the default and can be omitted
 )
 
 
 async def main() -> None:
-    response = await client.modal.learn(
-        message={
-            "content": "bar",
-            "role": "bar",
-        },
-        user_id="123e4567-e89b-12d3-a456-426614174000",
+    response = await client.inference.generate_completion(
+        content=[
+            {
+                "content": "You are a helpful AI assistant.",
+                "role": "system",
+            },
+            {
+                "content": "Hello, how are you?",
+                "role": "user",
+            },
+        ],
+        user_id="user-123",
     )
-    print(response.session_id)
+    print(response.messages)
 
 
 asyncio.run(main())
@@ -93,22 +105,28 @@ Then you can enable it by instantiating the client with `http_client=DefaultAioH
 ```python
 import asyncio
 from elicitlabs import DefaultAioHttpClient
-from elicitlabs import AsyncElicit
+from elicitlabs import AsyncElicitClient
 
 
 async def main() -> None:
-    async with AsyncElicit(
+    async with AsyncElicitClient(
         api_key="My API Key",
         http_client=DefaultAioHttpClient(),
     ) as client:
-        response = await client.modal.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+        response = await client.inference.generate_completion(
+            content=[
+                {
+                    "content": "You are a helpful AI assistant.",
+                    "role": "system",
+                },
+                {
+                    "content": "Hello, how are you?",
+                    "role": "user",
+                },
+            ],
+            user_id="user-123",
         )
-        print(response.session_id)
+        print(response.messages)
 
 
 asyncio.run(main())
@@ -134,17 +152,23 @@ All errors inherit from `elicitlabs.APIError`.
 
 ```python
 import elicitlabs
-from elicitlabs import Elicit
+from elicitlabs import ElicitClient
 
-client = Elicit()
+client = ElicitClient()
 
 try:
-    client.modal.learn(
-        message={
-            "content": "bar",
-            "role": "bar",
-        },
-        user_id="123e4567-e89b-12d3-a456-426614174000",
+    client.inference.generate_completion(
+        content=[
+            {
+                "content": "You are a helpful AI assistant.",
+                "role": "system",
+            },
+            {
+                "content": "Hello, how are you?",
+                "role": "user",
+            },
+        ],
+        user_id="user-123",
     )
 except elicitlabs.APIConnectionError as e:
     print("The server could not be reached")
@@ -179,21 +203,27 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from elicitlabs import Elicit
+from elicitlabs import ElicitClient
 
 # Configure the default for all requests:
-client = Elicit(
+client = ElicitClient(
     # default is 2
     max_retries=0,
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).modal.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+client.with_options(max_retries=5).inference.generate_completion(
+    content=[
+        {
+            "content": "You are a helpful AI assistant.",
+            "role": "system",
+        },
+        {
+            "content": "Hello, how are you?",
+            "role": "user",
+        },
+    ],
+    user_id="user-123",
 )
 ```
 
@@ -203,26 +233,32 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration) object:
 
 ```python
-from elicitlabs import Elicit
+from elicitlabs import ElicitClient
 
 # Configure the default for all requests:
-client = Elicit(
+client = ElicitClient(
     # 20 seconds (default is 1 minute)
     timeout=20.0,
 )
 
 # More granular control:
-client = Elicit(
+client = ElicitClient(
     timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).modal.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+client.with_options(timeout=5.0).inference.generate_completion(
+    content=[
+        {
+            "content": "You are a helpful AI assistant.",
+            "role": "system",
+        },
+        {
+            "content": "Hello, how are you?",
+            "role": "user",
+        },
+    ],
+    user_id="user-123",
 )
 ```
 
@@ -236,10 +272,10 @@ Note that requests that time out are [retried twice by default](#retries).
 
 We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
 
-You can enable logging by setting the environment variable `ELICIT_LOG` to `info`.
+You can enable logging by setting the environment variable `ELICIT_CLIENT_LOG` to `info`.
 
 ```shell
-$ export ELICIT_LOG=info
+$ export ELICIT_CLIENT_LOG=info
 ```
 
 Or to `debug` for more verbose logging.
@@ -261,20 +297,23 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from elicitlabs import Elicit
+from elicitlabs import ElicitClient
 
-client = Elicit()
-response = client.modal.with_raw_response.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+client = ElicitClient()
+response = client.inference.with_raw_response.generate_completion(
+    content=[{
+        "content": "You are a helpful AI assistant.",
+        "role": "system",
+    }, {
+        "content": "Hello, how are you?",
+        "role": "user",
+    }],
+    user_id="user-123",
 )
 print(response.headers.get('X-My-Header'))
 
-modal = response.parse()  # get the object that `modal.learn()` would have returned
-print(modal.session_id)
+inference = response.parse()  # get the object that `inference.generate_completion()` would have returned
+print(inference.messages)
 ```
 
 These methods return an [`APIResponse`](https://github.com/ElicitLabs/elicitlabs-python-sdk/tree/main/src/elicitlabs/_response.py) object.
@@ -288,12 +327,18 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.modal.with_streaming_response.learn(
-    message={
-        "content": "bar",
-        "role": "bar",
-    },
-    user_id="123e4567-e89b-12d3-a456-426614174000",
+with client.inference.with_streaming_response.generate_completion(
+    content=[
+        {
+            "content": "You are a helpful AI assistant.",
+            "role": "system",
+        },
+        {
+            "content": "Hello, how are you?",
+            "role": "user",
+        },
+    ],
+    user_id="user-123",
 ) as response:
     print(response.headers.get("X-My-Header"))
 
@@ -347,10 +392,10 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 
 ```python
 import httpx
-from elicitlabs import Elicit, DefaultHttpxClient
+from elicitlabs import ElicitClient, DefaultHttpxClient
 
-client = Elicit(
-    # Or use the `ELICIT_BASE_URL` env var
+client = ElicitClient(
+    # Or use the `ELICIT_CLIENT_BASE_URL` env var
     base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
         proxy="http://my.test.proxy.example.com",
@@ -370,9 +415,9 @@ client.with_options(http_client=DefaultHttpxClient(...))
 By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ```py
-from elicitlabs import Elicit
+from elicitlabs import ElicitClient
 
-with Elicit() as client:
+with ElicitClient() as client:
   # make requests here
   ...
 

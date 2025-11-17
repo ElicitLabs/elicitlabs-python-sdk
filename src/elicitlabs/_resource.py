@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING
 import anyio
 
 if TYPE_CHECKING:
-    from ._client import Elicit, AsyncElicit
+    from ._client import ElicitClient, AsyncElicitClient
 
 
 class SyncAPIResource:
-    _client: Elicit
+    _client: ElicitClient
 
-    def __init__(self, client: Elicit) -> None:
+    def __init__(self, client: ElicitClient) -> None:
         self._client = client
         self._get = client.get
         self._post = client.post
@@ -28,9 +28,9 @@ class SyncAPIResource:
 
 
 class AsyncAPIResource:
-    _client: AsyncElicit
+    _client: AsyncElicitClient
 
-    def __init__(self, client: AsyncElicit) -> None:
+    def __init__(self, client: AsyncElicitClient) -> None:
         self._client = client
         self._get = client.get
         self._post = client.post

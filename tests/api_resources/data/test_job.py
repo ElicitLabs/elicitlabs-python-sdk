@@ -7,7 +7,7 @@ from typing import Any, cast
 
 import pytest
 
-from elicitlabs import Elicit, AsyncElicit
+from elicitlabs import ElicitClient, AsyncElicitClient
 from tests.utils import assert_matches_type
 from elicitlabs.types.data import JobRetrieveStatusResponse
 
@@ -19,7 +19,7 @@ class TestJob:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_method_retrieve_status(self, client: Elicit) -> None:
+    def test_method_retrieve_status(self, client: ElicitClient) -> None:
         job = client.data.job.retrieve_status(
             job_id="456e7890-e89b-12d3-a456-426614174001",
         )
@@ -27,7 +27,7 @@ class TestJob:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_raw_response_retrieve_status(self, client: Elicit) -> None:
+    def test_raw_response_retrieve_status(self, client: ElicitClient) -> None:
         response = client.data.job.with_raw_response.retrieve_status(
             job_id="456e7890-e89b-12d3-a456-426614174001",
         )
@@ -39,7 +39,7 @@ class TestJob:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_streaming_response_retrieve_status(self, client: Elicit) -> None:
+    def test_streaming_response_retrieve_status(self, client: ElicitClient) -> None:
         with client.data.job.with_streaming_response.retrieve_status(
             job_id="456e7890-e89b-12d3-a456-426614174001",
         ) as response:
@@ -59,7 +59,7 @@ class TestAsyncJob:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_method_retrieve_status(self, async_client: AsyncElicit) -> None:
+    async def test_method_retrieve_status(self, async_client: AsyncElicitClient) -> None:
         job = await async_client.data.job.retrieve_status(
             job_id="456e7890-e89b-12d3-a456-426614174001",
         )
@@ -67,7 +67,7 @@ class TestAsyncJob:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_raw_response_retrieve_status(self, async_client: AsyncElicit) -> None:
+    async def test_raw_response_retrieve_status(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.data.job.with_raw_response.retrieve_status(
             job_id="456e7890-e89b-12d3-a456-426614174001",
         )
@@ -79,7 +79,7 @@ class TestAsyncJob:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    async def test_streaming_response_retrieve_status(self, async_client: AsyncElicit) -> None:
+    async def test_streaming_response_retrieve_status(self, async_client: AsyncElicitClient) -> None:
         async with async_client.data.job.with_streaming_response.retrieve_status(
             job_id="456e7890-e89b-12d3-a456-426614174001",
         ) as response:

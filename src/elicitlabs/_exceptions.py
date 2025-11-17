@@ -18,11 +18,11 @@ __all__ = [
 ]
 
 
-class ElicitError(Exception):
+class ElicitClientError(Exception):
     pass
 
 
-class APIError(ElicitError):
+class APIError(ElicitClientError):
     message: str
     request: httpx.Request
 
