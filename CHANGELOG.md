@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.6.0 (2025-12-02)
+
+Full Changelog: [v0.5.0...v0.6.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.5.0...v0.6.0)
+
+### Features
+
+* **api:** manual updates ([f8c968a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/f8c968a1fd82c219debc9c537f21be860cc8f7fb))
+
+
+### Bug Fixes
+
+* ensure streams are always closed ([60ac39d](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/60ac39df028f9f4b0ee180c4faeb017392557c88))
+
+
+### Chores
+
+* add Python 3.14 classifier and testing ([628acbc](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/628acbcfa9cd4532dcab07a46d2a006da65f85ab))
+* **deps:** mypy 1.18.1 has a regression, pin to 1.17 ([5c56d92](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/5c56d92cd03f9d2cc935d0118405d04d9bf5bb0a))
+
 ## 0.5.0 (2025-11-17)
 
 Full Changelog: [v0.4.0...v0.5.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.4.0...v0.5.0)

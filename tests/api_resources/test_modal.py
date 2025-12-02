@@ -9,7 +9,11 @@ import pytest
 
 from elicitlabs import ElicitClient, AsyncElicitClient
 from tests.utils import assert_matches_type
-from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
+from elicitlabs.types import (
+    ModalLearnResponse,
+    ModalQueryResponse,
+    ModalQueryMultimodalityResponse,
+)
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -125,6 +129,52 @@ class TestModal:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_query_multimodality(self, client: ElicitClient) -> None:
+        modal = client.modal.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+        )
+        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_query_multimodality_with_all_params(self, client: ElicitClient) -> None:
+        modal = client.modal.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+            audio_base64="audio_base64",
+            image_base64="image_base64",
+            session_id="session_123",
+            video_base64="base64_encoded_video_content...",
+        )
+        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_raw_response_query_multimodality(self, client: ElicitClient) -> None:
+        response = client.modal.with_raw_response.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        modal = response.parse()
+        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_streaming_response_query_multimodality(self, client: ElicitClient) -> None:
+        with client.modal.with_streaming_response.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            modal = response.parse()
+            assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
 
 class TestAsyncModal:
     parametrize = pytest.mark.parametrize(
@@ -236,5 +286,51 @@ class TestAsyncModal:
 
             modal = await response.parse()
             assert_matches_type(ModalQueryResponse, modal, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_query_multimodality(self, async_client: AsyncElicitClient) -> None:
+        modal = await async_client.modal.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+        )
+        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_query_multimodality_with_all_params(self, async_client: AsyncElicitClient) -> None:
+        modal = await async_client.modal.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+            audio_base64="audio_base64",
+            image_base64="image_base64",
+            session_id="session_123",
+            video_base64="base64_encoded_video_content...",
+        )
+        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_raw_response_query_multimodality(self, async_client: AsyncElicitClient) -> None:
+        response = await async_client.modal.with_raw_response.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        modal = await response.parse()
+        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_streaming_response_query_multimodality(self, async_client: AsyncElicitClient) -> None:
+        async with async_client.modal.with_streaming_response.query_multimodality(
+            user_id="123e4567-e89b-12d3-a456-426614174000",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            modal = await response.parse()
+            assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True

@@ -5,15 +5,28 @@ from __future__ import annotations
 from .data_ingest_params import DataIngestParams as DataIngestParams
 from .modal_learn_params import ModalLearnParams as ModalLearnParams
 from .modal_query_params import ModalQueryParams as ModalQueryParams
+from .demo_sign_in_params import DemoSignInParams as DemoSignInParams
 from .data_ingest_response import DataIngestResponse as DataIngestResponse
 from .modal_learn_response import ModalLearnResponse as ModalLearnResponse
 from .modal_query_response import ModalQueryResponse as ModalQueryResponse
+from .demo_sign_in_response import DemoSignInResponse as DemoSignInResponse
 from .persona_create_params import PersonaCreateParams as PersonaCreateParams
 from .persona_list_response import PersonaListResponse as PersonaListResponse
+from .demo_create_user_params import DemoCreateUserParams as DemoCreateUserParams
 from .persona_create_response import PersonaCreateResponse as PersonaCreateResponse
+from .demo_create_user_response import DemoCreateUserResponse as DemoCreateUserResponse
 from .persona_retrieve_response import PersonaRetrieveResponse as PersonaRetrieveResponse
 from .user_create_or_get_params import UserCreateOrGetParams as UserCreateOrGetParams
+from .demo_reset_password_params import DemoResetPasswordParams as DemoResetPasswordParams
 from .user_create_or_get_response import UserCreateOrGetResponse as UserCreateOrGetResponse
+from .demo_reset_password_response import DemoResetPasswordResponse as DemoResetPasswordResponse
+from .demo_generate_reset_link_params import DemoGenerateResetLinkParams as DemoGenerateResetLinkParams
+from .modal_query_multimodality_params import ModalQueryMultimodalityParams as ModalQueryMultimodalityParams
+from .demo_generate_reset_link_response import DemoGenerateResetLinkResponse as DemoGenerateResetLinkResponse
+from .demo_request_password_reset_params import DemoRequestPasswordResetParams as DemoRequestPasswordResetParams
+from .modal_query_multimodality_response import ModalQueryMultimodalityResponse as ModalQueryMultimodalityResponse
+from .demo_retrieve_current_user_response import DemoRetrieveCurrentUserResponse as DemoRetrieveCurrentUserResponse
+from .demo_request_password_reset_response import DemoRequestPasswordResetResponse as DemoRequestPasswordResetResponse
 from .inference_generate_completion_params import InferenceGenerateCompletionParams as InferenceGenerateCompletionParams
 from .inference_generate_completion_response import (
     InferenceGenerateCompletionResponse as InferenceGenerateCompletionResponse,
@@ -21,6 +34,18 @@ from .inference_generate_completion_response import (
 from .inference_generate_persona_chat_params import (
     InferenceGeneratePersonaChatParams as InferenceGeneratePersonaChatParams,
 )
+from .demo_submit_early_access_request_params import (
+    DemoSubmitEarlyAccessRequestParams as DemoSubmitEarlyAccessRequestParams,
+)
 from .inference_generate_persona_chat_response import (
     InferenceGeneratePersonaChatResponse as InferenceGeneratePersonaChatResponse,
+)
+from .demo_submit_early_access_request_response import (
+    DemoSubmitEarlyAccessRequestResponse as DemoSubmitEarlyAccessRequestResponse,
+)
+from .inference_generate_multimodality_completion_params import (
+    InferenceGenerateMultimodalityCompletionParams as InferenceGenerateMultimodalityCompletionParams,
+)
+from .inference_generate_multimodality_completion_response import (
+    InferenceGenerateMultimodalityCompletionResponse as InferenceGenerateMultimodalityCompletionResponse,
 )
