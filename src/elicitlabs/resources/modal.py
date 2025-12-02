@@ -6,7 +6,7 @@ from typing import Dict, Optional
 
 import httpx
 
-from ..types import modal_learn_params, modal_query_params
+from ..types import modal_learn_params, modal_query_params, modal_query_multimodality_params
 from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -20,6 +20,7 @@ from .._response import (
 from .._base_client import make_request_options
 from ..types.modal_learn_response import ModalLearnResponse
 from ..types.modal_query_response import ModalQueryResponse
+from ..types.modal_query_multimodality_response import ModalQueryMultimodalityResponse
 
 __all__ = ["ModalResource", "AsyncModalResource"]
 
@@ -206,6 +207,93 @@ class ModalResource(SyncAPIResource):
             cast_to=ModalQueryResponse,
         )
 
+    def query_multimodality(
+        self,
+        *,
+        user_id: str,
+        audio_base64: Optional[str] | Omit = omit,
+        image_base64: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        video_base64: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> ModalQueryMultimodalityResponse:
+        """
+        Query user's stored memories using multimodal inputs (video, image, or audio).
+
+            This endpoint accepts video, image, or audio content as base64-encoded strings and
+            searches for relevant memories. The AI will:
+            1. Understand the content of the multimodal input
+            2. Search for related episodic memories
+            3. Return formatted results with context
+
+            **Request Parameters:**
+            - user_id (str, required): User or persona ID
+            - video_base64 (str, optional): Base64 encoded video content
+            - image_base64 (str, optional): Base64 encoded image content
+            - audio_base64 (str, optional): Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
+            - session_id (str, optional): Session identifier for conversation context
+
+            **Note:** At least one multimodal input (video, image, or audio) is required.
+            Audio will be automatically converted to WAV format for processing.
+
+            **Response:**
+            - new_prompt (str): Formatted string containing retrieved memories
+            - raw_results (dict): Raw results from the memory retrieval
+            - image_base64 (str, optional): Base64 encoded image - the original image or a representative frame from video
+            - success (bool): True if query succeeded
+
+            **Example:**
+            ```json
+            {
+                "user_id": "user-123",
+                "video_base64": "base64_encoded_video...",
+            }
+            ```
+
+            Returns 200 OK with memory data. Requires JWT authentication.
+
+        Args:
+          user_id: Unique identifier for the user
+
+          audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
+
+          image_base64: Base64 encoded image content
+
+          session_id: Optional session identifier for conversation context
+
+          video_base64: Base64 encoded video content
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/v1/modal/multimodal-query",
+            body=maybe_transform(
+                {
+                    "user_id": user_id,
+                    "audio_base64": audio_base64,
+                    "image_base64": image_base64,
+                    "session_id": session_id,
+                    "video_base64": video_base64,
+                },
+                modal_query_multimodality_params.ModalQueryMultimodalityParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ModalQueryMultimodalityResponse,
+        )
+
 
 class AsyncModalResource(AsyncAPIResource):
     @cached_property
@@ -389,6 +477,93 @@ class AsyncModalResource(AsyncAPIResource):
             cast_to=ModalQueryResponse,
         )
 
+    async def query_multimodality(
+        self,
+        *,
+        user_id: str,
+        audio_base64: Optional[str] | Omit = omit,
+        image_base64: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        video_base64: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> ModalQueryMultimodalityResponse:
+        """
+        Query user's stored memories using multimodal inputs (video, image, or audio).
+
+            This endpoint accepts video, image, or audio content as base64-encoded strings and
+            searches for relevant memories. The AI will:
+            1. Understand the content of the multimodal input
+            2. Search for related episodic memories
+            3. Return formatted results with context
+
+            **Request Parameters:**
+            - user_id (str, required): User or persona ID
+            - video_base64 (str, optional): Base64 encoded video content
+            - image_base64 (str, optional): Base64 encoded image content
+            - audio_base64 (str, optional): Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
+            - session_id (str, optional): Session identifier for conversation context
+
+            **Note:** At least one multimodal input (video, image, or audio) is required.
+            Audio will be automatically converted to WAV format for processing.
+
+            **Response:**
+            - new_prompt (str): Formatted string containing retrieved memories
+            - raw_results (dict): Raw results from the memory retrieval
+            - image_base64 (str, optional): Base64 encoded image - the original image or a representative frame from video
+            - success (bool): True if query succeeded
+
+            **Example:**
+            ```json
+            {
+                "user_id": "user-123",
+                "video_base64": "base64_encoded_video...",
+            }
+            ```
+
+            Returns 200 OK with memory data. Requires JWT authentication.
+
+        Args:
+          user_id: Unique identifier for the user
+
+          audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
+
+          image_base64: Base64 encoded image content
+
+          session_id: Optional session identifier for conversation context
+
+          video_base64: Base64 encoded video content
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/v1/modal/multimodal-query",
+            body=await async_maybe_transform(
+                {
+                    "user_id": user_id,
+                    "audio_base64": audio_base64,
+                    "image_base64": image_base64,
+                    "session_id": session_id,
+                    "video_base64": video_base64,
+                },
+                modal_query_multimodality_params.ModalQueryMultimodalityParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ModalQueryMultimodalityResponse,
+        )
+
 
 class ModalResourceWithRawResponse:
     def __init__(self, modal: ModalResource) -> None:
@@ -399,6 +574,9 @@ class ModalResourceWithRawResponse:
         )
         self.query = to_raw_response_wrapper(
             modal.query,
+        )
+        self.query_multimodality = to_raw_response_wrapper(
+            modal.query_multimodality,
         )
 
 
@@ -412,6 +590,9 @@ class AsyncModalResourceWithRawResponse:
         self.query = async_to_raw_response_wrapper(
             modal.query,
         )
+        self.query_multimodality = async_to_raw_response_wrapper(
+            modal.query_multimodality,
+        )
 
 
 class ModalResourceWithStreamingResponse:
@@ -424,6 +605,9 @@ class ModalResourceWithStreamingResponse:
         self.query = to_streamed_response_wrapper(
             modal.query,
         )
+        self.query_multimodality = to_streamed_response_wrapper(
+            modal.query_multimodality,
+        )
 
 
 class AsyncModalResourceWithStreamingResponse:
@@ -435,4 +619,7 @@ class AsyncModalResourceWithStreamingResponse:
         )
         self.query = async_to_streamed_response_wrapper(
             modal.query,
+        )
+        self.query_multimodality = async_to_streamed_response_wrapper(
+            modal.query_multimodality,
         )

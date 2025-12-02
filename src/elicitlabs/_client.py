@@ -31,6 +31,7 @@ from ._base_client import (
 )
 from .resources.auth import auth
 from .resources.data import data
+from .resources.demo import demo
 
 __all__ = [
     "Timeout",
@@ -52,6 +53,7 @@ class ElicitClient(SyncAPIClient):
     auth: auth.AuthResource
     personas: personas.PersonasResource
     inference: inference.InferenceResource
+    demo: demo.DemoResource
     with_raw_response: ElicitClientWithRawResponse
     with_streaming_response: ElicitClientWithStreamedResponse
 
@@ -116,6 +118,7 @@ class ElicitClient(SyncAPIClient):
         self.auth = auth.AuthResource(self)
         self.personas = personas.PersonasResource(self)
         self.inference = inference.InferenceResource(self)
+        self.demo = demo.DemoResource(self)
         self.with_raw_response = ElicitClientWithRawResponse(self)
         self.with_streaming_response = ElicitClientWithStreamedResponse(self)
 
@@ -232,6 +235,7 @@ class AsyncElicitClient(AsyncAPIClient):
     auth: auth.AsyncAuthResource
     personas: personas.AsyncPersonasResource
     inference: inference.AsyncInferenceResource
+    demo: demo.AsyncDemoResource
     with_raw_response: AsyncElicitClientWithRawResponse
     with_streaming_response: AsyncElicitClientWithStreamedResponse
 
@@ -296,6 +300,7 @@ class AsyncElicitClient(AsyncAPIClient):
         self.auth = auth.AsyncAuthResource(self)
         self.personas = personas.AsyncPersonasResource(self)
         self.inference = inference.AsyncInferenceResource(self)
+        self.demo = demo.AsyncDemoResource(self)
         self.with_raw_response = AsyncElicitClientWithRawResponse(self)
         self.with_streaming_response = AsyncElicitClientWithStreamedResponse(self)
 
@@ -413,6 +418,7 @@ class ElicitClientWithRawResponse:
         self.auth = auth.AuthResourceWithRawResponse(client.auth)
         self.personas = personas.PersonasResourceWithRawResponse(client.personas)
         self.inference = inference.InferenceResourceWithRawResponse(client.inference)
+        self.demo = demo.DemoResourceWithRawResponse(client.demo)
 
 
 class AsyncElicitClientWithRawResponse:
@@ -424,6 +430,7 @@ class AsyncElicitClientWithRawResponse:
         self.auth = auth.AsyncAuthResourceWithRawResponse(client.auth)
         self.personas = personas.AsyncPersonasResourceWithRawResponse(client.personas)
         self.inference = inference.AsyncInferenceResourceWithRawResponse(client.inference)
+        self.demo = demo.AsyncDemoResourceWithRawResponse(client.demo)
 
 
 class ElicitClientWithStreamedResponse:
@@ -435,6 +442,7 @@ class ElicitClientWithStreamedResponse:
         self.auth = auth.AuthResourceWithStreamingResponse(client.auth)
         self.personas = personas.PersonasResourceWithStreamingResponse(client.personas)
         self.inference = inference.InferenceResourceWithStreamingResponse(client.inference)
+        self.demo = demo.DemoResourceWithStreamingResponse(client.demo)
 
 
 class AsyncElicitClientWithStreamedResponse:
@@ -446,6 +454,7 @@ class AsyncElicitClientWithStreamedResponse:
         self.auth = auth.AsyncAuthResourceWithStreamingResponse(client.auth)
         self.personas = personas.AsyncPersonasResourceWithStreamingResponse(client.personas)
         self.inference = inference.AsyncInferenceResourceWithStreamingResponse(client.inference)
+        self.demo = demo.AsyncDemoResourceWithStreamingResponse(client.demo)
 
 
 Client = ElicitClient

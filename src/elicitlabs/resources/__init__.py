@@ -16,6 +16,14 @@ from .data import (
     DataResourceWithStreamingResponse,
     AsyncDataResourceWithStreamingResponse,
 )
+from .demo import (
+    DemoResource,
+    AsyncDemoResource,
+    DemoResourceWithRawResponse,
+    AsyncDemoResourceWithRawResponse,
+    DemoResourceWithStreamingResponse,
+    AsyncDemoResourceWithStreamingResponse,
+)
 from .modal import (
     ModalResource,
     AsyncModalResource,
@@ -100,4 +108,10 @@ __all__ = [
     "AsyncInferenceResourceWithRawResponse",
     "InferenceResourceWithStreamingResponse",
     "AsyncInferenceResourceWithStreamingResponse",
+    "DemoResource",
+    "AsyncDemoResource",
+    "DemoResourceWithRawResponse",
+    "AsyncDemoResourceWithRawResponse",
+    "DemoResourceWithStreamingResponse",
+    "AsyncDemoResourceWithStreamingResponse",
 ]
