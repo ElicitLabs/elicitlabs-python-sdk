@@ -8,6 +8,8 @@ __all__ = ["DataIngestResponse"]
 
 
 class DataIngestResponse(BaseModel):
+    """Response model for data ingestion"""
+
     content_type: str
     """Content type that was processed"""
 

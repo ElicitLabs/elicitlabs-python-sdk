@@ -8,6 +8,8 @@ __all__ = ["DemoSignInResponse"]
 
 
 class DemoSignInResponse(BaseModel):
+    """Response model for authentication"""
+
     access_token: str
     """JWT access token"""
 

@@ -9,6 +9,8 @@ __all__ = ["OrgListOrganizationMembersResponse", "User"]
 
 
 class User(BaseModel):
+    """Response model for organization member (user or persona)"""
+
     id: str
     """User ID or Persona ID"""
 
@@ -38,6 +40,8 @@ class User(BaseModel):
 
 
 class OrgListOrganizationMembersResponse(BaseModel):
+    """Response model for getting users and personas by organization"""
+
     org_id: str
     """Organization ID"""
 

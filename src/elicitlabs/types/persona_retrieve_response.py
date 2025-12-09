@@ -9,6 +9,8 @@ __all__ = ["PersonaRetrieveResponse"]
 
 
 class PersonaRetrieveResponse(BaseModel):
+    """Response model for persona information"""
+
     created_at: datetime
 
     description: Optional[str] = None

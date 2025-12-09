@@ -6,5 +6,7 @@ __all__ = ["DemoRequestPasswordResetResponse"]
 
 
 class DemoRequestPasswordResetResponse(BaseModel):
+    """Response model for forgot password"""
+
     message: str
     """Success message"""

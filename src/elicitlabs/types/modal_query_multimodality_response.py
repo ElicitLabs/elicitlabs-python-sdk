@@ -8,6 +8,8 @@ __all__ = ["ModalQueryMultimodalityResponse"]
 
 
 class ModalQueryMultimodalityResponse(BaseModel):
+    """Response model for multimodal memory query"""
+
     new_prompt: str
     """Formatted string containing retrieved memories"""
 

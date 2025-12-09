@@ -8,6 +8,8 @@ __all__ = ["ModalLearnResponse"]
 
 
 class ModalLearnResponse(BaseModel):
+    """Response model for learning processing"""
+
     message: str
     """Status message about the learning process"""
 

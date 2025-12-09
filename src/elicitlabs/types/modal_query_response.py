@@ -8,6 +8,8 @@ __all__ = ["ModalQueryResponse"]
 
 
 class ModalQueryResponse(BaseModel):
+    """Response model for memory query processing"""
+
     new_prompt: str
     """Edited prompt for the query"""
 

@@ -8,6 +8,8 @@ __all__ = ["InferenceGenerateCompletionResponse"]
 
 
 class InferenceGenerateCompletionResponse(BaseModel):
+    """Response model for prepared messages"""
+
     messages: Optional[List[Dict[str, object]]] = None
     """Formatted messages with memory context"""
 
