@@ -6,6 +6,8 @@ __all__ = ["JobRetrieveStatusResponse"]
 
 
 class JobRetrieveStatusResponse(BaseModel):
+    """Response model for job completion percentage"""
+
     job_id: str
     """The job ID"""
 

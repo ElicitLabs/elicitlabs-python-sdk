@@ -8,6 +8,8 @@ __all__ = ["UserCreateOrGetResponse"]
 
 
 class UserCreateOrGetResponse(BaseModel):
+    """Response model for user creation"""
+
     created_at: str
     """User creation timestamp"""
 

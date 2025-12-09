@@ -9,6 +9,8 @@ __all__ = ["PersonaCreateResponse", "Persona"]
 
 
 class Persona(BaseModel):
+    """The created persona"""
+
     created_at: datetime
 
     description: Optional[str] = None
@@ -25,6 +27,8 @@ class Persona(BaseModel):
 
 
 class PersonaCreateResponse(BaseModel):
+    """Response model for creating a persona"""
+
     message: str
     """Success message"""
 

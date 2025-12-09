@@ -8,6 +8,8 @@ __all__ = ["InferenceGenerateMultimodalityCompletionResponse"]
 
 
 class InferenceGenerateMultimodalityCompletionResponse(BaseModel):
+    """Response model for inference with text-to-speech and multimodal memory"""
+
     text_response: str
     """Generated text response from LLM"""
 

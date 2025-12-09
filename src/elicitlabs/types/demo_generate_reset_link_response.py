@@ -6,6 +6,8 @@ __all__ = ["DemoGenerateResetLinkResponse"]
 
 
 class DemoGenerateResetLinkResponse(BaseModel):
+    """Response model for password reset link"""
+
     token: str
     """Reset token"""
 

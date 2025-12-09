@@ -9,6 +9,8 @@ __all__ = ["PersonaListResponse", "Persona"]
 
 
 class Persona(BaseModel):
+    """Response model for persona information"""
+
     created_at: datetime
 
     description: Optional[str] = None
@@ -25,6 +27,8 @@ class Persona(BaseModel):
 
 
 class PersonaListResponse(BaseModel):
+    """Response model for getting user personas"""
+
     personas: List[Persona]
     """List of personas for the user"""
 
