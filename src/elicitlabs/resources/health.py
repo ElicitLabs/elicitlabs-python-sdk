@@ -48,7 +48,7 @@ class HealthResource(SyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> object:
-        """Health Check"""
+        """Health check endpoint to verify API and database connectivity"""
         return self._get(
             "/health",
             options=make_request_options(
@@ -88,7 +88,7 @@ class AsyncHealthResource(AsyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> object:
-        """Health Check"""
+        """Health check endpoint to verify API and database connectivity"""
         return await self._get(
             "/health",
             options=make_request_options(

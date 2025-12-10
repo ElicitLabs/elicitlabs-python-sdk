@@ -8,6 +8,8 @@ __all__ = ["DemoResetPasswordResponse"]
 
 
 class DemoResetPasswordResponse(BaseModel):
+    """Response model for password reset"""
+
     message: str
     """Success message"""
 

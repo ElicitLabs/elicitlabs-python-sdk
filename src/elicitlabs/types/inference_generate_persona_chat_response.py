@@ -8,6 +8,8 @@ __all__ = ["InferenceGeneratePersonaChatResponse"]
 
 
 class InferenceGeneratePersonaChatResponse(BaseModel):
+    """Response model for persona chat"""
+
     messages: Optional[List[Dict[str, str]]] = None
     """Formatted messages with memory context"""
 

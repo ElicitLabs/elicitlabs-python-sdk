@@ -42,8 +42,8 @@ class TestModal:
                 "role": "bar",
             },
             user_id="123e4567-e89b-12d3-a456-426614174000",
-            datetime_input="2024-01-01T10:00:00Z",
             session_id="session_123",
+            timestamp="2024-01-01T10:00:00Z",
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
@@ -202,8 +202,8 @@ class TestAsyncModal:
                 "role": "bar",
             },
             user_id="123e4567-e89b-12d3-a456-426614174000",
-            datetime_input="2024-01-01T10:00:00Z",
             session_id="session_123",
+            timestamp="2024-01-01T10:00:00Z",
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 

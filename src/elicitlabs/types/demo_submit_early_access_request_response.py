@@ -9,6 +9,8 @@ __all__ = ["DemoSubmitEarlyAccessRequestResponse"]
 
 
 class DemoSubmitEarlyAccessRequestResponse(BaseModel):
+    """Response model for early access submission"""
+
     id: str
     """Submission ID"""
 

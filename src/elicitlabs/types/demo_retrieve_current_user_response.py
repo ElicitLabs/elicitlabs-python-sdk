@@ -9,6 +9,8 @@ __all__ = ["DemoRetrieveCurrentUserResponse"]
 
 
 class DemoRetrieveCurrentUserResponse(BaseModel):
+    """Response model for user information"""
+
     created_at: datetime
 
     email: str
