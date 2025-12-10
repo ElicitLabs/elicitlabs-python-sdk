@@ -15,8 +15,8 @@ class ModalLearnParams(TypedDict, total=False):
     user_id: Required[str]
     """Unique identifier for the user"""
 
-    datetime_input: Optional[str]
-    """ISO format datetime string for the message timestamp"""
-
     session_id: Optional[str]
     """Optional session identifier for conversation context"""
+
+    timestamp: Optional[str]
+    """ISO format datetime string for the message timestamp"""
