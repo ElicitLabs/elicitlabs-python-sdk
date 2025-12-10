@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.7.0 (2025-12-10)
+
+Full Changelog: [v0.6.0...v0.7.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.6.0...v0.7.0)
+
+### Features
+
+* **api:** api update ([70750c2](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/70750c2e41b5f0573ef864b70c74ba369aa07a4e))
+
+
+### Bug Fixes
+
+* **types:** allow pyright to infer TypedDict types within SequenceNotStr ([afbb39d](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/afbb39dea42c974c8e4b94d69d773a5feb2e30c9))
+
+
+### Chores
+
+* add missing docstrings ([5f030dd](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/5f030ddb86bf5ebda28d31716002a20a645c4a09))
+* **docs:** use environment variables for authentication in code snippets ([3826b97](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/3826b970f56bb2300346d1e1807dd2a19760f91e))
+* update lockfile ([675b015](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/675b015b3eec8f12d99699f2b7b5b9e3f72effbf))
+
 ## 0.6.0 (2025-12-02)
 
 Full Changelog: [v0.5.0...v0.6.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.5.0...v0.6.0)
