@@ -59,6 +59,8 @@ class InferenceResource(SyncAPIResource):
         user_id: str,
         disabled_learning: bool | Omit = omit,
         model: str | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -77,16 +79,29 @@ class InferenceResource(SyncAPIResource):
             - Optionally learns from the conversation (disabled_learning=False)
             - Returns formatted messages with AI response
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, inference uses persona's context instead of user
+            - project_id (str, optional): If provided, inference uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
           content: Content to process
 
-          user_id: User ID
+          user_id: User ID (always required)
 
           disabled_learning: Whether to disable learning
 
           model: LLM model to use for generation
+
+          persona_id: Optional persona ID. If provided, inference uses this persona's context instead
+              of the user
+
+          project_id: Optional project ID. If provided, inference uses project context (inherits from
+              user)
 
           session_id: Session ID
 
@@ -106,6 +121,8 @@ class InferenceResource(SyncAPIResource):
                     "user_id": user_id,
                     "disabled_learning": disabled_learning,
                     "model": model,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                 },
                 inference_generate_completion_params.InferenceGenerateCompletionParams,
@@ -126,6 +143,8 @@ class InferenceResource(SyncAPIResource):
         image_base64: Optional[str] | Omit = omit,
         model: Optional[str] | Omit = omit,
         output_type: Literal["text", "audio", "image"] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         question: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         speed: float | Omit = omit,
@@ -150,8 +169,14 @@ class InferenceResource(SyncAPIResource):
             5. Based on output_type: returns text only, converts to speech (TTS), or generates an image
             6. Returns text response, audio/image (based on output_type), and memory context
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, uses persona's context instead of user
+            - project_id (str, optional): If provided, uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
             - question (str, optional): User's question or prompt (can be extracted from audio if not provided)
             - context (str, optional): Additional context for the question
             - session_id (str, optional): Session identifier for conversation context
@@ -182,6 +207,8 @@ class InferenceResource(SyncAPIResource):
             ```json
             {
                 "user_id": "user-123",
+                "persona_id": null,
+                "project_id": null,
                 "question": "What do you see?",
                 "video_base64": "base64_encoded_video...",
                 "voice": "alloy",
@@ -195,7 +222,7 @@ class InferenceResource(SyncAPIResource):
             Returns 200 OK with text, audio/image (based on output_type), and memory context. Requires JWT authentication.
 
         Args:
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
 
           audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
 
@@ -209,6 +236,12 @@ class InferenceResource(SyncAPIResource):
 
           output_type: Output type: 'text' for text only, 'audio' for TTS audio, 'image' for
               AI-generated image
+
+          persona_id: Optional persona ID. If provided, inference uses this persona's context instead
+              of the user
+
+          project_id: Optional project ID. If provided, inference uses project context (inherits from
+              user)
 
           question: User's question or prompt (optional if audio provided)
 
@@ -239,6 +272,8 @@ class InferenceResource(SyncAPIResource):
                     "image_base64": image_base64,
                     "model": model,
                     "output_type": output_type,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "question": question,
                     "session_id": session_id,
                     "speed": speed,
@@ -257,6 +292,7 @@ class InferenceResource(SyncAPIResource):
         self,
         *,
         content: Union[str, Iterable[Dict[str, str]]],
+        persona_id: str,
         user_id: str,
         disabled_learning: bool | Omit = omit,
         model: str | Omit = omit,
@@ -278,12 +314,18 @@ class InferenceResource(SyncAPIResource):
             - Optionally learns from the conversation (disabled_learning=False)
             - Returns synchronous response with formatted messages
 
+            **Required Parameters:**
+            - user_id (str, required): The owning user ID
+            - persona_id (str, required): The persona ID to chat as
+
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
           content: Content to process
 
-          user_id: User ID (persona ID)
+          persona_id: Persona ID to chat as (required for persona chat)
+
+          user_id: User ID (always required)
 
           disabled_learning: Whether to disable learning
 
@@ -304,6 +346,7 @@ class InferenceResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "content": content,
+                    "persona_id": persona_id,
                     "user_id": user_id,
                     "disabled_learning": disabled_learning,
                     "model": model,
@@ -345,6 +388,8 @@ class AsyncInferenceResource(AsyncAPIResource):
         user_id: str,
         disabled_learning: bool | Omit = omit,
         model: str | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -363,16 +408,29 @@ class AsyncInferenceResource(AsyncAPIResource):
             - Optionally learns from the conversation (disabled_learning=False)
             - Returns formatted messages with AI response
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, inference uses persona's context instead of user
+            - project_id (str, optional): If provided, inference uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
           content: Content to process
 
-          user_id: User ID
+          user_id: User ID (always required)
 
           disabled_learning: Whether to disable learning
 
           model: LLM model to use for generation
+
+          persona_id: Optional persona ID. If provided, inference uses this persona's context instead
+              of the user
+
+          project_id: Optional project ID. If provided, inference uses project context (inherits from
+              user)
 
           session_id: Session ID
 
@@ -392,6 +450,8 @@ class AsyncInferenceResource(AsyncAPIResource):
                     "user_id": user_id,
                     "disabled_learning": disabled_learning,
                     "model": model,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                 },
                 inference_generate_completion_params.InferenceGenerateCompletionParams,
@@ -412,6 +472,8 @@ class AsyncInferenceResource(AsyncAPIResource):
         image_base64: Optional[str] | Omit = omit,
         model: Optional[str] | Omit = omit,
         output_type: Literal["text", "audio", "image"] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         question: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         speed: float | Omit = omit,
@@ -436,8 +498,14 @@ class AsyncInferenceResource(AsyncAPIResource):
             5. Based on output_type: returns text only, converts to speech (TTS), or generates an image
             6. Returns text response, audio/image (based on output_type), and memory context
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, uses persona's context instead of user
+            - project_id (str, optional): If provided, uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
             - question (str, optional): User's question or prompt (can be extracted from audio if not provided)
             - context (str, optional): Additional context for the question
             - session_id (str, optional): Session identifier for conversation context
@@ -468,6 +536,8 @@ class AsyncInferenceResource(AsyncAPIResource):
             ```json
             {
                 "user_id": "user-123",
+                "persona_id": null,
+                "project_id": null,
                 "question": "What do you see?",
                 "video_base64": "base64_encoded_video...",
                 "voice": "alloy",
@@ -481,7 +551,7 @@ class AsyncInferenceResource(AsyncAPIResource):
             Returns 200 OK with text, audio/image (based on output_type), and memory context. Requires JWT authentication.
 
         Args:
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
 
           audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
 
@@ -495,6 +565,12 @@ class AsyncInferenceResource(AsyncAPIResource):
 
           output_type: Output type: 'text' for text only, 'audio' for TTS audio, 'image' for
               AI-generated image
+
+          persona_id: Optional persona ID. If provided, inference uses this persona's context instead
+              of the user
+
+          project_id: Optional project ID. If provided, inference uses project context (inherits from
+              user)
 
           question: User's question or prompt (optional if audio provided)
 
@@ -525,6 +601,8 @@ class AsyncInferenceResource(AsyncAPIResource):
                     "image_base64": image_base64,
                     "model": model,
                     "output_type": output_type,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "question": question,
                     "session_id": session_id,
                     "speed": speed,
@@ -543,6 +621,7 @@ class AsyncInferenceResource(AsyncAPIResource):
         self,
         *,
         content: Union[str, Iterable[Dict[str, str]]],
+        persona_id: str,
         user_id: str,
         disabled_learning: bool | Omit = omit,
         model: str | Omit = omit,
@@ -564,12 +643,18 @@ class AsyncInferenceResource(AsyncAPIResource):
             - Optionally learns from the conversation (disabled_learning=False)
             - Returns synchronous response with formatted messages
 
+            **Required Parameters:**
+            - user_id (str, required): The owning user ID
+            - persona_id (str, required): The persona ID to chat as
+
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
           content: Content to process
 
-          user_id: User ID (persona ID)
+          persona_id: Persona ID to chat as (required for persona chat)
+
+          user_id: User ID (always required)
 
           disabled_learning: Whether to disable learning
 
@@ -590,6 +675,7 @@ class AsyncInferenceResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "content": content,
+                    "persona_id": persona_id,
                     "user_id": user_id,
                     "disabled_learning": disabled_learning,
                     "model": model,
