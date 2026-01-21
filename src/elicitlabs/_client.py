@@ -31,14 +31,14 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import auth, data, demo, modal, users, health, personas, inference
+    from .resources import auth, data, modal, users, health, personas, projects, inference
     from .resources.modal import ModalResource, AsyncModalResource
     from .resources.users import UsersResource, AsyncUsersResource
     from .resources.health import HealthResource, AsyncHealthResource
     from .resources.personas import PersonasResource, AsyncPersonasResource
+    from .resources.projects import ProjectsResource, AsyncProjectsResource
     from .resources.auth.auth import AuthResource, AsyncAuthResource
     from .resources.data.data import DataResource, AsyncDataResource
-    from .resources.demo.demo import DemoResource, AsyncDemoResource
     from .resources.inference import InferenceResource, AsyncInferenceResource
 
 __all__ = [
@@ -151,10 +151,10 @@ class ElicitClient(SyncAPIClient):
         return InferenceResource(self)
 
     @cached_property
-    def demo(self) -> DemoResource:
-        from .resources.demo import DemoResource
+    def projects(self) -> ProjectsResource:
+        from .resources.projects import ProjectsResource
 
-        return DemoResource(self)
+        return ProjectsResource(self)
 
     @cached_property
     def with_raw_response(self) -> ElicitClientWithRawResponse:
@@ -367,10 +367,10 @@ class AsyncElicitClient(AsyncAPIClient):
         return AsyncInferenceResource(self)
 
     @cached_property
-    def demo(self) -> AsyncDemoResource:
-        from .resources.demo import AsyncDemoResource
+    def projects(self) -> AsyncProjectsResource:
+        from .resources.projects import AsyncProjectsResource
 
-        return AsyncDemoResource(self)
+        return AsyncProjectsResource(self)
 
     @cached_property
     def with_raw_response(self) -> AsyncElicitClientWithRawResponse:
@@ -534,10 +534,10 @@ class ElicitClientWithRawResponse:
         return InferenceResourceWithRawResponse(self._client.inference)
 
     @cached_property
-    def demo(self) -> demo.DemoResourceWithRawResponse:
-        from .resources.demo import DemoResourceWithRawResponse
+    def projects(self) -> projects.ProjectsResourceWithRawResponse:
+        from .resources.projects import ProjectsResourceWithRawResponse
 
-        return DemoResourceWithRawResponse(self._client.demo)
+        return ProjectsResourceWithRawResponse(self._client.projects)
 
 
 class AsyncElicitClientWithRawResponse:
@@ -589,10 +589,10 @@ class AsyncElicitClientWithRawResponse:
         return AsyncInferenceResourceWithRawResponse(self._client.inference)
 
     @cached_property
-    def demo(self) -> demo.AsyncDemoResourceWithRawResponse:
-        from .resources.demo import AsyncDemoResourceWithRawResponse
+    def projects(self) -> projects.AsyncProjectsResourceWithRawResponse:
+        from .resources.projects import AsyncProjectsResourceWithRawResponse
 
-        return AsyncDemoResourceWithRawResponse(self._client.demo)
+        return AsyncProjectsResourceWithRawResponse(self._client.projects)
 
 
 class ElicitClientWithStreamedResponse:
@@ -644,10 +644,10 @@ class ElicitClientWithStreamedResponse:
         return InferenceResourceWithStreamingResponse(self._client.inference)
 
     @cached_property
-    def demo(self) -> demo.DemoResourceWithStreamingResponse:
-        from .resources.demo import DemoResourceWithStreamingResponse
+    def projects(self) -> projects.ProjectsResourceWithStreamingResponse:
+        from .resources.projects import ProjectsResourceWithStreamingResponse
 
-        return DemoResourceWithStreamingResponse(self._client.demo)
+        return ProjectsResourceWithStreamingResponse(self._client.projects)
 
 
 class AsyncElicitClientWithStreamedResponse:
@@ -699,10 +699,10 @@ class AsyncElicitClientWithStreamedResponse:
         return AsyncInferenceResourceWithStreamingResponse(self._client.inference)
 
     @cached_property
-    def demo(self) -> demo.AsyncDemoResourceWithStreamingResponse:
-        from .resources.demo import AsyncDemoResourceWithStreamingResponse
+    def projects(self) -> projects.AsyncProjectsResourceWithStreamingResponse:
+        from .resources.projects import AsyncProjectsResourceWithStreamingResponse
 
-        return AsyncDemoResourceWithStreamingResponse(self._client.demo)
+        return AsyncProjectsResourceWithStreamingResponse(self._client.projects)
 
 
 Client = ElicitClient

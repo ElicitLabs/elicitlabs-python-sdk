@@ -102,52 +102,22 @@ Methods:
 - <code title="post /v1/inference/multimodality-completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_multimodality_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_multimodality_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_multimodality_completion_response.py">InferenceGenerateMultimodalityCompletionResponse</a></code>
 - <code title="post /v1/inference/persona-chat">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_persona_chat</a>(\*\*<a href="src/elicitlabs/types/inference_generate_persona_chat_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_persona_chat_response.py">InferenceGeneratePersonaChatResponse</a></code>
 
-# Demo
+# Projects
 
 Types:
 
 ```python
 from elicitlabs.types import (
-    DemoCreateUserResponse,
-    DemoGenerateResetLinkResponse,
-    DemoRequestPasswordResetResponse,
-    DemoResetPasswordResponse,
-    DemoRetrieveCurrentUserResponse,
-    DemoSignInResponse,
-    DemoSubmitEarlyAccessRequestResponse,
+    ProjectCreateResponse,
+    ProjectRetrieveResponse,
+    ProjectListResponse,
+    ProjectDeleteResponse,
 )
 ```
 
 Methods:
 
-- <code title="post /v1/demo/signup">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">create_user</a>(\*\*<a href="src/elicitlabs/types/demo_create_user_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo_create_user_response.py">DemoCreateUserResponse</a></code>
-- <code title="post /v1/demo/get-reset-link">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">generate_reset_link</a>(\*\*<a href="src/elicitlabs/types/demo_generate_reset_link_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo_generate_reset_link_response.py">DemoGenerateResetLinkResponse</a></code>
-- <code title="post /v1/demo/forgot-password">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">request_password_reset</a>(\*\*<a href="src/elicitlabs/types/demo_request_password_reset_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo_request_password_reset_response.py">DemoRequestPasswordResetResponse</a></code>
-- <code title="post /v1/demo/reset-password">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">reset_password</a>(\*\*<a href="src/elicitlabs/types/demo_reset_password_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo_reset_password_response.py">DemoResetPasswordResponse</a></code>
-- <code title="get /v1/demo/me">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">retrieve_current_user</a>() -> <a href="./src/elicitlabs/types/demo_retrieve_current_user_response.py">DemoRetrieveCurrentUserResponse</a></code>
-- <code title="post /v1/demo/signin">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">sign_in</a>(\*\*<a href="src/elicitlabs/types/demo_sign_in_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo_sign_in_response.py">DemoSignInResponse</a></code>
-- <code title="post /v1/demo/early-access">client.demo.<a href="./src/elicitlabs/resources/demo/demo.py">submit_early_access_request</a>(\*\*<a href="src/elicitlabs/types/demo_submit_early_access_request_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo_submit_early_access_request_response.py">DemoSubmitEarlyAccessRequestResponse</a></code>
-
-## Auth
-
-Types:
-
-```python
-from elicitlabs.types.demo import AuthAuthenticateWithGoogleResponse
-```
-
-Methods:
-
-- <code title="post /v1/demo/auth/google">client.demo.auth.<a href="./src/elicitlabs/resources/demo/auth.py">authenticate_with_google</a>(\*\*<a href="src/elicitlabs/types/demo/auth_authenticate_with_google_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo/auth_authenticate_with_google_response.py">AuthAuthenticateWithGoogleResponse</a></code>
-
-## Org
-
-Types:
-
-```python
-from elicitlabs.types.demo import OrgListOrganizationMembersResponse
-```
-
-Methods:
-
-- <code title="post /v1/demo/org/users">client.demo.org.<a href="./src/elicitlabs/resources/demo/org.py">list_organization_members</a>(\*\*<a href="src/elicitlabs/types/demo/org_list_organization_members_params.py">params</a>) -> <a href="./src/elicitlabs/types/demo/org_list_organization_members_response.py">OrgListOrganizationMembersResponse</a></code>
+- <code title="post /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">create</a>(\*\*<a href="src/elicitlabs/types/project_create_params.py">params</a>) -> <a href="./src/elicitlabs/types/project_create_response.py">ProjectCreateResponse</a></code>
+- <code title="get /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">retrieve</a>(project_id) -> <a href="./src/elicitlabs/types/project_retrieve_response.py">ProjectRetrieveResponse</a></code>
+- <code title="get /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">list</a>() -> <a href="./src/elicitlabs/types/project_list_response.py">ProjectListResponse</a></code>
+- <code title="delete /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">delete</a>(project_id) -> <a href="./src/elicitlabs/types/project_delete_response.py">ProjectDeleteResponse</a></code>

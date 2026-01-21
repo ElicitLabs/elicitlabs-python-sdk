@@ -16,14 +16,6 @@ from .data import (
     DataResourceWithStreamingResponse,
     AsyncDataResourceWithStreamingResponse,
 )
-from .demo import (
-    DemoResource,
-    AsyncDemoResource,
-    DemoResourceWithRawResponse,
-    AsyncDemoResourceWithRawResponse,
-    DemoResourceWithStreamingResponse,
-    AsyncDemoResourceWithStreamingResponse,
-)
 from .modal import (
     ModalResource,
     AsyncModalResource,
@@ -55,6 +47,14 @@ from .personas import (
     AsyncPersonasResourceWithRawResponse,
     PersonasResourceWithStreamingResponse,
     AsyncPersonasResourceWithStreamingResponse,
+)
+from .projects import (
+    ProjectsResource,
+    AsyncProjectsResource,
+    ProjectsResourceWithRawResponse,
+    AsyncProjectsResourceWithRawResponse,
+    ProjectsResourceWithStreamingResponse,
+    AsyncProjectsResourceWithStreamingResponse,
 )
 from .inference import (
     InferenceResource,
@@ -108,10 +108,10 @@ __all__ = [
     "AsyncInferenceResourceWithRawResponse",
     "InferenceResourceWithStreamingResponse",
     "AsyncInferenceResourceWithStreamingResponse",
-    "DemoResource",
-    "AsyncDemoResource",
-    "DemoResourceWithRawResponse",
-    "AsyncDemoResourceWithRawResponse",
-    "DemoResourceWithStreamingResponse",
-    "AsyncDemoResourceWithStreamingResponse",
+    "ProjectsResource",
+    "AsyncProjectsResource",
+    "ProjectsResourceWithRawResponse",
+    "AsyncProjectsResourceWithRawResponse",
+    "ProjectsResourceWithStreamingResponse",
+    "AsyncProjectsResourceWithStreamingResponse",
 ]
