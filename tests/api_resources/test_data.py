@@ -23,7 +23,7 @@ class TestData:
         data = client.data.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
@@ -33,8 +33,10 @@ class TestData:
         data = client.data.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
             filename="filename",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_id",
             timestamp="2024-01-01T12:00:00Z",
         )
@@ -46,7 +48,7 @@ class TestData:
         response = client.data.with_raw_response.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
         )
 
         assert response.is_closed is True
@@ -60,7 +62,7 @@ class TestData:
         with client.data.with_streaming_response.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -82,7 +84,7 @@ class TestAsyncData:
         data = await async_client.data.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
@@ -92,8 +94,10 @@ class TestAsyncData:
         data = await async_client.data.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
             filename="filename",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_id",
             timestamp="2024-01-01T12:00:00Z",
         )
@@ -105,7 +109,7 @@ class TestAsyncData:
         response = await async_client.data.with_raw_response.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
         )
 
         assert response.is_closed is True
@@ -119,7 +123,7 @@ class TestAsyncData:
         async with async_client.data.with_streaming_response.ingest(
             content_type="text",
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
-            user_id="abc-123",
+            user_id="user-123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"

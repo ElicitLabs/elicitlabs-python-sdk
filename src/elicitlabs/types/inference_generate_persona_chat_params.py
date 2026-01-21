@@ -12,8 +12,11 @@ class InferenceGeneratePersonaChatParams(TypedDict, total=False):
     content: Required[Union[str, Iterable[Dict[str, str]]]]
     """Content to process"""
 
+    persona_id: Required[str]
+    """Persona ID to chat as (required for persona chat)"""
+
     user_id: Required[str]
-    """User ID (persona ID)"""
+    """User ID (always required)"""
 
     disabled_learning: bool
     """Whether to disable learning"""

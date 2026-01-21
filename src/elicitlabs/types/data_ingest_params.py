@@ -19,10 +19,22 @@ class DataIngestParams(TypedDict, total=False):
     """Raw content as string, object, list (for messages), or base64 encoded data"""
 
     user_id: Required[str]
-    """User ID to associate the data with"""
+    """User ID (always required)"""
 
     filename: Optional[str]
     """Filename of the uploaded file"""
+
+    persona_id: Optional[str]
+    """Optional persona ID.
+
+    If provided, data is ingested to this persona instead of the user
+    """
+
+    project_id: Optional[str]
+    """Optional project ID.
+
+    If provided, data is ingested to this project (inherits from user)
+    """
 
     session_id: Optional[str]
     """

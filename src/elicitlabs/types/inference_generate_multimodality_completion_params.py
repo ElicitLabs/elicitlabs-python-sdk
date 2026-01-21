@@ -10,7 +10,7 @@ __all__ = ["InferenceGenerateMultimodalityCompletionParams"]
 
 class InferenceGenerateMultimodalityCompletionParams(TypedDict, total=False):
     user_id: Required[str]
-    """Unique identifier for the user"""
+    """Unique identifier for the user (always required)"""
 
     audio_base64: Optional[str]
     """Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)"""
@@ -31,6 +31,18 @@ class InferenceGenerateMultimodalityCompletionParams(TypedDict, total=False):
     """
     Output type: 'text' for text only, 'audio' for TTS audio, 'image' for
     AI-generated image
+    """
+
+    persona_id: Optional[str]
+    """Optional persona ID.
+
+    If provided, inference uses this persona's context instead of the user
+    """
+
+    project_id: Optional[str]
+    """Optional project ID.
+
+    If provided, inference uses project context (inherits from user)
     """
 
     question: Optional[str]

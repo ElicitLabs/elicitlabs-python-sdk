@@ -56,6 +56,8 @@ class TestInference:
             user_id="user-123",
             disabled_learning=False,
             model="gpt-4.1-mini",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session-abc",
         )
         assert_matches_type(InferenceGenerateCompletionResponse, inference, path=["response"])
@@ -125,6 +127,8 @@ class TestInference:
             image_base64="base64_encoded_image...",
             model="gemini-2.5-flash",
             output_type="text",
+            persona_id="persona_id",
+            project_id="project_id",
             question="What do you see?",
             session_id="session_123",
             speed=1,
@@ -173,7 +177,8 @@ class TestInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
         )
         assert_matches_type(InferenceGeneratePersonaChatResponse, inference, path=["response"])
 
@@ -191,7 +196,8 @@ class TestInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
             disabled_learning=True,
             model="gpt-4.1-mini",
             session_id="session-abc",
@@ -212,7 +218,8 @@ class TestInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
         )
 
         assert response.is_closed is True
@@ -234,7 +241,8 @@ class TestInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -285,6 +293,8 @@ class TestAsyncInference:
             user_id="user-123",
             disabled_learning=False,
             model="gpt-4.1-mini",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session-abc",
         )
         assert_matches_type(InferenceGenerateCompletionResponse, inference, path=["response"])
@@ -356,6 +366,8 @@ class TestAsyncInference:
             image_base64="base64_encoded_image...",
             model="gemini-2.5-flash",
             output_type="text",
+            persona_id="persona_id",
+            project_id="project_id",
             question="What do you see?",
             session_id="session_123",
             speed=1,
@@ -404,7 +416,8 @@ class TestAsyncInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
         )
         assert_matches_type(InferenceGeneratePersonaChatResponse, inference, path=["response"])
 
@@ -422,7 +435,8 @@ class TestAsyncInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
             disabled_learning=True,
             model="gpt-4.1-mini",
             session_id="session-abc",
@@ -443,7 +457,8 @@ class TestAsyncInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
         )
 
         assert response.is_closed is True
@@ -465,7 +480,8 @@ class TestAsyncInference:
                     "role": "user",
                 },
             ],
-            user_id="persona-123",
+            persona_id="persona-456",
+            user_id="user-123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"

@@ -62,6 +62,8 @@ class DataResource(SyncAPIResource):
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
         filename: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -77,8 +79,14 @@ class DataResource(SyncAPIResource):
             Accepts various content types (text, messages, files) and processes them to extract information
             and integrate it into the user's memory system. Returns a job_id for tracking status.
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, data is ingested to this persona instead of user
+            - project_id (str, optional): If provided, data is ingested to this project (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
             - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - session_id (str, optional): Groups related content for session-based retrieval
@@ -87,7 +95,7 @@ class DataResource(SyncAPIResource):
 
             **Response:**
             - job_id (str): Unique identifier for tracking the processing job
-            - user_id (str): Confirmed user ID
+            - user_id (str): Confirmed entity ID (user, persona, or project)
             - content_type (str): Confirmed content type
             - status (str): Job status ('queued', 'accepted')
             - message (str): Status message
@@ -98,6 +106,8 @@ class DataResource(SyncAPIResource):
             ```json
             {
                 "user_id": "user-123",
+                "persona_id": null,
+                "project_id": "project-456",
                 "content_type": "text",
                 "payload": "Meeting notes from today's discussion"
             }
@@ -112,9 +122,15 @@ class DataResource(SyncAPIResource):
 
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
-          user_id: User ID to associate the data with
+          user_id: User ID (always required)
 
           filename: Filename of the uploaded file
+
+          persona_id: Optional persona ID. If provided, data is ingested to this persona instead of
+              the user
+
+          project_id: Optional project ID. If provided, data is ingested to this project (inherits
+              from user)
 
           session_id: Session ID for grouping related ingested content and enabling session-based
               retrieval
@@ -137,6 +153,8 @@ class DataResource(SyncAPIResource):
                     "payload": payload,
                     "user_id": user_id,
                     "filename": filename,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                     "timestamp": timestamp,
                 },
@@ -180,6 +198,8 @@ class AsyncDataResource(AsyncAPIResource):
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
         filename: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -195,8 +215,14 @@ class AsyncDataResource(AsyncAPIResource):
             Accepts various content types (text, messages, files) and processes them to extract information
             and integrate it into the user's memory system. Returns a job_id for tracking status.
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, data is ingested to this persona instead of user
+            - project_id (str, optional): If provided, data is ingested to this project (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
             - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - session_id (str, optional): Groups related content for session-based retrieval
@@ -205,7 +231,7 @@ class AsyncDataResource(AsyncAPIResource):
 
             **Response:**
             - job_id (str): Unique identifier for tracking the processing job
-            - user_id (str): Confirmed user ID
+            - user_id (str): Confirmed entity ID (user, persona, or project)
             - content_type (str): Confirmed content type
             - status (str): Job status ('queued', 'accepted')
             - message (str): Status message
@@ -216,6 +242,8 @@ class AsyncDataResource(AsyncAPIResource):
             ```json
             {
                 "user_id": "user-123",
+                "persona_id": null,
+                "project_id": "project-456",
                 "content_type": "text",
                 "payload": "Meeting notes from today's discussion"
             }
@@ -230,9 +258,15 @@ class AsyncDataResource(AsyncAPIResource):
 
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
-          user_id: User ID to associate the data with
+          user_id: User ID (always required)
 
           filename: Filename of the uploaded file
+
+          persona_id: Optional persona ID. If provided, data is ingested to this persona instead of
+              the user
+
+          project_id: Optional project ID. If provided, data is ingested to this project (inherits
+              from user)
 
           session_id: Session ID for grouping related ingested content and enabling session-based
               retrieval
@@ -255,6 +289,8 @@ class AsyncDataResource(AsyncAPIResource):
                     "payload": payload,
                     "user_id": user_id,
                     "filename": filename,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                     "timestamp": timestamp,
                 },
