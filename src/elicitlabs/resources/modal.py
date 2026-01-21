@@ -50,6 +50,8 @@ class ModalResource(SyncAPIResource):
         *,
         message: Dict[str, object],
         user_id: str,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -65,10 +67,15 @@ class ModalResource(SyncAPIResource):
             Stores the message in conversation history and triggers memory extraction when thresholds are met.
             Returns immediately after storing the message, with memory processing happening in the background.
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, learning is scoped to this persona instead of user
+            - project_id (str, optional): If provided, learning is scoped to this project (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
-            - message (str, required): User message content
-            - role (str, required): Message role - "user" or "assistant"
+            - message (dict, required): Message with 'role' and 'content' fields
             - session_id (str, optional): Session identifier for conversation grouping
             - timestamp (str, optional): ISO-8601 timestamp for the message
 
@@ -76,14 +83,15 @@ class ModalResource(SyncAPIResource):
             - success (bool): True if message was stored
             - message (str): Status message
             - session_id (str): Confirmed session ID
-            - turn_id (str): Unique identifier for this conversation turn
+            - job_id (str): Unique identifier for this learning job
 
             **Example:**
             ```json
             {
                 "user_id": "user-123",
-                "message": "I prefer working in the morning",
-                "role": "user",
+                "persona_id": null,
+                "project_id": null,
+                "message": {"role": "user", "content": "I prefer working in the morning"},
                 "session_id": "session-abc"
             }
             ```
@@ -95,7 +103,13 @@ class ModalResource(SyncAPIResource):
         Args:
           message: Single message to learn from with 'role' and 'content' fields
 
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
+
+          persona_id: Optional persona ID. If provided, learning is scoped to this persona instead of
+              the user
+
+          project_id: Optional project ID. If provided, learning is scoped to this project (inherits
+              from user)
 
           session_id: Optional session identifier for conversation context
 
@@ -115,6 +129,8 @@ class ModalResource(SyncAPIResource):
                 {
                     "message": message,
                     "user_id": user_id,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                     "timestamp": timestamp,
                 },
@@ -132,6 +148,8 @@ class ModalResource(SyncAPIResource):
         question: str,
         user_id: str,
         filter_memory_types: Optional[SequenceNotStr[str]] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -147,9 +165,15 @@ class ModalResource(SyncAPIResource):
             Retrieves relevant information from the user's memory system using semantic search across
             all memory types: episodic memories, preferences, identity attributes, and short-term context.
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, query uses persona's context instead of user
+            - project_id (str, optional): If provided, query uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
             - question (str, required): Natural language question to query
-            - user_id (str, required): User or persona ID
             - session_id (str, optional): Session identifier for conversation context
             - filter_memory_types (list[str], optional): Memory types to exclude - valid values: "episodic", "preference", "identity", "short_term"
 
@@ -163,6 +187,8 @@ class ModalResource(SyncAPIResource):
             {
                 "question": "What are my preferences for morning routines?",
                 "user_id": "user-123",
+                "persona_id": null,
+                "project_id": null,
                 "session_id": "session-abc",
                 "filter_memory_types": ["episodic"]
             }
@@ -174,11 +200,17 @@ class ModalResource(SyncAPIResource):
         Args:
           question: The question to query against user's memories
 
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
 
           filter_memory_types:
               Optional list of memory types to exclude from retrieval. Valid types:
               'episodic', 'preference', 'identity', 'short_term'
+
+          persona_id: Optional persona ID. If provided, query is scoped to this persona instead of the
+              user
+
+          project_id: Optional project ID. If provided, query is scoped to this project (inherits from
+              user)
 
           session_id: Optional session identifier for conversation context
 
@@ -197,6 +229,8 @@ class ModalResource(SyncAPIResource):
                     "question": question,
                     "user_id": user_id,
                     "filter_memory_types": filter_memory_types,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                 },
                 modal_query_params.ModalQueryParams,
@@ -213,6 +247,8 @@ class ModalResource(SyncAPIResource):
         user_id: str,
         audio_base64: Optional[str] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -231,8 +267,14 @@ class ModalResource(SyncAPIResource):
             2. Search for related episodic memories
             3. Return formatted results with context
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, query uses persona's context instead of user
+            - project_id (str, optional): If provided, query uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
             - video_base64 (str, optional): Base64 encoded video content
             - image_base64 (str, optional): Base64 encoded image content
             - audio_base64 (str, optional): Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
@@ -251,18 +293,26 @@ class ModalResource(SyncAPIResource):
             ```json
             {
                 "user_id": "user-123",
-                "video_base64": "base64_encoded_video...",
+                "persona_id": null,
+                "project_id": null,
+                "video_base64": "base64_encoded_video..."
             }
             ```
 
             Returns 200 OK with memory data. Requires JWT authentication.
 
         Args:
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
 
           audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
 
           image_base64: Base64 encoded image content
+
+          persona_id: Optional persona ID. If provided, query is scoped to this persona instead of the
+              user
+
+          project_id: Optional project ID. If provided, query is scoped to this project (inherits from
+              user)
 
           session_id: Optional session identifier for conversation context
 
@@ -283,6 +333,8 @@ class ModalResource(SyncAPIResource):
                     "user_id": user_id,
                     "audio_base64": audio_base64,
                     "image_base64": image_base64,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                     "video_base64": video_base64,
                 },
@@ -320,6 +372,8 @@ class AsyncModalResource(AsyncAPIResource):
         *,
         message: Dict[str, object],
         user_id: str,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -335,10 +389,15 @@ class AsyncModalResource(AsyncAPIResource):
             Stores the message in conversation history and triggers memory extraction when thresholds are met.
             Returns immediately after storing the message, with memory processing happening in the background.
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, learning is scoped to this persona instead of user
+            - project_id (str, optional): If provided, learning is scoped to this project (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
-            - message (str, required): User message content
-            - role (str, required): Message role - "user" or "assistant"
+            - message (dict, required): Message with 'role' and 'content' fields
             - session_id (str, optional): Session identifier for conversation grouping
             - timestamp (str, optional): ISO-8601 timestamp for the message
 
@@ -346,14 +405,15 @@ class AsyncModalResource(AsyncAPIResource):
             - success (bool): True if message was stored
             - message (str): Status message
             - session_id (str): Confirmed session ID
-            - turn_id (str): Unique identifier for this conversation turn
+            - job_id (str): Unique identifier for this learning job
 
             **Example:**
             ```json
             {
                 "user_id": "user-123",
-                "message": "I prefer working in the morning",
-                "role": "user",
+                "persona_id": null,
+                "project_id": null,
+                "message": {"role": "user", "content": "I prefer working in the morning"},
                 "session_id": "session-abc"
             }
             ```
@@ -365,7 +425,13 @@ class AsyncModalResource(AsyncAPIResource):
         Args:
           message: Single message to learn from with 'role' and 'content' fields
 
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
+
+          persona_id: Optional persona ID. If provided, learning is scoped to this persona instead of
+              the user
+
+          project_id: Optional project ID. If provided, learning is scoped to this project (inherits
+              from user)
 
           session_id: Optional session identifier for conversation context
 
@@ -385,6 +451,8 @@ class AsyncModalResource(AsyncAPIResource):
                 {
                     "message": message,
                     "user_id": user_id,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                     "timestamp": timestamp,
                 },
@@ -402,6 +470,8 @@ class AsyncModalResource(AsyncAPIResource):
         question: str,
         user_id: str,
         filter_memory_types: Optional[SequenceNotStr[str]] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -417,9 +487,15 @@ class AsyncModalResource(AsyncAPIResource):
             Retrieves relevant information from the user's memory system using semantic search across
             all memory types: episodic memories, preferences, identity attributes, and short-term context.
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, query uses persona's context instead of user
+            - project_id (str, optional): If provided, query uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
             - question (str, required): Natural language question to query
-            - user_id (str, required): User or persona ID
             - session_id (str, optional): Session identifier for conversation context
             - filter_memory_types (list[str], optional): Memory types to exclude - valid values: "episodic", "preference", "identity", "short_term"
 
@@ -433,6 +509,8 @@ class AsyncModalResource(AsyncAPIResource):
             {
                 "question": "What are my preferences for morning routines?",
                 "user_id": "user-123",
+                "persona_id": null,
+                "project_id": null,
                 "session_id": "session-abc",
                 "filter_memory_types": ["episodic"]
             }
@@ -444,11 +522,17 @@ class AsyncModalResource(AsyncAPIResource):
         Args:
           question: The question to query against user's memories
 
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
 
           filter_memory_types:
               Optional list of memory types to exclude from retrieval. Valid types:
               'episodic', 'preference', 'identity', 'short_term'
+
+          persona_id: Optional persona ID. If provided, query is scoped to this persona instead of the
+              user
+
+          project_id: Optional project ID. If provided, query is scoped to this project (inherits from
+              user)
 
           session_id: Optional session identifier for conversation context
 
@@ -467,6 +551,8 @@ class AsyncModalResource(AsyncAPIResource):
                     "question": question,
                     "user_id": user_id,
                     "filter_memory_types": filter_memory_types,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                 },
                 modal_query_params.ModalQueryParams,
@@ -483,6 +569,8 @@ class AsyncModalResource(AsyncAPIResource):
         user_id: str,
         audio_base64: Optional[str] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -501,8 +589,14 @@ class AsyncModalResource(AsyncAPIResource):
             2. Search for related episodic memories
             3. Return formatted results with context
 
+            **Entity Resolution:**
+            - user_id (str, required): Always required - the main user identifier
+            - persona_id (str, optional): If provided, query uses persona's context instead of user
+            - project_id (str, optional): If provided, query uses project's context (inherits from user)
+
+            Priority: persona_id > project_id > user_id
+
             **Request Parameters:**
-            - user_id (str, required): User or persona ID
             - video_base64 (str, optional): Base64 encoded video content
             - image_base64 (str, optional): Base64 encoded image content
             - audio_base64 (str, optional): Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
@@ -521,18 +615,26 @@ class AsyncModalResource(AsyncAPIResource):
             ```json
             {
                 "user_id": "user-123",
-                "video_base64": "base64_encoded_video...",
+                "persona_id": null,
+                "project_id": null,
+                "video_base64": "base64_encoded_video..."
             }
             ```
 
             Returns 200 OK with memory data. Requires JWT authentication.
 
         Args:
-          user_id: Unique identifier for the user
+          user_id: Unique identifier for the user (always required)
 
           audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
 
           image_base64: Base64 encoded image content
+
+          persona_id: Optional persona ID. If provided, query is scoped to this persona instead of the
+              user
+
+          project_id: Optional project ID. If provided, query is scoped to this project (inherits from
+              user)
 
           session_id: Optional session identifier for conversation context
 
@@ -553,6 +655,8 @@ class AsyncModalResource(AsyncAPIResource):
                     "user_id": user_id,
                     "audio_base64": audio_base64,
                     "image_base64": image_base64,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
                     "session_id": session_id,
                     "video_base64": video_base64,
                 },

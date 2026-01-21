@@ -10,13 +10,25 @@ __all__ = ["ModalQueryMultimodalityParams"]
 
 class ModalQueryMultimodalityParams(TypedDict, total=False):
     user_id: Required[str]
-    """Unique identifier for the user"""
+    """Unique identifier for the user (always required)"""
 
     audio_base64: Optional[str]
     """Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)"""
 
     image_base64: Optional[str]
     """Base64 encoded image content"""
+
+    persona_id: Optional[str]
+    """Optional persona ID.
+
+    If provided, query is scoped to this persona instead of the user
+    """
+
+    project_id: Optional[str]
+    """Optional project ID.
+
+    If provided, query is scoped to this project (inherits from user)
+    """
 
     session_id: Optional[str]
     """Optional session identifier for conversation context"""

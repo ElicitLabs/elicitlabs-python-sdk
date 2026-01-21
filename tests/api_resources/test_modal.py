@@ -42,6 +42,8 @@ class TestModal:
                 "role": "bar",
             },
             user_id="123e4567-e89b-12d3-a456-426614174000",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_123",
             timestamp="2024-01-01T10:00:00Z",
         )
@@ -97,6 +99,8 @@ class TestModal:
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
             filter_memory_types=["episodic", "identity"],
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_123",
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
@@ -144,6 +148,8 @@ class TestModal:
             user_id="123e4567-e89b-12d3-a456-426614174000",
             audio_base64="audio_base64",
             image_base64="image_base64",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_123",
             video_base64="base64_encoded_video_content...",
         )
@@ -202,6 +208,8 @@ class TestAsyncModal:
                 "role": "bar",
             },
             user_id="123e4567-e89b-12d3-a456-426614174000",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_123",
             timestamp="2024-01-01T10:00:00Z",
         )
@@ -257,6 +265,8 @@ class TestAsyncModal:
             question="What are my preferences for morning routines?",
             user_id="123e4567-e89b-12d3-a456-426614174000",
             filter_memory_types=["episodic", "identity"],
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_123",
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
@@ -304,6 +314,8 @@ class TestAsyncModal:
             user_id="123e4567-e89b-12d3-a456-426614174000",
             audio_base64="audio_base64",
             image_base64="image_base64",
+            persona_id="persona_id",
+            project_id="project_id",
             session_id="session_123",
             video_base64="base64_encoded_video_content...",
         )
