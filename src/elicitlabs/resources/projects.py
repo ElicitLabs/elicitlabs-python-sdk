@@ -51,6 +51,7 @@ class ProjectsResource(SyncAPIResource):
         *,
         name: str,
         description: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -59,11 +60,11 @@ class ProjectsResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> ProjectCreateResponse:
         """
-        Create a new project for the authenticated user.
+        Create a new project for a user.
 
             This endpoint:
             - Creates a new project with the provided name and description
-            - Associates the project with the authenticated user
+            - Associates the project with the specified user_id, or the authenticated user if not provided
             - The project will have access to user's preferences, episodes, and identity
             - Returns the created project with all metadata
 
@@ -73,6 +74,9 @@ class ProjectsResource(SyncAPIResource):
           name: Project name
 
           description: Optional project description
+
+          user_id: User ID to associate the project with. If not provided, uses the authenticated
+              user's ID.
 
           extra_headers: Send extra headers
 
@@ -88,6 +92,7 @@ class ProjectsResource(SyncAPIResource):
                 {
                     "name": name,
                     "description": description,
+                    "user_id": user_id,
                 },
                 project_create_params.ProjectCreateParams,
             ),
@@ -234,6 +239,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         *,
         name: str,
         description: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -242,11 +248,11 @@ class AsyncProjectsResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> ProjectCreateResponse:
         """
-        Create a new project for the authenticated user.
+        Create a new project for a user.
 
             This endpoint:
             - Creates a new project with the provided name and description
-            - Associates the project with the authenticated user
+            - Associates the project with the specified user_id, or the authenticated user if not provided
             - The project will have access to user's preferences, episodes, and identity
             - Returns the created project with all metadata
 
@@ -256,6 +262,9 @@ class AsyncProjectsResource(AsyncAPIResource):
           name: Project name
 
           description: Optional project description
+
+          user_id: User ID to associate the project with. If not provided, uses the authenticated
+              user's ID.
 
           extra_headers: Send extra headers
 
@@ -271,6 +280,7 @@ class AsyncProjectsResource(AsyncAPIResource):
                 {
                     "name": name,
                     "description": description,
+                    "user_id": user_id,
                 },
                 project_create_params.ProjectCreateParams,
             ),
