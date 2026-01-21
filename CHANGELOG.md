@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.8.0 (2026-01-21)
+
+Full Changelog: [v0.7.0...v0.8.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.7.0...v0.8.0)
+
+### Features
+
+* **api:** api update ([0996f7d](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/0996f7d53826b0c8e7ba4669e98f7440a93e337f))
+* **api:** manual updates ([d312abd](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/d312abde58f65b07278901c9cf734eb06a711e39))
+* **client:** add support for binary request streaming ([2341d22](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/2341d229279f4daa846b64d6903d2c266f980675))
+
+
+### Bug Fixes
+
+* use async_to_httpx_files in patch method ([d336a2e](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/d336a2e3294f69af761adb7b0b23215aa49d51de))
+
+
+### Chores
+
+* **internal:** add `--fix` argument to lint script ([4f1c89a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/4f1c89aaabcbbc08ec568fe33e989f0049ebe755))
+* **internal:** add missing files argument to base client ([26a0750](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/26a0750857142de33ab48c5c33d0f0cfc61d006f))
+* **internal:** codegen related update ([b67a89e](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/b67a89ef631a9803775da8826cd15ede8e044d1f))
+* **internal:** update `actions/checkout` version ([777d999](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/777d9998a8b53b31034f1828bd560051fe01490f))
+* speedup initial import ([1554754](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/15547548a598a3c5cbdfa8f16edc98275661afc4))
+
 ## 0.7.0 (2025-12-10)
 
 Full Changelog: [v0.6.0...v0.7.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.6.0...v0.7.0)
