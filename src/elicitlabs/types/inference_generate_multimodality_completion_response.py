@@ -19,6 +19,12 @@ class InferenceGenerateMultimodalityCompletionResponse(BaseModel):
     audio_format: Optional[str] = None
     """Format of the audio (e.g., mp3)"""
 
+    entity_images: Optional[Dict[str, str]] = None
+    """
+    Reference images for matched entities used in generation (entity_name -> base64
+    image)
+    """
+
     image_base64: Optional[str] = None
     """Base64 encoded AI-generated image (if output_type='image')"""
 
