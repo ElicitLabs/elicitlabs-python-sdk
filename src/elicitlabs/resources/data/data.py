@@ -61,6 +61,7 @@ class DataResource(SyncAPIResource):
         content_type: str,
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
+        content_description: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -89,6 +90,7 @@ class DataResource(SyncAPIResource):
             **Request Parameters:**
             - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
+            - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
             - session_id (str, optional): Groups related content for session-based retrieval
             - timestamp (str, optional): ISO-8601 timestamp for historical data
             - filename (str, optional): Original filename for file uploads
@@ -109,7 +111,8 @@ class DataResource(SyncAPIResource):
                 "persona_id": null,
                 "project_id": "project-456",
                 "content_type": "text",
-                "payload": "Meeting notes from today's discussion"
+                "payload": "Meeting notes from today's discussion",
+                "content_description": "Meeting notes from today's discussion"
             }
             ```
 
@@ -123,6 +126,9 @@ class DataResource(SyncAPIResource):
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
           user_id: User ID (always required)
+
+          content_description: Optional description of the content being ingested (e.g., 'Logo design
+              concepts', 'Meeting notes')
 
           filename: Filename of the uploaded file
 
@@ -152,6 +158,7 @@ class DataResource(SyncAPIResource):
                     "content_type": content_type,
                     "payload": payload,
                     "user_id": user_id,
+                    "content_description": content_description,
                     "filename": filename,
                     "persona_id": persona_id,
                     "project_id": project_id,
@@ -197,6 +204,7 @@ class AsyncDataResource(AsyncAPIResource):
         content_type: str,
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
+        content_description: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -225,6 +233,7 @@ class AsyncDataResource(AsyncAPIResource):
             **Request Parameters:**
             - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
+            - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
             - session_id (str, optional): Groups related content for session-based retrieval
             - timestamp (str, optional): ISO-8601 timestamp for historical data
             - filename (str, optional): Original filename for file uploads
@@ -245,7 +254,8 @@ class AsyncDataResource(AsyncAPIResource):
                 "persona_id": null,
                 "project_id": "project-456",
                 "content_type": "text",
-                "payload": "Meeting notes from today's discussion"
+                "payload": "Meeting notes from today's discussion",
+                "content_description": "Meeting notes from today's discussion"
             }
             ```
 
@@ -259,6 +269,9 @@ class AsyncDataResource(AsyncAPIResource):
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
           user_id: User ID (always required)
+
+          content_description: Optional description of the content being ingested (e.g., 'Logo design
+              concepts', 'Meeting notes')
 
           filename: Filename of the uploaded file
 
@@ -288,6 +301,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "content_type": content_type,
                     "payload": payload,
                     "user_id": user_id,
+                    "content_description": content_description,
                     "filename": filename,
                     "persona_id": persona_id,
                     "project_id": project_id,
