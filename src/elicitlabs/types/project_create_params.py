@@ -14,3 +14,9 @@ class ProjectCreateParams(TypedDict, total=False):
 
     description: Optional[str]
     """Optional project description"""
+
+    user_id: Optional[str]
+    """User ID to associate the project with.
+
+    If not provided, uses the authenticated user's ID.
+    """

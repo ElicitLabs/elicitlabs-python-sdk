@@ -21,6 +21,12 @@ class DataIngestParams(TypedDict, total=False):
     user_id: Required[str]
     """User ID (always required)"""
 
+    content_description: Optional[str]
+    """
+    Optional description of the content being ingested (e.g., 'Logo design
+    concepts', 'Meeting notes')
+    """
+
     filename: Optional[str]
     """Filename of the uploaded file"""
 

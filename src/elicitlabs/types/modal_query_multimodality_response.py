@@ -13,6 +13,9 @@ class ModalQueryMultimodalityResponse(BaseModel):
     new_prompt: str
     """Formatted string containing retrieved memories"""
 
+    entity_images: Optional[Dict[str, str]] = None
+    """Reference images for matched entities (entity_name -> base64 image)"""
+
     image_base64: Optional[str] = None
     """
     Base64 encoded image - either the original image or a representative frame from
