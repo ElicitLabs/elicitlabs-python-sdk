@@ -36,6 +36,7 @@ class TestProjects:
         project = client.projects.create(
             name="My Research Project",
             description="A project for organizing research notes and findings",
+            project_type="general",
             user_id="456e7890-e89b-12d3-a456-426614174001",
         )
         assert_matches_type(ProjectCreateResponse, project, path=["response"])
@@ -198,6 +199,7 @@ class TestAsyncProjects:
         project = await async_client.projects.create(
             name="My Research Project",
             description="A project for organizing research notes and findings",
+            project_type="general",
             user_id="456e7890-e89b-12d3-a456-426614174001",
         )
         assert_matches_type(ProjectCreateResponse, project, path=["response"])

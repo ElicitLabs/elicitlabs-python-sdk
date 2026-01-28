@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from typing_extensions import Literal
 
 import httpx
 
@@ -51,6 +52,7 @@ class ProjectsResource(SyncAPIResource):
         *,
         name: str,
         description: Optional[str] | Omit = omit,
+        project_type: Optional[Literal["creative_design", "general"]] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -75,6 +77,10 @@ class ProjectsResource(SyncAPIResource):
 
           description: Optional project description
 
+          project_type: Optional project type override. When set, skips LLM classification during
+              content ingestion. Use 'creative_design' for artistic/design projects, 'general'
+              for documentation/business content.
+
           user_id: User ID to associate the project with. If not provided, uses the authenticated
               user's ID.
 
@@ -92,6 +98,7 @@ class ProjectsResource(SyncAPIResource):
                 {
                     "name": name,
                     "description": description,
+                    "project_type": project_type,
                     "user_id": user_id,
                 },
                 project_create_params.ProjectCreateParams,
@@ -239,6 +246,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         *,
         name: str,
         description: Optional[str] | Omit = omit,
+        project_type: Optional[Literal["creative_design", "general"]] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -263,6 +271,10 @@ class AsyncProjectsResource(AsyncAPIResource):
 
           description: Optional project description
 
+          project_type: Optional project type override. When set, skips LLM classification during
+              content ingestion. Use 'creative_design' for artistic/design projects, 'general'
+              for documentation/business content.
+
           user_id: User ID to associate the project with. If not provided, uses the authenticated
               user's ID.
 
@@ -280,6 +292,7 @@ class AsyncProjectsResource(AsyncAPIResource):
                 {
                     "name": name,
                     "description": description,
+                    "project_type": project_type,
                     "user_id": user_id,
                 },
                 project_create_params.ProjectCreateParams,
