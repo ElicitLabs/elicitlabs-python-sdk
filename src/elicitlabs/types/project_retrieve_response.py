@@ -26,3 +26,9 @@ class ProjectRetrieveResponse(BaseModel):
     user_id: str
 
     user_name: Optional[str] = None
+
+    project_type: Optional[str] = None
+    """Project type override: 'creative_design' or 'general'.
+
+    When set, skips LLM classification.
+    """
