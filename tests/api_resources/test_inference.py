@@ -122,6 +122,8 @@ class TestInference:
         inference = client.inference.generate_multimodality_completion(
             user_id="123e4567-e89b-12d3-a456-426614174000",
             audio_base64="base64_encoded_audio...",
+            audio_duration=0,
+            audio_type="tts",
             context="context",
             disabled_learning=False,
             image_base64="base64_encoded_image...",
@@ -361,6 +363,8 @@ class TestAsyncInference:
         inference = await async_client.inference.generate_multimodality_completion(
             user_id="123e4567-e89b-12d3-a456-426614174000",
             audio_base64="base64_encoded_audio...",
+            audio_duration=0,
+            audio_type="tts",
             context="context",
             disabled_learning=False,
             image_base64="base64_encoded_image...",

@@ -27,6 +27,12 @@ class Project(BaseModel):
 
     user_name: Optional[str] = None
 
+    project_type: Optional[str] = None
+    """Project type override: 'creative_design' or 'general'.
+
+    When set, skips LLM classification.
+    """
+
 
 class ProjectCreateResponse(BaseModel):
     """Response model for creating a project"""

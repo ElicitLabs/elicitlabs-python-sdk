@@ -15,6 +15,18 @@ class InferenceGenerateMultimodalityCompletionParams(TypedDict, total=False):
     audio_base64: Optional[str]
     """Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)"""
 
+    audio_duration: Optional[float]
+    """Duration in seconds for music/sfx generation.
+
+    Default: 5s for sfx, 10s for music
+    """
+
+    audio_type: Literal["tts", "music", "sfx"]
+    """
+    Type of audio output: 'tts' for text-to-speech, 'music' for AI music, 'sfx' for
+    sound effects
+    """
+
     context: Optional[str]
     """Additional context for the question"""
 
@@ -52,10 +64,13 @@ class InferenceGenerateMultimodalityCompletionParams(TypedDict, total=False):
     """Optional session identifier for conversation context"""
 
     speed: float
-    """Speed of the speech (0.25 to 4.0)"""
+    """Speed of the speech (0.25 to 4.0). Only used when audio_type='tts'"""
 
     video_base64: Optional[str]
     """Base64 encoded video content"""
 
     voice: str
-    """Voice to use for TTS (alloy, echo, fable, onyx, nova, shimmer)"""
+    """Voice to use for TTS (alloy, echo, fable, onyx, nova, shimmer).
+
+    Only used when audio_type='tts'
+    """
