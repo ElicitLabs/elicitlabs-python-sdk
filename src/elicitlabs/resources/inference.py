@@ -138,6 +138,8 @@ class InferenceResource(SyncAPIResource):
         *,
         user_id: str,
         audio_base64: Optional[str] | Omit = omit,
+        audio_duration: Optional[float] | Omit = omit,
+        audio_type: Literal["tts", "music", "sfx"] | Omit = omit,
         context: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
@@ -183,10 +185,12 @@ class InferenceResource(SyncAPIResource):
             - video_base64 (str, optional): Base64 encoded video content
             - image_base64 (str, optional): Base64 encoded image content
             - audio_base64 (str, optional): Base64 encoded audio content (supports webm, wav, mp3, etc.)
+            - audio_type (str, optional): Type of audio output - 'tts' (default), 'music', or 'sfx'
             - voice (str, optional): Voice to use for TTS - options: alloy (default), echo, fable, onyx, nova, shimmer
-            - speed (float, optional): Speech speed from 0.25 to 4.0 (default: 1.0)
+            - speed (float, optional): Speech speed from 0.25 to 4.0 (default: 1.0). Only for TTS.
+            - audio_duration (float, optional): Duration in seconds for music/sfx (default: 10 for music, 5 for sfx)
             - model (str, optional): LLM model to use (defaults to gemini-2.5-flash)
-            - output_type (str, optional): Output type - 'text' (default), 'audio' (TTS), or 'image' (AI-generated)
+            - output_type (str, optional): Output type - 'text' (default), 'audio', or 'image' (AI-generated)
             - disabled_learning (bool, optional): Whether to disable ingestion/learning from the content (default: false)
 
             **Note:** At least one multimodal input (video, image, or audio) is required for memory retrieval.
@@ -194,9 +198,9 @@ class InferenceResource(SyncAPIResource):
 
             **Response:**
             - text_response (str): Generated text response from the LLM
-            - audio_base64 (str, optional): Base64 encoded audio (MP3 format) if output_type='audio'
-            - audio_format (str, optional): Format of the audio
-            - voice_used (str, optional): Voice used for TTS
+            - audio_base64 (str, optional): Base64 encoded audio if output_type='audio' (MP3 for TTS, WAV for music/sfx)
+            - audio_format (str, optional): Format of the audio (mp3 or wav)
+            - voice_used (str, optional): Voice used for TTS (only for audio_type='tts')
             - image_base64 (str, optional): Representative image from input
             - generated_image_base64 (str, optional): AI-generated image if output_type='image'
             - memory_context (str, optional): Formatted memory context used for generation
@@ -226,6 +230,11 @@ class InferenceResource(SyncAPIResource):
 
           audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
 
+          audio_duration: Duration in seconds for music/sfx generation. Default: 5s for sfx, 10s for music
+
+          audio_type: Type of audio output: 'tts' for text-to-speech, 'music' for AI music, 'sfx' for
+              sound effects
+
           context: Additional context for the question
 
           disabled_learning: Whether to disable learning/ingestion of the multimodal content
@@ -247,11 +256,12 @@ class InferenceResource(SyncAPIResource):
 
           session_id: Optional session identifier for conversation context
 
-          speed: Speed of the speech (0.25 to 4.0)
+          speed: Speed of the speech (0.25 to 4.0). Only used when audio_type='tts'
 
           video_base64: Base64 encoded video content
 
-          voice: Voice to use for TTS (alloy, echo, fable, onyx, nova, shimmer)
+          voice: Voice to use for TTS (alloy, echo, fable, onyx, nova, shimmer). Only used when
+              audio_type='tts'
 
           extra_headers: Send extra headers
 
@@ -267,6 +277,8 @@ class InferenceResource(SyncAPIResource):
                 {
                     "user_id": user_id,
                     "audio_base64": audio_base64,
+                    "audio_duration": audio_duration,
+                    "audio_type": audio_type,
                     "context": context,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
@@ -467,6 +479,8 @@ class AsyncInferenceResource(AsyncAPIResource):
         *,
         user_id: str,
         audio_base64: Optional[str] | Omit = omit,
+        audio_duration: Optional[float] | Omit = omit,
+        audio_type: Literal["tts", "music", "sfx"] | Omit = omit,
         context: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
@@ -512,10 +526,12 @@ class AsyncInferenceResource(AsyncAPIResource):
             - video_base64 (str, optional): Base64 encoded video content
             - image_base64 (str, optional): Base64 encoded image content
             - audio_base64 (str, optional): Base64 encoded audio content (supports webm, wav, mp3, etc.)
+            - audio_type (str, optional): Type of audio output - 'tts' (default), 'music', or 'sfx'
             - voice (str, optional): Voice to use for TTS - options: alloy (default), echo, fable, onyx, nova, shimmer
-            - speed (float, optional): Speech speed from 0.25 to 4.0 (default: 1.0)
+            - speed (float, optional): Speech speed from 0.25 to 4.0 (default: 1.0). Only for TTS.
+            - audio_duration (float, optional): Duration in seconds for music/sfx (default: 10 for music, 5 for sfx)
             - model (str, optional): LLM model to use (defaults to gemini-2.5-flash)
-            - output_type (str, optional): Output type - 'text' (default), 'audio' (TTS), or 'image' (AI-generated)
+            - output_type (str, optional): Output type - 'text' (default), 'audio', or 'image' (AI-generated)
             - disabled_learning (bool, optional): Whether to disable ingestion/learning from the content (default: false)
 
             **Note:** At least one multimodal input (video, image, or audio) is required for memory retrieval.
@@ -523,9 +539,9 @@ class AsyncInferenceResource(AsyncAPIResource):
 
             **Response:**
             - text_response (str): Generated text response from the LLM
-            - audio_base64 (str, optional): Base64 encoded audio (MP3 format) if output_type='audio'
-            - audio_format (str, optional): Format of the audio
-            - voice_used (str, optional): Voice used for TTS
+            - audio_base64 (str, optional): Base64 encoded audio if output_type='audio' (MP3 for TTS, WAV for music/sfx)
+            - audio_format (str, optional): Format of the audio (mp3 or wav)
+            - voice_used (str, optional): Voice used for TTS (only for audio_type='tts')
             - image_base64 (str, optional): Representative image from input
             - generated_image_base64 (str, optional): AI-generated image if output_type='image'
             - memory_context (str, optional): Formatted memory context used for generation
@@ -555,6 +571,11 @@ class AsyncInferenceResource(AsyncAPIResource):
 
           audio_base64: Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)
 
+          audio_duration: Duration in seconds for music/sfx generation. Default: 5s for sfx, 10s for music
+
+          audio_type: Type of audio output: 'tts' for text-to-speech, 'music' for AI music, 'sfx' for
+              sound effects
+
           context: Additional context for the question
 
           disabled_learning: Whether to disable learning/ingestion of the multimodal content
@@ -576,11 +597,12 @@ class AsyncInferenceResource(AsyncAPIResource):
 
           session_id: Optional session identifier for conversation context
 
-          speed: Speed of the speech (0.25 to 4.0)
+          speed: Speed of the speech (0.25 to 4.0). Only used when audio_type='tts'
 
           video_base64: Base64 encoded video content
 
-          voice: Voice to use for TTS (alloy, echo, fable, onyx, nova, shimmer)
+          voice: Voice to use for TTS (alloy, echo, fable, onyx, nova, shimmer). Only used when
+              audio_type='tts'
 
           extra_headers: Send extra headers
 
@@ -596,6 +618,8 @@ class AsyncInferenceResource(AsyncAPIResource):
                 {
                     "user_id": user_id,
                     "audio_base64": audio_base64,
+                    "audio_duration": audio_duration,
+                    "audio_type": audio_type,
                     "context": context,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
