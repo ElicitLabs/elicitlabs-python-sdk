@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.0 (2026-01-30)
+
+Full Changelog: [v0.10.0...v0.11.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.10.0...v0.11.0)
+
+### Features
+
+* **client:** add custom JSON encoder for extended type support ([1b1970d](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/1b1970dc68185dcdf6d0d94149b1aa151595ff98))
+
 ## 0.10.0 (2026-01-29)
 
 Full Changelog: [v0.9.0...v0.10.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.9.0...v0.10.0)
