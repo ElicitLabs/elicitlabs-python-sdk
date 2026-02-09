@@ -19,17 +19,9 @@ from .persona_retrieve_response import PersonaRetrieveResponse as PersonaRetriev
 from .project_retrieve_response import ProjectRetrieveResponse as ProjectRetrieveResponse
 from .user_create_or_get_params import UserCreateOrGetParams as UserCreateOrGetParams
 from .user_create_or_get_response import UserCreateOrGetResponse as UserCreateOrGetResponse
-from .modal_query_multimodality_params import ModalQueryMultimodalityParams as ModalQueryMultimodalityParams
-from .modal_query_multimodality_response import ModalQueryMultimodalityResponse as ModalQueryMultimodalityResponse
 from .inference_generate_completion_params import InferenceGenerateCompletionParams as InferenceGenerateCompletionParams
 from .inference_generate_completion_response import (
     InferenceGenerateCompletionResponse as InferenceGenerateCompletionResponse,
-)
-from .inference_generate_persona_chat_params import (
-    InferenceGeneratePersonaChatParams as InferenceGeneratePersonaChatParams,
-)
-from .inference_generate_persona_chat_response import (
-    InferenceGeneratePersonaChatResponse as InferenceGeneratePersonaChatResponse,
 )
 from .inference_generate_multimodality_completion_params import (
     InferenceGenerateMultimodalityCompletionParams as InferenceGenerateMultimodalityCompletionParams,

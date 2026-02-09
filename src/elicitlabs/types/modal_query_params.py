@@ -11,29 +11,32 @@ __all__ = ["ModalQueryParams"]
 
 
 class ModalQueryParams(TypedDict, total=False):
-    question: Required[str]
-    """The question to query against user's memories"""
-
     user_id: Required[str]
-    """Unique identifier for the user (always required)"""
+    """Restrict search to this user (required)"""
 
-    filter_memory_types: Optional[SequenceNotStr[str]]
-    """Optional list of memory types to exclude from retrieval.
+    audio_base64: Optional[str]
+    """Base64 encoded audio content (supports webm, wav, mp3, mp4, and other formats)"""
 
-    Valid types: 'episodic', 'preference', 'identity', 'short_term'
-    """
+    image_base64: Optional[str]
+    """Base64 encoded image content"""
+
+    include_modalities: Optional[SequenceNotStr[str]]
+    """Filter results by type: ['text', 'image', 'video']"""
 
     persona_id: Optional[str]
-    """Optional persona ID.
-
-    If provided, query is scoped to this persona instead of the user
-    """
+    """Optional persona ID. If provided, query uses persona's context"""
 
     project_id: Optional[str]
-    """Optional project ID.
-
-    If provided, query is scoped to this project (inherits from user)
-    """
+    """Restrict search to this project (required)"""
 
     session_id: Optional[str]
     """Optional session identifier for conversation context"""
+
+    text_input: Optional[str]
+    """Text input to search against.
+
+    The system finds memories _relevant_ to this text.
+    """
+
+    video_base64: Optional[str]
+    """Base64 encoded video content"""

@@ -10,20 +10,11 @@ __all__ = ["DataIngestResponse"]
 class DataIngestResponse(BaseModel):
     """Response model for data ingestion"""
 
-    content_type: str
-    """Content type that was processed"""
-
-    created_at: str
-    """Timestamp when job was created"""
-
     job_id: str
     """Unique job identifier for tracking"""
 
     status: str
     """Processing status ('accepted', 'queued', 'failed')"""
-
-    user_id: str
-    """User ID associated with the data"""
 
     message: Optional[str] = None
     """Additional status or error message"""

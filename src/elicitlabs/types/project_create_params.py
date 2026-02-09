@@ -15,8 +15,8 @@ class ProjectCreateParams(TypedDict, total=False):
     description: Optional[str]
     """Optional project description"""
 
-    project_type: Optional[Literal["creative_design", "general"]]
-    """Optional project type override.
+    project_type: Literal["creative_design", "general"]
+    """Project type override.
 
     When set, skips LLM classification during content ingestion. Use
     'creative_design' for artistic/design projects, 'general' for
