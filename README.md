@@ -232,7 +232,7 @@ client.with_options(max_retries=5).chat.create_completion(
 
 ### Timeouts
 
-By default requests time out after 10 minutes. You can configure this with a `timeout` option,
+By default requests time out after 11.67 minutes. You can configure this with a `timeout` option,
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration) object:
 
 ```python
@@ -240,7 +240,7 @@ from elicitlabs import ElicitClient
 
 # Configure the default for all requests:
 client = ElicitClient(
-    # 20 seconds (default is 10 minutes)
+    # 20 seconds (default is 11.67 minutes)
     timeout=20.0,
 )
 
