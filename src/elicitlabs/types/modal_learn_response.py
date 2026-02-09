@@ -10,14 +10,8 @@ __all__ = ["ModalLearnResponse"]
 class ModalLearnResponse(BaseModel):
     """Response model for learning processing"""
 
-    message: str
-    """Status message about the learning process"""
-
     session_id: str
     """Session identifier used for the learning"""
-
-    job_id: Optional[str] = None
-    """Job identifier if processed asynchronously"""
 
     success: Optional[bool] = None
     """Whether the learning was processed successfully"""

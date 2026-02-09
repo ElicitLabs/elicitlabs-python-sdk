@@ -36,8 +36,17 @@ class InferenceGenerateMultimodalityCompletionParams(TypedDict, total=False):
     image_base64: Optional[str]
     """Base64 encoded image content"""
 
+    max_reasoning_iterations: int
+    """Maximum repair iterations in reasoning loop"""
+
     model: Optional[str]
     """LLM model to use for generating the response"""
+
+    num_images: int
+    """Number of images to generate (each with a different seed for variation).
+
+    Only used when output_type='image'
+    """
 
     output_type: Literal["text", "audio", "image"]
     """
@@ -60,11 +69,23 @@ class InferenceGenerateMultimodalityCompletionParams(TypedDict, total=False):
     question: Optional[str]
     """User's question or prompt (optional if audio provided)"""
 
+    seed: Optional[int]
+    """Base seed for reproducible image generation.
+
+    If not provided, a random seed is used. Only used when output_type='image'
+    """
+
     session_id: Optional[str]
     """Optional session identifier for conversation context"""
 
     speed: float
     """Speed of the speech (0.25 to 4.0). Only used when audio_type='tts'"""
+
+    use_reasoning: bool
+    """
+    Use creative reasoning loop for constraint-satisfying generation (only for
+    creative_design projects with output_type='image')
+    """
 
     video_base64: Optional[str]
     """Base64 encoded video content"""

@@ -3,14 +3,13 @@
 Types:
 
 ```python
-from elicitlabs.types import ModalLearnResponse, ModalQueryResponse, ModalQueryMultimodalityResponse
+from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
 ```
 
 Methods:
 
 - <code title="post /v1/modal/learn">client.modal.<a href="./src/elicitlabs/resources/modal.py">learn</a>(\*\*<a href="src/elicitlabs/types/modal_learn_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_learn_response.py">ModalLearnResponse</a></code>
 - <code title="post /v1/modal/query">client.modal.<a href="./src/elicitlabs/resources/modal.py">query</a>(\*\*<a href="src/elicitlabs/types/modal_query_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_query_response.py">ModalQueryResponse</a></code>
-- <code title="post /v1/modal/multimodal-query">client.modal.<a href="./src/elicitlabs/resources/modal.py">query_multimodality</a>(\*\*<a href="src/elicitlabs/types/modal_query_multimodality_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_query_multimodality_response.py">ModalQueryMultimodalityResponse</a></code>
 
 # Users
 
@@ -92,7 +91,6 @@ Types:
 from elicitlabs.types import (
     InferenceGenerateCompletionResponse,
     InferenceGenerateMultimodalityCompletionResponse,
-    InferenceGeneratePersonaChatResponse,
 )
 ```
 
@@ -100,7 +98,6 @@ Methods:
 
 - <code title="post /v1/inference/completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_completion_response.py">InferenceGenerateCompletionResponse</a></code>
 - <code title="post /v1/inference/multimodality-completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_multimodality_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_multimodality_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_multimodality_completion_response.py">InferenceGenerateMultimodalityCompletionResponse</a></code>
-- <code title="post /v1/inference/persona-chat">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_persona_chat</a>(\*\*<a href="src/elicitlabs/types/inference_generate_persona_chat_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_persona_chat_response.py">InferenceGeneratePersonaChatResponse</a></code>
 
 # Projects
 

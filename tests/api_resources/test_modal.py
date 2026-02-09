@@ -9,11 +9,7 @@ import pytest
 
 from elicitlabs import ElicitClient, AsyncElicitClient
 from tests.utils import assert_matches_type
-from elicitlabs.types import (
-    ModalLearnResponse,
-    ModalQueryResponse,
-    ModalQueryMultimodalityResponse,
-)
+from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -25,11 +21,12 @@ class TestModal:
     @parametrize
     def test_method_learn(self, client: ElicitClient) -> None:
         modal = client.modal.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {"content": "job_id_123"},
+                {"content": "The animation is too slow"},
+                {"content": "Good catch. Let's remember to speed it up to 200ms for the next sprint."},
+            ],
+            user_id="user_123",
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
@@ -37,15 +34,28 @@ class TestModal:
     @parametrize
     def test_method_learn_with_all_params(self, client: ElicitClient) -> None:
         modal = client.modal.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {
+                    "content": "job_id_123",
+                    "role": "role",
+                    "type": "image",
+                },
+                {
+                    "content": "The animation is too slow",
+                    "role": "role",
+                    "type": "feedback",
+                },
+                {
+                    "content": "Good catch. Let's remember to speed it up to 200ms for the next sprint.",
+                    "role": "user",
+                    "type": "type",
+                },
+            ],
+            user_id="user_123",
             persona_id="persona_id",
-            project_id="project_id",
+            project_id="proj_ABC",
             session_id="session_123",
-            timestamp="2024-01-01T10:00:00Z",
+            timestamp="2026-02-07T12:00:00Z",
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
@@ -53,11 +63,12 @@ class TestModal:
     @parametrize
     def test_raw_response_learn(self, client: ElicitClient) -> None:
         response = client.modal.with_raw_response.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {"content": "job_id_123"},
+                {"content": "The animation is too slow"},
+                {"content": "Good catch. Let's remember to speed it up to 200ms for the next sprint."},
+            ],
+            user_id="user_123",
         )
 
         assert response.is_closed is True
@@ -69,11 +80,12 @@ class TestModal:
     @parametrize
     def test_streaming_response_learn(self, client: ElicitClient) -> None:
         with client.modal.with_streaming_response.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {"content": "job_id_123"},
+                {"content": "The animation is too slow"},
+                {"content": "Good catch. Let's remember to speed it up to 200ms for the next sprint."},
+            ],
+            user_id="user_123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -87,8 +99,7 @@ class TestModal:
     @parametrize
     def test_method_query(self, client: ElicitClient) -> None:
         modal = client.modal.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            user_id="user_123",
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
@@ -96,12 +107,15 @@ class TestModal:
     @parametrize
     def test_method_query_with_all_params(self, client: ElicitClient) -> None:
         modal = client.modal.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            filter_memory_types=["episodic", "identity"],
+            user_id="user_123",
+            audio_base64="audio_base64",
+            image_base64="image_base64",
+            include_modalities=["text", "video"],
             persona_id="persona_id",
-            project_id="project_id",
-            session_id="session_123",
+            project_id="proj_ABC",
+            session_id="session_id",
+            text_input="text_input",
+            video_base64="video_base64",
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
@@ -109,8 +123,7 @@ class TestModal:
     @parametrize
     def test_raw_response_query(self, client: ElicitClient) -> None:
         response = client.modal.with_raw_response.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            user_id="user_123",
         )
 
         assert response.is_closed is True
@@ -122,62 +135,13 @@ class TestModal:
     @parametrize
     def test_streaming_response_query(self, client: ElicitClient) -> None:
         with client.modal.with_streaming_response.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            user_id="user_123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             modal = response.parse()
             assert_matches_type(ModalQueryResponse, modal, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_method_query_multimodality(self, client: ElicitClient) -> None:
-        modal = client.modal.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        )
-        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_method_query_multimodality_with_all_params(self, client: ElicitClient) -> None:
-        modal = client.modal.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            audio_base64="audio_base64",
-            image_base64="image_base64",
-            persona_id="persona_id",
-            project_id="project_id",
-            session_id="session_123",
-            video_base64="base64_encoded_video_content...",
-        )
-        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_raw_response_query_multimodality(self, client: ElicitClient) -> None:
-        response = client.modal.with_raw_response.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        modal = response.parse()
-        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_streaming_response_query_multimodality(self, client: ElicitClient) -> None:
-        with client.modal.with_streaming_response.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            modal = response.parse()
-            assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -191,11 +155,12 @@ class TestAsyncModal:
     @parametrize
     async def test_method_learn(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {"content": "job_id_123"},
+                {"content": "The animation is too slow"},
+                {"content": "Good catch. Let's remember to speed it up to 200ms for the next sprint."},
+            ],
+            user_id="user_123",
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
@@ -203,15 +168,28 @@ class TestAsyncModal:
     @parametrize
     async def test_method_learn_with_all_params(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {
+                    "content": "job_id_123",
+                    "role": "role",
+                    "type": "image",
+                },
+                {
+                    "content": "The animation is too slow",
+                    "role": "role",
+                    "type": "feedback",
+                },
+                {
+                    "content": "Good catch. Let's remember to speed it up to 200ms for the next sprint.",
+                    "role": "user",
+                    "type": "type",
+                },
+            ],
+            user_id="user_123",
             persona_id="persona_id",
-            project_id="project_id",
+            project_id="proj_ABC",
             session_id="session_123",
-            timestamp="2024-01-01T10:00:00Z",
+            timestamp="2026-02-07T12:00:00Z",
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
@@ -219,11 +197,12 @@ class TestAsyncModal:
     @parametrize
     async def test_raw_response_learn(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.modal.with_raw_response.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {"content": "job_id_123"},
+                {"content": "The animation is too slow"},
+                {"content": "Good catch. Let's remember to speed it up to 200ms for the next sprint."},
+            ],
+            user_id="user_123",
         )
 
         assert response.is_closed is True
@@ -235,11 +214,12 @@ class TestAsyncModal:
     @parametrize
     async def test_streaming_response_learn(self, async_client: AsyncElicitClient) -> None:
         async with async_client.modal.with_streaming_response.learn(
-            message={
-                "content": "bar",
-                "role": "bar",
-            },
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            messages=[
+                {"content": "job_id_123"},
+                {"content": "The animation is too slow"},
+                {"content": "Good catch. Let's remember to speed it up to 200ms for the next sprint."},
+            ],
+            user_id="user_123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -253,8 +233,7 @@ class TestAsyncModal:
     @parametrize
     async def test_method_query(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            user_id="user_123",
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
@@ -262,12 +241,15 @@ class TestAsyncModal:
     @parametrize
     async def test_method_query_with_all_params(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            filter_memory_types=["episodic", "identity"],
+            user_id="user_123",
+            audio_base64="audio_base64",
+            image_base64="image_base64",
+            include_modalities=["text", "video"],
             persona_id="persona_id",
-            project_id="project_id",
-            session_id="session_123",
+            project_id="proj_ABC",
+            session_id="session_id",
+            text_input="text_input",
+            video_base64="video_base64",
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
@@ -275,8 +257,7 @@ class TestAsyncModal:
     @parametrize
     async def test_raw_response_query(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.modal.with_raw_response.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            user_id="user_123",
         )
 
         assert response.is_closed is True
@@ -288,61 +269,12 @@ class TestAsyncModal:
     @parametrize
     async def test_streaming_response_query(self, async_client: AsyncElicitClient) -> None:
         async with async_client.modal.with_streaming_response.query(
-            question="What are my preferences for morning routines?",
-            user_id="123e4567-e89b-12d3-a456-426614174000",
+            user_id="user_123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             modal = await response.parse()
             assert_matches_type(ModalQueryResponse, modal, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_method_query_multimodality(self, async_client: AsyncElicitClient) -> None:
-        modal = await async_client.modal.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        )
-        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_method_query_multimodality_with_all_params(self, async_client: AsyncElicitClient) -> None:
-        modal = await async_client.modal.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-            audio_base64="audio_base64",
-            image_base64="image_base64",
-            persona_id="persona_id",
-            project_id="project_id",
-            session_id="session_123",
-            video_base64="base64_encoded_video_content...",
-        )
-        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_raw_response_query_multimodality(self, async_client: AsyncElicitClient) -> None:
-        response = await async_client.modal.with_raw_response.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        modal = await response.parse()
-        assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_streaming_response_query_multimodality(self, async_client: AsyncElicitClient) -> None:
-        async with async_client.modal.with_streaming_response.query_multimodality(
-            user_id="123e4567-e89b-12d3-a456-426614174000",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            modal = await response.parse()
-            assert_matches_type(ModalQueryMultimodalityResponse, modal, path=["response"])
 
         assert cast(Any, response.is_closed) is True
