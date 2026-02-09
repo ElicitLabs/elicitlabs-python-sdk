@@ -8,6 +8,14 @@ from .auth import (
     AuthResourceWithStreamingResponse,
     AsyncAuthResourceWithStreamingResponse,
 )
+from .chat import (
+    ChatResource,
+    AsyncChatResource,
+    ChatResourceWithRawResponse,
+    AsyncChatResourceWithRawResponse,
+    ChatResourceWithStreamingResponse,
+    AsyncChatResourceWithStreamingResponse,
+)
 from .data import (
     DataResource,
     AsyncDataResource,
@@ -15,6 +23,22 @@ from .data import (
     AsyncDataResourceWithRawResponse,
     DataResourceWithStreamingResponse,
     AsyncDataResourceWithStreamingResponse,
+)
+from .text import (
+    TextResource,
+    AsyncTextResource,
+    TextResourceWithRawResponse,
+    AsyncTextResourceWithRawResponse,
+    TextResourceWithStreamingResponse,
+    AsyncTextResourceWithStreamingResponse,
+)
+from .audio import (
+    AudioResource,
+    AsyncAudioResource,
+    AudioResourceWithRawResponse,
+    AsyncAudioResourceWithRawResponse,
+    AudioResourceWithStreamingResponse,
+    AsyncAudioResourceWithStreamingResponse,
 )
 from .modal import (
     ModalResource,
@@ -32,6 +56,14 @@ from .users import (
     UsersResourceWithStreamingResponse,
     AsyncUsersResourceWithStreamingResponse,
 )
+from .video import (
+    VideoResource,
+    AsyncVideoResource,
+    VideoResourceWithRawResponse,
+    AsyncVideoResourceWithRawResponse,
+    VideoResourceWithStreamingResponse,
+    AsyncVideoResourceWithStreamingResponse,
+)
 from .health import (
     HealthResource,
     AsyncHealthResource,
@@ -39,6 +71,14 @@ from .health import (
     AsyncHealthResourceWithRawResponse,
     HealthResourceWithStreamingResponse,
     AsyncHealthResourceWithStreamingResponse,
+)
+from .images import (
+    ImagesResource,
+    AsyncImagesResource,
+    ImagesResourceWithRawResponse,
+    AsyncImagesResourceWithRawResponse,
+    ImagesResourceWithStreamingResponse,
+    AsyncImagesResourceWithStreamingResponse,
 )
 from .personas import (
     PersonasResource,
@@ -114,4 +154,34 @@ __all__ = [
     "AsyncProjectsResourceWithRawResponse",
     "ProjectsResourceWithStreamingResponse",
     "AsyncProjectsResourceWithStreamingResponse",
+    "ChatResource",
+    "AsyncChatResource",
+    "ChatResourceWithRawResponse",
+    "AsyncChatResourceWithRawResponse",
+    "ChatResourceWithStreamingResponse",
+    "AsyncChatResourceWithStreamingResponse",
+    "TextResource",
+    "AsyncTextResource",
+    "TextResourceWithRawResponse",
+    "AsyncTextResourceWithRawResponse",
+    "TextResourceWithStreamingResponse",
+    "AsyncTextResourceWithStreamingResponse",
+    "ImagesResource",
+    "AsyncImagesResource",
+    "ImagesResourceWithRawResponse",
+    "AsyncImagesResourceWithRawResponse",
+    "ImagesResourceWithStreamingResponse",
+    "AsyncImagesResourceWithStreamingResponse",
+    "AudioResource",
+    "AsyncAudioResource",
+    "AudioResourceWithRawResponse",
+    "AsyncAudioResourceWithRawResponse",
+    "AudioResourceWithStreamingResponse",
+    "AsyncAudioResourceWithStreamingResponse",
+    "VideoResource",
+    "AsyncVideoResource",
+    "VideoResourceWithRawResponse",
+    "AsyncVideoResourceWithRawResponse",
+    "VideoResourceWithStreamingResponse",
+    "AsyncVideoResourceWithStreamingResponse",
 ]

@@ -118,3 +118,63 @@ Methods:
 - <code title="get /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">retrieve</a>(project_id) -> <a href="./src/elicitlabs/types/project_retrieve_response.py">ProjectRetrieveResponse</a></code>
 - <code title="get /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">list</a>() -> <a href="./src/elicitlabs/types/project_list_response.py">ProjectListResponse</a></code>
 - <code title="delete /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">delete</a>(project_id) -> <a href="./src/elicitlabs/types/project_delete_response.py">ProjectDeleteResponse</a></code>
+
+# Chat
+
+Types:
+
+```python
+from elicitlabs.types import ChatCreateCompletionResponse
+```
+
+Methods:
+
+- <code title="post /v1/chat/completions">client.chat.<a href="./src/elicitlabs/resources/chat.py">create_completion</a>(\*\*<a href="src/elicitlabs/types/chat_create_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/chat_create_completion_response.py">ChatCreateCompletionResponse</a></code>
+
+# Text
+
+Types:
+
+```python
+from elicitlabs.types import TextGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/text/generations">client.text.<a href="./src/elicitlabs/resources/text.py">generate</a>(\*\*<a href="src/elicitlabs/types/text_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/text_generate_response.py">TextGenerateResponse</a></code>
+
+# Images
+
+Types:
+
+```python
+from elicitlabs.types import ImageGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/images/generations">client.images.<a href="./src/elicitlabs/resources/images.py">generate</a>(\*\*<a href="src/elicitlabs/types/image_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/image_generate_response.py">ImageGenerateResponse</a></code>
+
+# Audio
+
+Types:
+
+```python
+from elicitlabs.types import AudioGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/audio/generations">client.audio.<a href="./src/elicitlabs/resources/audio.py">generate</a>(\*\*<a href="src/elicitlabs/types/audio_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/audio_generate_response.py">AudioGenerateResponse</a></code>
+
+# Video
+
+Types:
+
+```python
+from elicitlabs.types import VideoGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/video/generations">client.video.<a href="./src/elicitlabs/resources/video.py">generate</a>(\*\*<a href="src/elicitlabs/types/video_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/video_generate_response.py">VideoGenerateResponse</a></code>
