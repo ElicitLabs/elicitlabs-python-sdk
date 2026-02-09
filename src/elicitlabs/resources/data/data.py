@@ -75,7 +75,7 @@ class DataResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DataIngestResponse:
         """
-        Ingest data for asynchronous processing and memory integration.
+        Ingest data for asynchronous processing
 
             Accepts various content types (text, messages, files) and processes them to extract information
             and integrate it into the user's memory system. Returns a job_id for tracking status.
@@ -218,7 +218,7 @@ class AsyncDataResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DataIngestResponse:
         """
-        Ingest data for asynchronous processing and memory integration.
+        Ingest data for asynchronous processing
 
             Accepts various content types (text, messages, files) and processes them to extract information
             and integrate it into the user's memory system. Returns a job_id for tracking status.

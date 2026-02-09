@@ -144,7 +144,7 @@ class TestElicitClient:
         # options that have a default are overridden correctly
         copied = client.copy(max_retries=7)
         assert copied.max_retries == 7
-        assert client.max_retries == 2
+        assert client.max_retries == 0
 
         copied2 = copied.copy(max_retries=6)
         assert copied2.max_retries == 6
@@ -834,21 +834,21 @@ class TestElicitClient:
         "remaining_retries,retry_after,timeout",
         [
             [3, "20", 20],
-            [3, "0", 0.5],
-            [3, "-10", 0.5],
+            [3, "0", 0],
+            [3, "-10", 0],
             [3, "60", 60],
-            [3, "61", 0.5],
+            [3, "61", 0],
             [3, "Fri, 29 Sep 2023 16:26:57 GMT", 20],
-            [3, "Fri, 29 Sep 2023 16:26:37 GMT", 0.5],
-            [3, "Fri, 29 Sep 2023 16:26:27 GMT", 0.5],
+            [3, "Fri, 29 Sep 2023 16:26:37 GMT", 0],
+            [3, "Fri, 29 Sep 2023 16:26:27 GMT", 0],
             [3, "Fri, 29 Sep 2023 16:27:37 GMT", 60],
-            [3, "Fri, 29 Sep 2023 16:27:38 GMT", 0.5],
-            [3, "99999999999999999999999999999999999", 0.5],
-            [3, "Zun, 29 Sep 2023 16:26:27 GMT", 0.5],
-            [3, "", 0.5],
-            [2, "", 0.5 * 2.0],
-            [1, "", 0.5 * 4.0],
-            [-1100, "", 8],  # test large number potentially overflowing
+            [3, "Fri, 29 Sep 2023 16:27:38 GMT", 0],
+            [3, "99999999999999999999999999999999999", 0],
+            [3, "Zun, 29 Sep 2023 16:26:27 GMT", 0],
+            [3, "", 0],
+            [2, "", 0 * 2.0],
+            [1, "", 0 * 4.0],
+            [-1100, "", 0],  # test large number potentially overflowing
         ],
     )
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
@@ -858,26 +858,22 @@ class TestElicitClient:
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
         calculated = client._calculate_retry_timeout(remaining_retries, options, headers)
-        assert calculated == pytest.approx(timeout, 0.5 * 0.875)  # pyright: ignore[reportUnknownMemberType]
+        assert calculated == pytest.approx(timeout, 0 * 0.875)  # pyright: ignore[reportUnknownMemberType]
 
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, client: ElicitClient) -> None:
-        respx_mock.post("/v1/inference/completion").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/chat/completions").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.inference.with_streaming_response.generate_completion(
-                content=[
+            client.chat.with_streaming_response.create_completion(
+                messages=[
                     {
-                        "content": "You are a helpful AI assistant.",
-                        "role": "system",
-                    },
-                    {
-                        "content": "Hello, how are you?",
-                        "role": "user",
-                    },
+                        "content": "string",
+                        "role": "role",
+                    }
                 ],
-                user_id="user-123",
+                user_id="user_id",
             ).__enter__()
 
         assert _get_open_connections(client) == 0
@@ -885,21 +881,17 @@ class TestElicitClient:
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: ElicitClient) -> None:
-        respx_mock.post("/v1/inference/completion").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/chat/completions").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.inference.with_streaming_response.generate_completion(
-                content=[
+            client.chat.with_streaming_response.create_completion(
+                messages=[
                     {
-                        "content": "You are a helpful AI assistant.",
-                        "role": "system",
-                    },
-                    {
-                        "content": "Hello, how are you?",
-                        "role": "user",
-                    },
+                        "content": "string",
+                        "role": "role",
+                    }
                 ],
-                user_id="user-123",
+                user_id="user_id",
             ).__enter__()
         assert _get_open_connections(client) == 0
 
@@ -927,20 +919,16 @@ class TestElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference/completion").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
 
-        response = client.inference.with_raw_response.generate_completion(
-            content=[
+        response = client.chat.with_raw_response.create_completion(
+            messages=[
                 {
-                    "content": "You are a helpful AI assistant.",
-                    "role": "system",
-                },
-                {
-                    "content": "Hello, how are you?",
-                    "role": "user",
-                },
+                    "content": "string",
+                    "role": "role",
+                }
             ],
-            user_id="user-123",
+            user_id="user_id",
         )
 
         assert response.retries_taken == failures_before_success
@@ -963,20 +951,16 @@ class TestElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference/completion").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
 
-        response = client.inference.with_raw_response.generate_completion(
-            content=[
+        response = client.chat.with_raw_response.create_completion(
+            messages=[
                 {
-                    "content": "You are a helpful AI assistant.",
-                    "role": "system",
-                },
-                {
-                    "content": "Hello, how are you?",
-                    "role": "user",
-                },
+                    "content": "string",
+                    "role": "role",
+                }
             ],
-            user_id="user-123",
+            user_id="user_id",
             extra_headers={"x-stainless-retry-count": Omit()},
         )
 
@@ -999,20 +983,16 @@ class TestElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference/completion").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
 
-        response = client.inference.with_raw_response.generate_completion(
-            content=[
+        response = client.chat.with_raw_response.create_completion(
+            messages=[
                 {
-                    "content": "You are a helpful AI assistant.",
-                    "role": "system",
-                },
-                {
-                    "content": "Hello, how are you?",
-                    "role": "user",
-                },
+                    "content": "string",
+                    "role": "role",
+                }
             ],
-            user_id="user-123",
+            user_id="user_id",
             extra_headers={"x-stainless-retry-count": "42"},
         )
 
@@ -1099,7 +1079,7 @@ class TestAsyncElicitClient:
         # options that have a default are overridden correctly
         copied = async_client.copy(max_retries=7)
         assert copied.max_retries == 7
-        assert async_client.max_retries == 2
+        assert async_client.max_retries == 0
 
         copied2 = copied.copy(max_retries=6)
         assert copied2.max_retries == 6
@@ -1798,21 +1778,21 @@ class TestAsyncElicitClient:
         "remaining_retries,retry_after,timeout",
         [
             [3, "20", 20],
-            [3, "0", 0.5],
-            [3, "-10", 0.5],
+            [3, "0", 0],
+            [3, "-10", 0],
             [3, "60", 60],
-            [3, "61", 0.5],
+            [3, "61", 0],
             [3, "Fri, 29 Sep 2023 16:26:57 GMT", 20],
-            [3, "Fri, 29 Sep 2023 16:26:37 GMT", 0.5],
-            [3, "Fri, 29 Sep 2023 16:26:27 GMT", 0.5],
+            [3, "Fri, 29 Sep 2023 16:26:37 GMT", 0],
+            [3, "Fri, 29 Sep 2023 16:26:27 GMT", 0],
             [3, "Fri, 29 Sep 2023 16:27:37 GMT", 60],
-            [3, "Fri, 29 Sep 2023 16:27:38 GMT", 0.5],
-            [3, "99999999999999999999999999999999999", 0.5],
-            [3, "Zun, 29 Sep 2023 16:26:27 GMT", 0.5],
-            [3, "", 0.5],
-            [2, "", 0.5 * 2.0],
-            [1, "", 0.5 * 4.0],
-            [-1100, "", 8],  # test large number potentially overflowing
+            [3, "Fri, 29 Sep 2023 16:27:38 GMT", 0],
+            [3, "99999999999999999999999999999999999", 0],
+            [3, "Zun, 29 Sep 2023 16:26:27 GMT", 0],
+            [3, "", 0],
+            [2, "", 0 * 2.0],
+            [1, "", 0 * 4.0],
+            [-1100, "", 0],  # test large number potentially overflowing
         ],
     )
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
@@ -1822,28 +1802,24 @@ class TestAsyncElicitClient:
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
         calculated = async_client._calculate_retry_timeout(remaining_retries, options, headers)
-        assert calculated == pytest.approx(timeout, 0.5 * 0.875)  # pyright: ignore[reportUnknownMemberType]
+        assert calculated == pytest.approx(timeout, 0 * 0.875)  # pyright: ignore[reportUnknownMemberType]
 
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(
         self, respx_mock: MockRouter, async_client: AsyncElicitClient
     ) -> None:
-        respx_mock.post("/v1/inference/completion").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/chat/completions").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.inference.with_streaming_response.generate_completion(
-                content=[
+            await async_client.chat.with_streaming_response.create_completion(
+                messages=[
                     {
-                        "content": "You are a helpful AI assistant.",
-                        "role": "system",
-                    },
-                    {
-                        "content": "Hello, how are you?",
-                        "role": "user",
-                    },
+                        "content": "string",
+                        "role": "role",
+                    }
                 ],
-                user_id="user-123",
+                user_id="user_id",
             ).__aenter__()
 
         assert _get_open_connections(async_client) == 0
@@ -1853,21 +1829,17 @@ class TestAsyncElicitClient:
     async def test_retrying_status_errors_doesnt_leak(
         self, respx_mock: MockRouter, async_client: AsyncElicitClient
     ) -> None:
-        respx_mock.post("/v1/inference/completion").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/chat/completions").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.inference.with_streaming_response.generate_completion(
-                content=[
+            await async_client.chat.with_streaming_response.create_completion(
+                messages=[
                     {
-                        "content": "You are a helpful AI assistant.",
-                        "role": "system",
-                    },
-                    {
-                        "content": "Hello, how are you?",
-                        "role": "user",
-                    },
+                        "content": "string",
+                        "role": "role",
+                    }
                 ],
-                user_id="user-123",
+                user_id="user_id",
             ).__aenter__()
         assert _get_open_connections(async_client) == 0
 
@@ -1895,20 +1867,16 @@ class TestAsyncElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference/completion").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
 
-        response = await client.inference.with_raw_response.generate_completion(
-            content=[
+        response = await client.chat.with_raw_response.create_completion(
+            messages=[
                 {
-                    "content": "You are a helpful AI assistant.",
-                    "role": "system",
-                },
-                {
-                    "content": "Hello, how are you?",
-                    "role": "user",
-                },
+                    "content": "string",
+                    "role": "role",
+                }
             ],
-            user_id="user-123",
+            user_id="user_id",
         )
 
         assert response.retries_taken == failures_before_success
@@ -1931,20 +1899,16 @@ class TestAsyncElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference/completion").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
 
-        response = await client.inference.with_raw_response.generate_completion(
-            content=[
+        response = await client.chat.with_raw_response.create_completion(
+            messages=[
                 {
-                    "content": "You are a helpful AI assistant.",
-                    "role": "system",
-                },
-                {
-                    "content": "Hello, how are you?",
-                    "role": "user",
-                },
+                    "content": "string",
+                    "role": "role",
+                }
             ],
-            user_id="user-123",
+            user_id="user_id",
             extra_headers={"x-stainless-retry-count": Omit()},
         )
 
@@ -1967,20 +1931,16 @@ class TestAsyncElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/inference/completion").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
 
-        response = await client.inference.with_raw_response.generate_completion(
-            content=[
+        response = await client.chat.with_raw_response.create_completion(
+            messages=[
                 {
-                    "content": "You are a helpful AI assistant.",
-                    "role": "system",
-                },
-                {
-                    "content": "Hello, how are you?",
-                    "role": "user",
-                },
+                    "content": "string",
+                    "role": "role",
+                }
             ],
-            user_id="user-123",
+            user_id="user_id",
             extra_headers={"x-stainless-retry-count": "42"},
         )
 

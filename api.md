@@ -3,14 +3,13 @@
 Types:
 
 ```python
-from elicitlabs.types import ModalLearnResponse, ModalQueryResponse, ModalQueryMultimodalityResponse
+from elicitlabs.types import ModalLearnResponse, ModalQueryResponse
 ```
 
 Methods:
 
 - <code title="post /v1/modal/learn">client.modal.<a href="./src/elicitlabs/resources/modal.py">learn</a>(\*\*<a href="src/elicitlabs/types/modal_learn_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_learn_response.py">ModalLearnResponse</a></code>
 - <code title="post /v1/modal/query">client.modal.<a href="./src/elicitlabs/resources/modal.py">query</a>(\*\*<a href="src/elicitlabs/types/modal_query_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_query_response.py">ModalQueryResponse</a></code>
-- <code title="post /v1/modal/multimodal-query">client.modal.<a href="./src/elicitlabs/resources/modal.py">query_multimodality</a>(\*\*<a href="src/elicitlabs/types/modal_query_multimodality_params.py">params</a>) -> <a href="./src/elicitlabs/types/modal_query_multimodality_response.py">ModalQueryMultimodalityResponse</a></code>
 
 # Users
 
@@ -92,7 +91,6 @@ Types:
 from elicitlabs.types import (
     InferenceGenerateCompletionResponse,
     InferenceGenerateMultimodalityCompletionResponse,
-    InferenceGeneratePersonaChatResponse,
 )
 ```
 
@@ -100,7 +98,6 @@ Methods:
 
 - <code title="post /v1/inference/completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_completion_response.py">InferenceGenerateCompletionResponse</a></code>
 - <code title="post /v1/inference/multimodality-completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_multimodality_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_multimodality_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_multimodality_completion_response.py">InferenceGenerateMultimodalityCompletionResponse</a></code>
-- <code title="post /v1/inference/persona-chat">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_persona_chat</a>(\*\*<a href="src/elicitlabs/types/inference_generate_persona_chat_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_persona_chat_response.py">InferenceGeneratePersonaChatResponse</a></code>
 
 # Projects
 
@@ -121,3 +118,63 @@ Methods:
 - <code title="get /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">retrieve</a>(project_id) -> <a href="./src/elicitlabs/types/project_retrieve_response.py">ProjectRetrieveResponse</a></code>
 - <code title="get /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">list</a>() -> <a href="./src/elicitlabs/types/project_list_response.py">ProjectListResponse</a></code>
 - <code title="delete /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">delete</a>(project_id) -> <a href="./src/elicitlabs/types/project_delete_response.py">ProjectDeleteResponse</a></code>
+
+# Chat
+
+Types:
+
+```python
+from elicitlabs.types import ChatCreateCompletionResponse
+```
+
+Methods:
+
+- <code title="post /v1/chat/completions">client.chat.<a href="./src/elicitlabs/resources/chat.py">create_completion</a>(\*\*<a href="src/elicitlabs/types/chat_create_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/chat_create_completion_response.py">ChatCreateCompletionResponse</a></code>
+
+# Text
+
+Types:
+
+```python
+from elicitlabs.types import TextGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/text/generations">client.text.<a href="./src/elicitlabs/resources/text.py">generate</a>(\*\*<a href="src/elicitlabs/types/text_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/text_generate_response.py">TextGenerateResponse</a></code>
+
+# Images
+
+Types:
+
+```python
+from elicitlabs.types import ImageGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/images/generations">client.images.<a href="./src/elicitlabs/resources/images.py">generate</a>(\*\*<a href="src/elicitlabs/types/image_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/image_generate_response.py">ImageGenerateResponse</a></code>
+
+# Audio
+
+Types:
+
+```python
+from elicitlabs.types import AudioGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/audio/generations">client.audio.<a href="./src/elicitlabs/resources/audio.py">generate</a>(\*\*<a href="src/elicitlabs/types/audio_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/audio_generate_response.py">AudioGenerateResponse</a></code>
+
+# Video
+
+Types:
+
+```python
+from elicitlabs.types import VideoGenerateResponse
+```
+
+Methods:
+
+- <code title="post /v1/video/generations">client.video.<a href="./src/elicitlabs/resources/video.py">generate</a>(\*\*<a href="src/elicitlabs/types/video_generate_params.py">params</a>) -> <a href="./src/elicitlabs/types/video_generate_response.py">VideoGenerateResponse</a></code>

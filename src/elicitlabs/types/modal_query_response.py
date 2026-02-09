@@ -8,12 +8,15 @@ __all__ = ["ModalQueryResponse"]
 
 
 class ModalQueryResponse(BaseModel):
-    """Response model for memory query processing"""
+    """Unified response model for memory query (text + multimodal)"""
 
     new_prompt: str
-    """Edited prompt for the query"""
+    """Enhanced prompt with retrieved memory context"""
 
-    raw_results: Dict[str, object]
+    entity_images: Optional[Dict[str, str]] = None
+    """Reference images for matched entities (entity_name -> base64 image)"""
+
+    raw_results: Optional[Dict[str, object]] = None
     """Raw results from the retrieval process"""
 
     success: Optional[bool] = None
