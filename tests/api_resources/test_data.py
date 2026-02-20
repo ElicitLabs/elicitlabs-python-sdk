@@ -17,7 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestData:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_ingest(self, client: ElicitClient) -> None:
         data = client.data.ingest(
@@ -27,7 +27,7 @@ class TestData:
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_ingest_with_all_params(self, client: ElicitClient) -> None:
         data = client.data.ingest(
@@ -43,7 +43,7 @@ class TestData:
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_ingest(self, client: ElicitClient) -> None:
         response = client.data.with_raw_response.ingest(
@@ -57,7 +57,7 @@ class TestData:
         data = response.parse()
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_ingest(self, client: ElicitClient) -> None:
         with client.data.with_streaming_response.ingest(
@@ -79,7 +79,7 @@ class TestAsyncData:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_ingest(self, async_client: AsyncElicitClient) -> None:
         data = await async_client.data.ingest(
@@ -89,7 +89,7 @@ class TestAsyncData:
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_ingest_with_all_params(self, async_client: AsyncElicitClient) -> None:
         data = await async_client.data.ingest(
@@ -105,7 +105,7 @@ class TestAsyncData:
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_ingest(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.data.with_raw_response.ingest(
@@ -119,7 +119,7 @@ class TestAsyncData:
         data = await response.parse()
         assert_matches_type(DataIngestResponse, data, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_ingest(self, async_client: AsyncElicitClient) -> None:
         async with async_client.data.with_streaming_response.ingest(
