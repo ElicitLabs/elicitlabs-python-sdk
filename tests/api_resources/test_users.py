@@ -17,7 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestUsers:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_create_or_get(self, client: ElicitClient) -> None:
         user = client.users.create_or_get(
@@ -26,7 +26,7 @@ class TestUsers:
         )
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_create_or_get_with_all_params(self, client: ElicitClient) -> None:
         user = client.users.create_or_get(
@@ -36,7 +36,7 @@ class TestUsers:
         )
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_create_or_get(self, client: ElicitClient) -> None:
         response = client.users.with_raw_response.create_or_get(
@@ -49,7 +49,7 @@ class TestUsers:
         user = response.parse()
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_create_or_get(self, client: ElicitClient) -> None:
         with client.users.with_streaming_response.create_or_get(
@@ -70,7 +70,7 @@ class TestAsyncUsers:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_create_or_get(self, async_client: AsyncElicitClient) -> None:
         user = await async_client.users.create_or_get(
@@ -79,7 +79,7 @@ class TestAsyncUsers:
         )
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_create_or_get_with_all_params(self, async_client: AsyncElicitClient) -> None:
         user = await async_client.users.create_or_get(
@@ -89,7 +89,7 @@ class TestAsyncUsers:
         )
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_create_or_get(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.users.with_raw_response.create_or_get(
@@ -102,7 +102,7 @@ class TestAsyncUsers:
         user = await response.parse()
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_create_or_get(self, async_client: AsyncElicitClient) -> None:
         async with async_client.users.with_streaming_response.create_or_get(

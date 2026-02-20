@@ -16,13 +16,13 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestHealth:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_check(self, client: ElicitClient) -> None:
         health = client.health.check()
         assert_matches_type(object, health, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_check(self, client: ElicitClient) -> None:
         response = client.health.with_raw_response.check()
@@ -32,7 +32,7 @@ class TestHealth:
         health = response.parse()
         assert_matches_type(object, health, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_check(self, client: ElicitClient) -> None:
         with client.health.with_streaming_response.check() as response:
@@ -50,13 +50,13 @@ class TestAsyncHealth:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_check(self, async_client: AsyncElicitClient) -> None:
         health = await async_client.health.check()
         assert_matches_type(object, health, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_check(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.health.with_raw_response.check()
@@ -66,7 +66,7 @@ class TestAsyncHealth:
         health = await response.parse()
         assert_matches_type(object, health, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_check(self, async_client: AsyncElicitClient) -> None:
         async with async_client.health.with_streaming_response.check() as response:
