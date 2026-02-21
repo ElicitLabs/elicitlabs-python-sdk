@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from typing_extensions import Literal
 
 import httpx
 
@@ -55,6 +56,7 @@ class ImagesResource(SyncAPIResource):
         model: str | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
+        resolution: Optional[Literal["1K", "2K", "4K"]] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         size: Optional[str] | Omit = omit,
@@ -88,8 +90,9 @@ class ImagesResource(SyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, required): Model ID (e.g., flux-pro, dall-e-3)
-            - size (str, optional): Image dimensions
+            - model (str, optional): Model ID (default: gemini-3-flash)
+            - size (str, optional): Image dimensions as WxH, e.g. "1024x1024", "1920x1080" (default: 1024x1024).
+              Automatically mapped to the nearest aspect ratio and resolution tier.
             - seed (int, optional): Random seed for reproducibility
 
             **Authentication**: Requires valid API key or JWT token
@@ -113,11 +116,17 @@ class ImagesResource(SyncAPIResource):
 
           project_id: The project ID
 
+          resolution: Override the resolution tier derived from 'size'. Accepted values: '1K', '2K',
+              '4K'. When set, this takes precedence over the resolution inferred from the size
+              parameter.
+
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
 
-          size: Image dimensions (e.g., 1024x1024)
+          size: Image dimensions as WxH, e.g. '1024x1024', '1920x1080', '1080x1920'.
+              Automatically converted to the nearest supported aspect ratio (1:1, 16:9, 9:16,
+              …) and resolution tier (1K / 2K / 4K).
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -144,6 +153,7 @@ class ImagesResource(SyncAPIResource):
                     "model": model,
                     "persona_id": persona_id,
                     "project_id": project_id,
+                    "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
                     "size": size,
@@ -191,6 +201,7 @@ class AsyncImagesResource(AsyncAPIResource):
         model: str | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
+        resolution: Optional[Literal["1K", "2K", "4K"]] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         size: Optional[str] | Omit = omit,
@@ -224,8 +235,9 @@ class AsyncImagesResource(AsyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, required): Model ID (e.g., flux-pro, dall-e-3)
-            - size (str, optional): Image dimensions
+            - model (str, optional): Model ID (default: gemini-3-flash)
+            - size (str, optional): Image dimensions as WxH, e.g. "1024x1024", "1920x1080" (default: 1024x1024).
+              Automatically mapped to the nearest aspect ratio and resolution tier.
             - seed (int, optional): Random seed for reproducibility
 
             **Authentication**: Requires valid API key or JWT token
@@ -249,11 +261,17 @@ class AsyncImagesResource(AsyncAPIResource):
 
           project_id: The project ID
 
+          resolution: Override the resolution tier derived from 'size'. Accepted values: '1K', '2K',
+              '4K'. When set, this takes precedence over the resolution inferred from the size
+              parameter.
+
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
 
-          size: Image dimensions (e.g., 1024x1024)
+          size: Image dimensions as WxH, e.g. '1024x1024', '1920x1080', '1080x1920'.
+              Automatically converted to the nearest supported aspect ratio (1:1, 16:9, 9:16,
+              …) and resolution tier (1K / 2K / 4K).
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -280,6 +298,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "model": model,
                     "persona_id": persona_id,
                     "project_id": project_id,
+                    "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
                     "size": size,

@@ -9,12 +9,6 @@ __all__ = ["DataIngestParams"]
 
 
 class DataIngestParams(TypedDict, total=False):
-    content_type: Required[str]
-    """
-    Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-    'messages', 'file')
-    """
-
     payload: Required[Union[str, Dict[str, object], Iterable[object]]]
     """Raw content as string, object, list (for messages), or base64 encoded data"""
 
@@ -25,6 +19,12 @@ class DataIngestParams(TypedDict, total=False):
     """
     Optional description of the content being ingested (e.g., 'Logo design
     concepts', 'Meeting notes')
+    """
+
+    content_type: Optional[str]
+    """Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
+
+    If omitted, the category is auto-detected from the uploaded file bytes.
     """
 
     filename: Optional[str]

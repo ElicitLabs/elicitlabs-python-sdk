@@ -58,10 +58,10 @@ class DataResource(SyncAPIResource):
     def ingest(
         self,
         *,
-        content_type: str,
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
         content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -120,15 +120,15 @@ class DataResource(SyncAPIResource):
             Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
 
         Args:
-          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-              'messages', 'file')
-
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
           user_id: User ID (always required)
 
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
+
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
+              If omitted, the category is auto-detected from the uploaded file bytes.
 
           filename: Filename of the uploaded file
 
@@ -155,10 +155,10 @@ class DataResource(SyncAPIResource):
             "/v1/data/ingest",
             body=maybe_transform(
                 {
-                    "content_type": content_type,
                     "payload": payload,
                     "user_id": user_id,
                     "content_description": content_description,
+                    "content_type": content_type,
                     "filename": filename,
                     "persona_id": persona_id,
                     "project_id": project_id,
@@ -201,10 +201,10 @@ class AsyncDataResource(AsyncAPIResource):
     async def ingest(
         self,
         *,
-        content_type: str,
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
         content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -263,15 +263,15 @@ class AsyncDataResource(AsyncAPIResource):
             Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
 
         Args:
-          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-              'messages', 'file')
-
           payload: Raw content as string, object, list (for messages), or base64 encoded data
 
           user_id: User ID (always required)
 
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
+
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
+              If omitted, the category is auto-detected from the uploaded file bytes.
 
           filename: Filename of the uploaded file
 
@@ -298,10 +298,10 @@ class AsyncDataResource(AsyncAPIResource):
             "/v1/data/ingest",
             body=await async_maybe_transform(
                 {
-                    "content_type": content_type,
                     "payload": payload,
                     "user_id": user_id,
                     "content_description": content_description,
+                    "content_type": content_type,
                     "filename": filename,
                     "persona_id": persona_id,
                     "project_id": project_id,
