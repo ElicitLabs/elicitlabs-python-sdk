@@ -96,14 +96,6 @@ from .projects import (
     ProjectsResourceWithStreamingResponse,
     AsyncProjectsResourceWithStreamingResponse,
 )
-from .inference import (
-    InferenceResource,
-    AsyncInferenceResource,
-    InferenceResourceWithRawResponse,
-    AsyncInferenceResourceWithRawResponse,
-    InferenceResourceWithStreamingResponse,
-    AsyncInferenceResourceWithStreamingResponse,
-)
 
 __all__ = [
     "ModalResource",
@@ -142,12 +134,6 @@ __all__ = [
     "AsyncPersonasResourceWithRawResponse",
     "PersonasResourceWithStreamingResponse",
     "AsyncPersonasResourceWithStreamingResponse",
-    "InferenceResource",
-    "AsyncInferenceResource",
-    "InferenceResourceWithRawResponse",
-    "AsyncInferenceResourceWithRawResponse",
-    "InferenceResourceWithStreamingResponse",
-    "AsyncInferenceResourceWithStreamingResponse",
     "ProjectsResource",
     "AsyncProjectsResource",
     "ProjectsResourceWithRawResponse",

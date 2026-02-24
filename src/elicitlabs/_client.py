@@ -31,21 +31,7 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import (
-        auth,
-        chat,
-        data,
-        text,
-        audio,
-        modal,
-        users,
-        video,
-        health,
-        images,
-        personas,
-        projects,
-        inference,
-    )
+    from .resources import auth, chat, data, text, audio, modal, users, video, health, images, personas, projects
     from .resources.chat import ChatResource, AsyncChatResource
     from .resources.text import TextResource, AsyncTextResource
     from .resources.audio import AudioResource, AsyncAudioResource
@@ -58,7 +44,6 @@ if TYPE_CHECKING:
     from .resources.projects import ProjectsResource, AsyncProjectsResource
     from .resources.auth.auth import AuthResource, AsyncAuthResource
     from .resources.data.data import DataResource, AsyncDataResource
-    from .resources.inference import InferenceResource, AsyncInferenceResource
 
 __all__ = [
     "Timeout",
@@ -162,12 +147,6 @@ class ElicitClient(SyncAPIClient):
         from .resources.personas import PersonasResource
 
         return PersonasResource(self)
-
-    @cached_property
-    def inference(self) -> InferenceResource:
-        from .resources.inference import InferenceResource
-
-        return InferenceResource(self)
 
     @cached_property
     def projects(self) -> ProjectsResource:
@@ -410,12 +389,6 @@ class AsyncElicitClient(AsyncAPIClient):
         return AsyncPersonasResource(self)
 
     @cached_property
-    def inference(self) -> AsyncInferenceResource:
-        from .resources.inference import AsyncInferenceResource
-
-        return AsyncInferenceResource(self)
-
-    @cached_property
     def projects(self) -> AsyncProjectsResource:
         from .resources.projects import AsyncProjectsResource
 
@@ -607,12 +580,6 @@ class ElicitClientWithRawResponse:
         return PersonasResourceWithRawResponse(self._client.personas)
 
     @cached_property
-    def inference(self) -> inference.InferenceResourceWithRawResponse:
-        from .resources.inference import InferenceResourceWithRawResponse
-
-        return InferenceResourceWithRawResponse(self._client.inference)
-
-    @cached_property
     def projects(self) -> projects.ProjectsResourceWithRawResponse:
         from .resources.projects import ProjectsResourceWithRawResponse
 
@@ -690,12 +657,6 @@ class AsyncElicitClientWithRawResponse:
         from .resources.personas import AsyncPersonasResourceWithRawResponse
 
         return AsyncPersonasResourceWithRawResponse(self._client.personas)
-
-    @cached_property
-    def inference(self) -> inference.AsyncInferenceResourceWithRawResponse:
-        from .resources.inference import AsyncInferenceResourceWithRawResponse
-
-        return AsyncInferenceResourceWithRawResponse(self._client.inference)
 
     @cached_property
     def projects(self) -> projects.AsyncProjectsResourceWithRawResponse:
@@ -777,12 +738,6 @@ class ElicitClientWithStreamedResponse:
         return PersonasResourceWithStreamingResponse(self._client.personas)
 
     @cached_property
-    def inference(self) -> inference.InferenceResourceWithStreamingResponse:
-        from .resources.inference import InferenceResourceWithStreamingResponse
-
-        return InferenceResourceWithStreamingResponse(self._client.inference)
-
-    @cached_property
     def projects(self) -> projects.ProjectsResourceWithStreamingResponse:
         from .resources.projects import ProjectsResourceWithStreamingResponse
 
@@ -860,12 +815,6 @@ class AsyncElicitClientWithStreamedResponse:
         from .resources.personas import AsyncPersonasResourceWithStreamingResponse
 
         return AsyncPersonasResourceWithStreamingResponse(self._client.personas)
-
-    @cached_property
-    def inference(self) -> inference.AsyncInferenceResourceWithStreamingResponse:
-        from .resources.inference import AsyncInferenceResourceWithStreamingResponse
-
-        return AsyncInferenceResourceWithStreamingResponse(self._client.inference)
 
     @cached_property
     def projects(self) -> projects.AsyncProjectsResourceWithStreamingResponse:
