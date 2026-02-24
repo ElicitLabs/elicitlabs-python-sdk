@@ -29,13 +29,3 @@ from .user_create_or_get_params import UserCreateOrGetParams as UserCreateOrGetP
 from .user_create_or_get_response import UserCreateOrGetResponse as UserCreateOrGetResponse
 from .chat_create_completion_params import ChatCreateCompletionParams as ChatCreateCompletionParams
 from .chat_create_completion_response import ChatCreateCompletionResponse as ChatCreateCompletionResponse
-from .inference_generate_completion_params import InferenceGenerateCompletionParams as InferenceGenerateCompletionParams
-from .inference_generate_completion_response import (
-    InferenceGenerateCompletionResponse as InferenceGenerateCompletionResponse,
-)
-from .inference_generate_multimodality_completion_params import (
-    InferenceGenerateMultimodalityCompletionParams as InferenceGenerateMultimodalityCompletionParams,
-)
-from .inference_generate_multimodality_completion_response import (
-    InferenceGenerateMultimodalityCompletionResponse as InferenceGenerateMultimodalityCompletionResponse,
-)
