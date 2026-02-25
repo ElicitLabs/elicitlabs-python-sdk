@@ -89,10 +89,10 @@ class DataResource(SyncAPIResource):
     def ingest(
         self,
         *,
-        content_type: str,
         payload: Union[str, Path, Dict[str, object], Iterable[object]],
         user_id: str,
         content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -121,15 +121,15 @@ class DataResource(SyncAPIResource):
           and uploads it the same way.
 
         Args:
-          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-              'messages', 'file')
-
           payload: Text string, message list, base64 data, a local file path, or a URL.
               File paths and URLs are resolved automatically.
 
           user_id: User ID (always required)
 
           content_description: Optional description of the content being ingested
+
+          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+              'messages', 'file')
 
           filename: Filename for file uploads (auto-detected from path/URL when omitted)
 
@@ -178,8 +178,8 @@ class DataResource(SyncAPIResource):
                     file_bytes=file_bytes,
                     filename=actual_filename or "uploaded_file",
                     user_id=user_id,
-                    persona_id=persona_id if persona_id is not omit else None,
-                    project_id=project_id if project_id is not omit else None,
+                    persona_id=persona_id if isinstance(persona_id, str) else None,
+                    project_id=project_id if isinstance(project_id, str) else None,
                 )
 
             payload = base64.b64encode(file_bytes).decode("utf-8")
@@ -328,10 +328,10 @@ class AsyncDataResource(AsyncAPIResource):
     async def ingest(
         self,
         *,
-        content_type: str,
         payload: Union[str, Path, Dict[str, object], Iterable[object]],
         user_id: str,
         content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -360,15 +360,15 @@ class AsyncDataResource(AsyncAPIResource):
           and uploads it the same way.
 
         Args:
-          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-              'messages', 'file')
-
           payload: Text string, message list, base64 data, a local file path, or a URL.
               File paths and URLs are resolved automatically.
 
           user_id: User ID (always required)
 
           content_description: Optional description of the content being ingested
+
+          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+              'messages', 'file')
 
           filename: Filename for file uploads (auto-detected from path/URL when omitted)
 
@@ -418,8 +418,8 @@ class AsyncDataResource(AsyncAPIResource):
                     file_bytes=file_bytes,
                     filename=actual_filename or "uploaded_file",
                     user_id=user_id,
-                    persona_id=persona_id if persona_id is not omit else None,
-                    project_id=project_id if project_id is not omit else None,
+                    persona_id=persona_id if isinstance(persona_id, str) else None,
+                    project_id=project_id if isinstance(project_id, str) else None,
                 )
 
             payload = base64.b64encode(file_bytes).decode("utf-8")
