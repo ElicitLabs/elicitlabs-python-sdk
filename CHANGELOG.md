@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.1 (2026-02-25)
+
+Full Changelog: [v0.12.0...v0.12.1](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.12.0...v0.12.1)
+
+### Bug Fixes
+
+* **data:** fix content_type validation and upload timeouts in ingest ([f9b9261](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/f9b9261c414c90da5e5ef745e94b28a23277a182))
+
 ## 0.12.0 (2026-02-25)
 
 Full Changelog: [v0.11.0...v0.12.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.11.0...v0.12.0)
