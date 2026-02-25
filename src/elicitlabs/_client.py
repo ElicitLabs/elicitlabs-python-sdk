@@ -31,7 +31,7 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import auth, chat, data, text, audio, modal, users, video, health, images, personas, projects
+    from .resources import auth, chat, data, text, audio, modal, users, video, health, images, personas, projects, realtime
     from .resources.chat import ChatResource, AsyncChatResource
     from .resources.text import TextResource, AsyncTextResource
     from .resources.audio import AudioResource, AsyncAudioResource
@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from .resources.projects import ProjectsResource, AsyncProjectsResource
     from .resources.auth.auth import AuthResource, AsyncAuthResource
     from .resources.data.data import DataResource, AsyncDataResource
+    from .resources.realtime.realtime import RealtimeResource, AsyncRealtimeResource
 
 __all__ = [
     "Timeout",
@@ -183,6 +184,12 @@ class ElicitClient(SyncAPIClient):
         from .resources.video import VideoResource
 
         return VideoResource(self)
+
+    @cached_property
+    def realtime(self) -> RealtimeResource:
+        from .resources.realtime import RealtimeResource
+
+        return RealtimeResource(self)
 
     @cached_property
     def with_raw_response(self) -> ElicitClientWithRawResponse:
@@ -425,6 +432,12 @@ class AsyncElicitClient(AsyncAPIClient):
         return AsyncVideoResource(self)
 
     @cached_property
+    def realtime(self) -> AsyncRealtimeResource:
+        from .resources.realtime import AsyncRealtimeResource
+
+        return AsyncRealtimeResource(self)
+
+    @cached_property
     def with_raw_response(self) -> AsyncElicitClientWithRawResponse:
         return AsyncElicitClientWithRawResponse(self)
 
@@ -615,6 +628,12 @@ class ElicitClientWithRawResponse:
 
         return VideoResourceWithRawResponse(self._client.video)
 
+    @cached_property
+    def realtime(self) -> realtime.RealtimeResourceWithRawResponse:
+        from .resources.realtime import RealtimeResourceWithRawResponse
+
+        return RealtimeResourceWithRawResponse(self._client.realtime)
+
 
 class AsyncElicitClientWithRawResponse:
     _client: AsyncElicitClient
@@ -693,6 +712,12 @@ class AsyncElicitClientWithRawResponse:
         from .resources.video import AsyncVideoResourceWithRawResponse
 
         return AsyncVideoResourceWithRawResponse(self._client.video)
+
+    @cached_property
+    def realtime(self) -> realtime.AsyncRealtimeResourceWithRawResponse:
+        from .resources.realtime import AsyncRealtimeResourceWithRawResponse
+
+        return AsyncRealtimeResourceWithRawResponse(self._client.realtime)
 
 
 class ElicitClientWithStreamedResponse:
@@ -773,6 +798,12 @@ class ElicitClientWithStreamedResponse:
 
         return VideoResourceWithStreamingResponse(self._client.video)
 
+    @cached_property
+    def realtime(self) -> realtime.RealtimeResourceWithStreamingResponse:
+        from .resources.realtime import RealtimeResourceWithStreamingResponse
+
+        return RealtimeResourceWithStreamingResponse(self._client.realtime)
+
 
 class AsyncElicitClientWithStreamedResponse:
     _client: AsyncElicitClient
@@ -851,6 +882,12 @@ class AsyncElicitClientWithStreamedResponse:
         from .resources.video import AsyncVideoResourceWithStreamingResponse
 
         return AsyncVideoResourceWithStreamingResponse(self._client.video)
+
+    @cached_property
+    def realtime(self) -> realtime.AsyncRealtimeResourceWithStreamingResponse:
+        from .resources.realtime import AsyncRealtimeResourceWithStreamingResponse
+
+        return AsyncRealtimeResourceWithStreamingResponse(self._client.realtime)
 
 
 Client = ElicitClient
