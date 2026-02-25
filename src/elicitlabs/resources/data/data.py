@@ -38,6 +38,7 @@ from ...types.data_confirm_upload_response import DataConfirmUploadResponse
 __all__ = ["DataResource", "AsyncDataResource"]
 
 _UPLOAD_THRESHOLD = 20 * 1024 * 1024  # 20 MB
+_FILE_TRANSFER_TIMEOUT = httpx.Timeout(connect=10.0, read=300.0, write=300.0, pool=10.0)
 
 
 def _is_url(value: object) -> bool:
@@ -60,6 +61,28 @@ def _is_file_path(value: object) -> bool:
         except (OSError, ValueError):
             return False
     return False
+
+
+def _mime_to_content_category(mime: str) -> str:
+    """Map a MIME type (e.g. 'video/mp4') to the API content_type category
+    (e.g. 'video').  Returns ``None`` for unrecognised types so the caller
+    can omit the field and let the server auto-detect."""
+    if mime.startswith("image/"):
+        return "image"
+    if mime.startswith("video/"):
+        return "video"
+    if mime.startswith("audio/"):
+        return "audio"
+    if mime == "application/pdf":
+        return "pdf"
+    if mime in (
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ):
+        return "word"
+    if mime.startswith("text/"):
+        return "text"
+    return "file"
 
 
 class DataResource(SyncAPIResource):
@@ -159,7 +182,7 @@ class DataResource(SyncAPIResource):
             resolved_filename = payload.name
         elif isinstance(payload, str):
             if _is_url(payload):
-                download_resp = httpx.get(payload, follow_redirects=True)
+                download_resp = httpx.get(payload, follow_redirects=True, timeout=_FILE_TRANSFER_TIMEOUT)
                 download_resp.raise_for_status()
                 file_bytes = download_resp.content
                 resolved_filename = os.path.basename(urlparse(payload).path) or "downloaded_file"
@@ -271,24 +294,30 @@ class DataResource(SyncAPIResource):
         persona_id: Optional[str] = None,
         project_id: Optional[str] = None,
     ) -> DataIngestResponse:
-        mime_type = mimetypes.guess_type(filename)[0]
+        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        content_category = _mime_to_content_category(mime_type)
 
         upload_info = self._get_upload_url(
             user_id=user_id,
             filename=filename,
-            content_type=mime_type if mime_type else omit,
+            content_type=content_category,
             project_id=project_id if project_id else omit,
             persona_id=persona_id if persona_id else omit,
         )
 
-        put_resp = httpx.put(upload_info.upload_url, content=file_bytes)
+        put_resp = httpx.put(
+            upload_info.upload_url,
+            content=file_bytes,
+            headers={"Content-Type": mime_type},
+            timeout=_FILE_TRANSFER_TIMEOUT,
+        )
         put_resp.raise_for_status()
 
         confirm = self._confirm_upload(
             job_id=upload_info.job_id,
             object_key=upload_info.object_key,
             user_id=user_id,
-            content_type=mime_type if mime_type else omit,
+            content_type=content_category,
             project_id=project_id if project_id else omit,
             persona_id=persona_id if persona_id else omit,
         )
@@ -398,7 +427,7 @@ class AsyncDataResource(AsyncAPIResource):
             resolved_filename = payload.name
         elif isinstance(payload, str):
             if _is_url(payload):
-                async with httpx.AsyncClient() as http:
+                async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
                     download_resp = await http.get(payload, follow_redirects=True)
                     download_resp.raise_for_status()
                 file_bytes = download_resp.content
@@ -511,25 +540,30 @@ class AsyncDataResource(AsyncAPIResource):
         persona_id: Optional[str] = None,
         project_id: Optional[str] = None,
     ) -> DataIngestResponse:
-        mime_type = mimetypes.guess_type(filename)[0]
+        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        content_category = _mime_to_content_category(mime_type)
 
         upload_info = await self._get_upload_url(
             user_id=user_id,
             filename=filename,
-            content_type=mime_type if mime_type else omit,
+            content_type=content_category,
             project_id=project_id if project_id else omit,
             persona_id=persona_id if persona_id else omit,
         )
 
-        async with httpx.AsyncClient() as http:
-            put_resp = await http.put(upload_info.upload_url, content=file_bytes)
+        async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
+            put_resp = await http.put(
+                upload_info.upload_url,
+                content=file_bytes,
+                headers={"Content-Type": mime_type},
+            )
             put_resp.raise_for_status()
 
         confirm = await self._confirm_upload(
             job_id=upload_info.job_id,
             object_key=upload_info.object_key,
             user_id=user_id,
-            content_type=mime_type if mime_type else omit,
+            content_type=content_category,
             project_id=project_id if project_id else omit,
             persona_id=persona_id if persona_id else omit,
         )
