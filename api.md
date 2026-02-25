@@ -83,22 +83,6 @@ Methods:
 - <code title="get /v1/personas/{persona_id}">client.personas.<a href="./src/elicitlabs/resources/personas.py">retrieve</a>(persona_id) -> <a href="./src/elicitlabs/types/persona_retrieve_response.py">PersonaRetrieveResponse</a></code>
 - <code title="get /v1/personas">client.personas.<a href="./src/elicitlabs/resources/personas.py">list</a>() -> <a href="./src/elicitlabs/types/persona_list_response.py">PersonaListResponse</a></code>
 
-# Inference
-
-Types:
-
-```python
-from elicitlabs.types import (
-    InferenceGenerateCompletionResponse,
-    InferenceGenerateMultimodalityCompletionResponse,
-)
-```
-
-Methods:
-
-- <code title="post /v1/inference/completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_completion_response.py">InferenceGenerateCompletionResponse</a></code>
-- <code title="post /v1/inference/multimodality-completion">client.inference.<a href="./src/elicitlabs/resources/inference.py">generate_multimodality_completion</a>(\*\*<a href="src/elicitlabs/types/inference_generate_multimodality_completion_params.py">params</a>) -> <a href="./src/elicitlabs/types/inference_generate_multimodality_completion_response.py">InferenceGenerateMultimodalityCompletionResponse</a></code>
-
 # Projects
 
 Types:

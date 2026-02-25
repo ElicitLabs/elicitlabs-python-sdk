@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import os
+import base64
+import mimetypes
 from typing import Dict, Union, Iterable, Optional
+from pathlib import Path
+from urllib.parse import urlparse
 
 import httpx
 
@@ -14,7 +19,7 @@ from .job import (
     JobResourceWithStreamingResponse,
     AsyncJobResourceWithStreamingResponse,
 )
-from ...types import data_ingest_params
+from ...types import data_ingest_params, data_upload_url_params, data_confirm_upload_params
 from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
@@ -27,8 +32,34 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.data_ingest_response import DataIngestResponse
+from ...types.data_upload_url_response import DataUploadUrlResponse
+from ...types.data_confirm_upload_response import DataConfirmUploadResponse
 
 __all__ = ["DataResource", "AsyncDataResource"]
+
+_UPLOAD_THRESHOLD = 20 * 1024 * 1024  # 20 MB
+
+
+def _is_url(value: object) -> bool:
+    return isinstance(value, str) and value.startswith(("http://", "https://"))
+
+
+def _looks_like_path(value: str) -> bool:
+    """Conservatively check if a string looks like a file path rather than
+    base64-encoded data or plain text.  Requires at least one path separator
+    (``/`` or ``\\``) or a leading ``.`` / ``~``."""
+    return ("/" in value or "\\" in value or value.startswith((".", "~")))
+
+
+def _is_file_path(value: object) -> bool:
+    if isinstance(value, Path):
+        return value.is_file()
+    if isinstance(value, str) and not _is_url(value) and _looks_like_path(value):
+        try:
+            return Path(value).is_file()
+        except (OSError, ValueError):
+            return False
+    return False
 
 
 class DataResource(SyncAPIResource):
@@ -58,10 +89,10 @@ class DataResource(SyncAPIResource):
     def ingest(
         self,
         *,
-        content_type: str,
-        payload: Union[str, Dict[str, object], Iterable[object]],
+        payload: Union[str, Path, Dict[str, object], Iterable[object]],
         user_id: str,
         content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -75,71 +106,38 @@ class DataResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DataIngestResponse:
         """
-        Ingest data for asynchronous processing
+        Ingest data for asynchronous processing.
 
-            Accepts various content types (text, messages, files) and processes them to extract information
-            and integrate it into the user's memory system. Returns a job_id for tracking status.
+        Accepts various content types (text, messages, files) and processes them
+        to extract information and integrate it into the user's memory system.
 
-            **Entity Resolution:**
-            - user_id (str, required): Always required - the main user identifier
-            - persona_id (str, optional): If provided, data is ingested to this persona instead of user
-            - project_id (str, optional): If provided, data is ingested to this project (inherits from user)
+        **Smart payload handling:** The ``payload`` parameter accepts:
 
-            Priority: persona_id > project_id > user_id
-
-            **Request Parameters:**
-            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
-            - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
-            - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
-            - session_id (str, optional): Groups related content for session-based retrieval
-            - timestamp (str, optional): ISO-8601 timestamp for historical data
-            - filename (str, optional): Original filename for file uploads
-
-            **Response:**
-            - job_id (str): Unique identifier for tracking the processing job
-            - user_id (str): Confirmed entity ID (user, persona, or project)
-            - content_type (str): Confirmed content type
-            - status (str): Job status ('queued', 'accepted')
-            - message (str): Status message
-            - created_at (str): ISO-8601 timestamp
-            - success (bool): True if accepted
-
-            **Example:**
-            ```json
-            {
-                "user_id": "user-123",
-                "persona_id": null,
-                "project_id": "project-456",
-                "content_type": "text",
-                "payload": "Meeting notes from today's discussion",
-                "content_description": "Meeting notes from today's discussion"
-            }
-            ```
-
-            Returns 202 Accepted with job_id. Use /job/status to check processing status.
-            Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
+        - **Plain text or structured data** — passed directly to the API.
+        - **A local file path** (``str`` or ``pathlib.Path``) — the SDK reads the
+          file, base64-encodes it for small files (< 20 MB), or uses a signed-URL
+          upload for larger files.
+        - **A URL** (``http://`` / ``https://``) — the SDK downloads the content
+          and uploads it the same way.
 
         Args:
-          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-              'messages', 'file')
-
-          payload: Raw content as string, object, list (for messages), or base64 encoded data
+          payload: Text string, message list, base64 data, a local file path, or a URL.
+              File paths and URLs are resolved automatically.
 
           user_id: User ID (always required)
 
-          content_description: Optional description of the content being ingested (e.g., 'Logo design
-              concepts', 'Meeting notes')
+          content_description: Optional description of the content being ingested
 
-          filename: Filename of the uploaded file
+          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+              'messages', 'file')
 
-          persona_id: Optional persona ID. If provided, data is ingested to this persona instead of
-              the user
+          filename: Filename for file uploads (auto-detected from path/URL when omitted)
 
-          project_id: Optional project ID. If provided, data is ingested to this project (inherits
-              from user)
+          persona_id: Optional persona ID. If provided, data is ingested to this persona
 
-          session_id: Session ID for grouping related ingested content and enabling session-based
-              retrieval
+          project_id: Optional project ID. If provided, data is ingested to this project
+
+          session_id: Session ID for grouping related ingested content
 
           timestamp: ISO-8601 timestamp to preserve original data moment
 
@@ -151,6 +149,43 @@ class DataResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        file_bytes: bytes | None = None
+        resolved_filename: str | None = None
+
+        if isinstance(payload, Path):
+            if not payload.is_file():
+                raise FileNotFoundError(f"File not found: {payload}")
+            file_bytes = payload.read_bytes()
+            resolved_filename = payload.name
+        elif isinstance(payload, str):
+            if _is_url(payload):
+                download_resp = httpx.get(payload, follow_redirects=True)
+                download_resp.raise_for_status()
+                file_bytes = download_resp.content
+                resolved_filename = os.path.basename(urlparse(payload).path) or "downloaded_file"
+            elif _is_file_path(payload):
+                path = Path(payload)
+                file_bytes = path.read_bytes()
+                resolved_filename = path.name
+
+        if file_bytes is not None:
+            actual_filename = (
+                filename if (filename is not omit and filename is not None) else resolved_filename
+            )
+
+            if len(file_bytes) >= _UPLOAD_THRESHOLD:
+                return self._ingest_via_signed_url(
+                    file_bytes=file_bytes,
+                    filename=actual_filename or "uploaded_file",
+                    user_id=user_id,
+                    persona_id=persona_id if isinstance(persona_id, str) else None,
+                    project_id=project_id if isinstance(project_id, str) else None,
+                )
+
+            payload = base64.b64encode(file_bytes).decode("utf-8")
+            if actual_filename:
+                filename = actual_filename
+
         return self._post(
             "/v1/data/ingest",
             body=maybe_transform(
@@ -171,6 +206,98 @@ class DataResource(SyncAPIResource):
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=DataIngestResponse,
+        )
+
+    # ── Private helpers for the signed-URL upload flow ───────────────────
+
+    def _get_upload_url(
+        self,
+        *,
+        user_id: str,
+        filename: str,
+        content_type: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+    ) -> DataUploadUrlResponse:
+        return self._post(
+            "/v1/data/ingest/upload-url",
+            body=maybe_transform(
+                {
+                    "user_id": user_id,
+                    "filename": filename,
+                    "content_type": content_type,
+                    "project_id": project_id,
+                    "persona_id": persona_id,
+                },
+                data_upload_url_params.DataUploadUrlParams,
+            ),
+            options=make_request_options(),
+            cast_to=DataUploadUrlResponse,
+        )
+
+    def _confirm_upload(
+        self,
+        *,
+        job_id: str,
+        object_key: str,
+        user_id: str,
+        content_type: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+    ) -> DataConfirmUploadResponse:
+        return self._post(
+            "/v1/data/ingest/confirm-upload",
+            body=maybe_transform(
+                {
+                    "job_id": job_id,
+                    "object_key": object_key,
+                    "user_id": user_id,
+                    "content_type": content_type,
+                    "project_id": project_id,
+                    "persona_id": persona_id,
+                },
+                data_confirm_upload_params.DataConfirmUploadParams,
+            ),
+            options=make_request_options(),
+            cast_to=DataConfirmUploadResponse,
+        )
+
+    def _ingest_via_signed_url(
+        self,
+        *,
+        file_bytes: bytes,
+        filename: str,
+        user_id: str,
+        persona_id: Optional[str] = None,
+        project_id: Optional[str] = None,
+    ) -> DataIngestResponse:
+        mime_type = mimetypes.guess_type(filename)[0]
+
+        upload_info = self._get_upload_url(
+            user_id=user_id,
+            filename=filename,
+            content_type=mime_type if mime_type else omit,
+            project_id=project_id if project_id else omit,
+            persona_id=persona_id if persona_id else omit,
+        )
+
+        put_resp = httpx.put(upload_info.upload_url, content=file_bytes)
+        put_resp.raise_for_status()
+
+        confirm = self._confirm_upload(
+            job_id=upload_info.job_id,
+            object_key=upload_info.object_key,
+            user_id=user_id,
+            content_type=mime_type if mime_type else omit,
+            project_id=project_id if project_id else omit,
+            persona_id=persona_id if persona_id else omit,
+        )
+
+        return DataIngestResponse(
+            job_id=confirm.job_id,
+            status=confirm.status,
+            message=confirm.message,
+            success=True,
         )
 
 
@@ -201,10 +328,10 @@ class AsyncDataResource(AsyncAPIResource):
     async def ingest(
         self,
         *,
-        content_type: str,
-        payload: Union[str, Dict[str, object], Iterable[object]],
+        payload: Union[str, Path, Dict[str, object], Iterable[object]],
         user_id: str,
         content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -218,71 +345,38 @@ class AsyncDataResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DataIngestResponse:
         """
-        Ingest data for asynchronous processing
+        Ingest data for asynchronous processing.
 
-            Accepts various content types (text, messages, files) and processes them to extract information
-            and integrate it into the user's memory system. Returns a job_id for tracking status.
+        Accepts various content types (text, messages, files) and processes them
+        to extract information and integrate it into the user's memory system.
 
-            **Entity Resolution:**
-            - user_id (str, required): Always required - the main user identifier
-            - persona_id (str, optional): If provided, data is ingested to this persona instead of user
-            - project_id (str, optional): If provided, data is ingested to this project (inherits from user)
+        **Smart payload handling:** The ``payload`` parameter accepts:
 
-            Priority: persona_id > project_id > user_id
-
-            **Request Parameters:**
-            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
-            - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
-            - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
-            - session_id (str, optional): Groups related content for session-based retrieval
-            - timestamp (str, optional): ISO-8601 timestamp for historical data
-            - filename (str, optional): Original filename for file uploads
-
-            **Response:**
-            - job_id (str): Unique identifier for tracking the processing job
-            - user_id (str): Confirmed entity ID (user, persona, or project)
-            - content_type (str): Confirmed content type
-            - status (str): Job status ('queued', 'accepted')
-            - message (str): Status message
-            - created_at (str): ISO-8601 timestamp
-            - success (bool): True if accepted
-
-            **Example:**
-            ```json
-            {
-                "user_id": "user-123",
-                "persona_id": null,
-                "project_id": "project-456",
-                "content_type": "text",
-                "payload": "Meeting notes from today's discussion",
-                "content_description": "Meeting notes from today's discussion"
-            }
-            ```
-
-            Returns 202 Accepted with job_id. Use /job/status to check processing status.
-            Max payload: 5MB (JSON), 20MB (multipart). Requires JWT authentication.
+        - **Plain text or structured data** — passed directly to the API.
+        - **A local file path** (``str`` or ``pathlib.Path``) — the SDK reads the
+          file, base64-encodes it for small files (< 20 MB), or uses a signed-URL
+          upload for larger files.
+        - **A URL** (``http://`` / ``https://``) — the SDK downloads the content
+          and uploads it the same way.
 
         Args:
-          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
-              'messages', 'file')
-
-          payload: Raw content as string, object, list (for messages), or base64 encoded data
+          payload: Text string, message list, base64 data, a local file path, or a URL.
+              File paths and URLs are resolved automatically.
 
           user_id: User ID (always required)
 
-          content_description: Optional description of the content being ingested (e.g., 'Logo design
-              concepts', 'Meeting notes')
+          content_description: Optional description of the content being ingested
 
-          filename: Filename of the uploaded file
+          content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
+              'messages', 'file')
 
-          persona_id: Optional persona ID. If provided, data is ingested to this persona instead of
-              the user
+          filename: Filename for file uploads (auto-detected from path/URL when omitted)
 
-          project_id: Optional project ID. If provided, data is ingested to this project (inherits
-              from user)
+          persona_id: Optional persona ID. If provided, data is ingested to this persona
 
-          session_id: Session ID for grouping related ingested content and enabling session-based
-              retrieval
+          project_id: Optional project ID. If provided, data is ingested to this project
+
+          session_id: Session ID for grouping related ingested content
 
           timestamp: ISO-8601 timestamp to preserve original data moment
 
@@ -294,6 +388,44 @@ class AsyncDataResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        file_bytes: bytes | None = None
+        resolved_filename: str | None = None
+
+        if isinstance(payload, Path):
+            if not payload.is_file():
+                raise FileNotFoundError(f"File not found: {payload}")
+            file_bytes = payload.read_bytes()
+            resolved_filename = payload.name
+        elif isinstance(payload, str):
+            if _is_url(payload):
+                async with httpx.AsyncClient() as http:
+                    download_resp = await http.get(payload, follow_redirects=True)
+                    download_resp.raise_for_status()
+                file_bytes = download_resp.content
+                resolved_filename = os.path.basename(urlparse(payload).path) or "downloaded_file"
+            elif _is_file_path(payload):
+                path = Path(payload)
+                file_bytes = path.read_bytes()
+                resolved_filename = path.name
+
+        if file_bytes is not None:
+            actual_filename = (
+                filename if (filename is not omit and filename is not None) else resolved_filename
+            )
+
+            if len(file_bytes) >= _UPLOAD_THRESHOLD:
+                return await self._ingest_via_signed_url(
+                    file_bytes=file_bytes,
+                    filename=actual_filename or "uploaded_file",
+                    user_id=user_id,
+                    persona_id=persona_id if isinstance(persona_id, str) else None,
+                    project_id=project_id if isinstance(project_id, str) else None,
+                )
+
+            payload = base64.b64encode(file_bytes).decode("utf-8")
+            if actual_filename:
+                filename = actual_filename
+
         return await self._post(
             "/v1/data/ingest",
             body=await async_maybe_transform(
@@ -314,6 +446,99 @@ class AsyncDataResource(AsyncAPIResource):
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=DataIngestResponse,
+        )
+
+    # ── Private helpers for the signed-URL upload flow ───────────────────
+
+    async def _get_upload_url(
+        self,
+        *,
+        user_id: str,
+        filename: str,
+        content_type: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+    ) -> DataUploadUrlResponse:
+        return await self._post(
+            "/v1/data/ingest/upload-url",
+            body=await async_maybe_transform(
+                {
+                    "user_id": user_id,
+                    "filename": filename,
+                    "content_type": content_type,
+                    "project_id": project_id,
+                    "persona_id": persona_id,
+                },
+                data_upload_url_params.DataUploadUrlParams,
+            ),
+            options=make_request_options(),
+            cast_to=DataUploadUrlResponse,
+        )
+
+    async def _confirm_upload(
+        self,
+        *,
+        job_id: str,
+        object_key: str,
+        user_id: str,
+        content_type: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+    ) -> DataConfirmUploadResponse:
+        return await self._post(
+            "/v1/data/ingest/confirm-upload",
+            body=await async_maybe_transform(
+                {
+                    "job_id": job_id,
+                    "object_key": object_key,
+                    "user_id": user_id,
+                    "content_type": content_type,
+                    "project_id": project_id,
+                    "persona_id": persona_id,
+                },
+                data_confirm_upload_params.DataConfirmUploadParams,
+            ),
+            options=make_request_options(),
+            cast_to=DataConfirmUploadResponse,
+        )
+
+    async def _ingest_via_signed_url(
+        self,
+        *,
+        file_bytes: bytes,
+        filename: str,
+        user_id: str,
+        persona_id: Optional[str] = None,
+        project_id: Optional[str] = None,
+    ) -> DataIngestResponse:
+        mime_type = mimetypes.guess_type(filename)[0]
+
+        upload_info = await self._get_upload_url(
+            user_id=user_id,
+            filename=filename,
+            content_type=mime_type if mime_type else omit,
+            project_id=project_id if project_id else omit,
+            persona_id=persona_id if persona_id else omit,
+        )
+
+        async with httpx.AsyncClient() as http:
+            put_resp = await http.put(upload_info.upload_url, content=file_bytes)
+            put_resp.raise_for_status()
+
+        confirm = await self._confirm_upload(
+            job_id=upload_info.job_id,
+            object_key=upload_info.object_key,
+            user_id=user_id,
+            content_type=mime_type if mime_type else omit,
+            project_id=project_id if project_id else omit,
+            persona_id=persona_id if persona_id else omit,
+        )
+
+        return DataIngestResponse(
+            job_id=confirm.job_id,
+            status=confirm.status,
+            message=confirm.message,
+            success=True,
         )
 
 

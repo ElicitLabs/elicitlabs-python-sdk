@@ -17,7 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestModal:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_learn(self, client: ElicitClient) -> None:
         modal = client.modal.learn(
@@ -30,7 +30,7 @@ class TestModal:
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_learn_with_all_params(self, client: ElicitClient) -> None:
         modal = client.modal.learn(
@@ -59,7 +59,7 @@ class TestModal:
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_learn(self, client: ElicitClient) -> None:
         response = client.modal.with_raw_response.learn(
@@ -76,7 +76,7 @@ class TestModal:
         modal = response.parse()
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_learn(self, client: ElicitClient) -> None:
         with client.modal.with_streaming_response.learn(
@@ -95,7 +95,7 @@ class TestModal:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_query(self, client: ElicitClient) -> None:
         modal = client.modal.query(
@@ -103,7 +103,7 @@ class TestModal:
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_query_with_all_params(self, client: ElicitClient) -> None:
         modal = client.modal.query(
@@ -119,7 +119,7 @@ class TestModal:
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_query(self, client: ElicitClient) -> None:
         response = client.modal.with_raw_response.query(
@@ -131,7 +131,7 @@ class TestModal:
         modal = response.parse()
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_query(self, client: ElicitClient) -> None:
         with client.modal.with_streaming_response.query(
@@ -151,7 +151,7 @@ class TestAsyncModal:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_learn(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.learn(
@@ -164,7 +164,7 @@ class TestAsyncModal:
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_learn_with_all_params(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.learn(
@@ -193,7 +193,7 @@ class TestAsyncModal:
         )
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_learn(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.modal.with_raw_response.learn(
@@ -210,7 +210,7 @@ class TestAsyncModal:
         modal = await response.parse()
         assert_matches_type(ModalLearnResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_learn(self, async_client: AsyncElicitClient) -> None:
         async with async_client.modal.with_streaming_response.learn(
@@ -229,7 +229,7 @@ class TestAsyncModal:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_query(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.query(
@@ -237,7 +237,7 @@ class TestAsyncModal:
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_query_with_all_params(self, async_client: AsyncElicitClient) -> None:
         modal = await async_client.modal.query(
@@ -253,7 +253,7 @@ class TestAsyncModal:
         )
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_query(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.modal.with_raw_response.query(
@@ -265,7 +265,7 @@ class TestAsyncModal:
         modal = await response.parse()
         assert_matches_type(ModalQueryResponse, modal, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_query(self, async_client: AsyncElicitClient) -> None:
         async with async_client.modal.with_streaming_response.query(

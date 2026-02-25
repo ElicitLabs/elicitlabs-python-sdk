@@ -17,7 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestJob:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_retrieve_status(self, client: ElicitClient) -> None:
         job = client.data.job.retrieve_status(
@@ -25,7 +25,7 @@ class TestJob:
         )
         assert_matches_type(JobRetrieveStatusResponse, job, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_retrieve_status(self, client: ElicitClient) -> None:
         response = client.data.job.with_raw_response.retrieve_status(
@@ -37,7 +37,7 @@ class TestJob:
         job = response.parse()
         assert_matches_type(JobRetrieveStatusResponse, job, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_retrieve_status(self, client: ElicitClient) -> None:
         with client.data.job.with_streaming_response.retrieve_status(
@@ -57,7 +57,7 @@ class TestAsyncJob:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_retrieve_status(self, async_client: AsyncElicitClient) -> None:
         job = await async_client.data.job.retrieve_status(
@@ -65,7 +65,7 @@ class TestAsyncJob:
         )
         assert_matches_type(JobRetrieveStatusResponse, job, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_retrieve_status(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.data.job.with_raw_response.retrieve_status(
@@ -77,7 +77,7 @@ class TestAsyncJob:
         job = await response.parse()
         assert_matches_type(JobRetrieveStatusResponse, job, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_retrieve_status(self, async_client: AsyncElicitClient) -> None:
         async with async_client.data.job.with_streaming_response.retrieve_status(

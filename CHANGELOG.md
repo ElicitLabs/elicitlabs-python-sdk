@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.12.0 (2026-02-25)
+
+Full Changelog: [v0.11.0...v0.12.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.11.0...v0.12.0)
+
+### Features
+
+* **api:** api update ([ad42a5a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/ad42a5aebced2a9eb6607ad5abe5e183e93f23ba))
+* **api:** api update ([c2eee37](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/c2eee37adf2090b30bba1d45c5ade2248a674bab))
+* **api:** api update ([8dc53b0](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/8dc53b04a785a0521b3592c5eb9c154320e30217))
+* **api:** manual updates ([b707cbc](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/b707cbc862f763c64953dbe61788ad88b7e0a57f))
+* **data:** support file paths and URLs in ingest payload ([0592f80](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/0592f80d7b89c771226eb22ad29abd61976a35bc))
+
+
+### Bug Fixes
+
+* **data:** remove unused import in upload url response type ([6993ab8](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/6993ab895ce2c43ab3fc777e957dfe0e8adaccfd))
+* **data:** resolve pyright type errors in ingest method ([c14cbb2](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/c14cbb2633e96107dfd5eea6743d66a88ce21c34))
+
+
+### Chores
+
+* format all `api.md` files ([35faf4b](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/35faf4b286f21fa3bbea36cc5a85e28ea81a8a6d))
+* **internal:** add request options to SSE classes ([cd7a095](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/cd7a095dcd414274e63ee6279c05bf6bbff5fc8a))
+* **internal:** bump dependencies ([f68ecde](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/f68ecdeb0dd3b05c53508833931680160ef5c04c))
+* **internal:** fix lint error on Python 3.14 ([652f0fb](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/652f0fb8ac711386a040cb393c7fede49e30837a))
+* **internal:** make `test_proxy_environment_variables` more resilient ([7a3b8ee](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/7a3b8eedf434b16b9620821967beca4326209e3d))
+* **internal:** remove mock server code ([115392a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/115392a7cdccf2d01c538238d85b0edbd4e5401f))
+* update mock server docs ([777b04b](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/777b04be504dd2e1d9baec98fce11fca1e08d022))
+
 ## 0.11.0 (2026-02-09)
 
 Full Changelog: [v0.10.0...v0.11.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.10.0...v0.11.0)
