@@ -90,7 +90,7 @@ class ImagesResource(SyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, optional): Model ID (default: gemini-3-flash)
+            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3-pro, gemini-3.1-pro
             - size (str, optional): Image dimensions as WxH, e.g. "1024x1024", "1920x1080" (default: 1024x1024).
               Automatically mapped to the nearest aspect ratio and resolution tier.
             - seed (int, optional): Random seed for reproducibility
@@ -235,7 +235,7 @@ class AsyncImagesResource(AsyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, optional): Model ID (default: gemini-3-flash)
+            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3-pro, gemini-3.1-pro
             - size (str, optional): Image dimensions as WxH, e.g. "1024x1024", "1920x1080" (default: 1024x1024).
               Automatically mapped to the nearest aspect ratio and resolution tier.
             - seed (int, optional): Random seed for reproducibility
