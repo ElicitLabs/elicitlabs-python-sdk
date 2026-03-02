@@ -36,6 +36,7 @@ class RealtimeResource(SyncAPIResource):
         project_id: Optional[str] = None,
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
+        auto_listen: bool = True,
     ) -> AsyncRealtimeSession:
         """Create a realtime session context manager.
 
@@ -64,6 +65,12 @@ class RealtimeResource(SyncAPIResource):
             project_id: Optional project scope.
             persona_id: Optional persona scope.
             disabled_learning: Disable memory learning for this session.
+            auto_listen: If ``True`` (default), a background task reads
+                events and accumulates context automatically. Use
+                :meth:`~AsyncRealtimeSession.flush` to retrieve data.
+                If ``False``, no background listener is started — use
+                ``async for event in session`` or :meth:`~AsyncRealtimeSession.recv`
+                to consume events manually.
         """
         url = gateway_url or os.environ.get("ELICIT_GATEWAY_URL")
         return AsyncRealtimeSession(
@@ -75,6 +82,7 @@ class RealtimeResource(SyncAPIResource):
             project_id=project_id,
             persona_id=persona_id,
             disabled_learning=disabled_learning,
+            auto_listen=auto_listen,
         )
 
 
@@ -111,6 +119,7 @@ class AsyncRealtimeResource(AsyncAPIResource):
         project_id: Optional[str] = None,
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
+        auto_listen: bool = True,
     ) -> AsyncRealtimeSession:
         """Create a realtime session context manager.
 
@@ -139,6 +148,12 @@ class AsyncRealtimeResource(AsyncAPIResource):
             project_id: Optional project scope.
             persona_id: Optional persona scope.
             disabled_learning: Disable memory learning for this session.
+            auto_listen: If ``True`` (default), a background task reads
+                events and accumulates context automatically. Use
+                :meth:`~AsyncRealtimeSession.flush` to retrieve data.
+                If ``False``, no background listener is started — use
+                ``async for event in session`` or :meth:`~AsyncRealtimeSession.recv`
+                to consume events manually.
         """
         url = gateway_url or os.environ.get("ELICIT_GATEWAY_URL")
         return AsyncRealtimeSession(
@@ -150,6 +165,7 @@ class AsyncRealtimeResource(AsyncAPIResource):
             project_id=project_id,
             persona_id=persona_id,
             disabled_learning=disabled_learning,
+            auto_listen=auto_listen,
         )
 
 

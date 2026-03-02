@@ -8,6 +8,7 @@ from ..._exceptions import ElicitClientError
 from ...types.realtime.session_events import (
     ContextCard,
     ErrorEvent,
+    StatusEvent,
     TranscriptEvent,
     SessionReadyEvent,
     SessionEndedEvent,
@@ -48,6 +49,7 @@ _EVENT_TYPE_MAP: dict[str, type[Any]] = {
     "context_snapshot": ContextUpdateEvent,
     "session_ended": SessionEndedEvent,
     "error": ErrorEvent,
+    "status": StatusEvent,
 }
 
 _TYPE_ALIASES: dict[str, str] = {
@@ -78,6 +80,13 @@ class ContextAccumulator:
         self.cards = []
         self.messages = []
         self.transcripts = []
+        self._context_version = 0
+
+    def reset(self) -> None:
+        """Clear all accumulated state."""
+        self.cards.clear()
+        self.messages.clear()
+        self.transcripts.clear()
         self._context_version = 0
 
     def on_context_update(self, event: ContextUpdateEvent) -> None:
@@ -180,6 +189,7 @@ class AsyncRealtimeSession:
         project_id: Optional[str] = None,
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
+        auto_listen: bool = True,
     ) -> None:
         if websockets is None:
             raise ElicitClientError(
@@ -195,12 +205,16 @@ class AsyncRealtimeSession:
         self._project_id = project_id
         self._persona_id = persona_id
         self._disabled_learning = disabled_learning
+        self._auto_listen = auto_listen
 
         self.context = ContextAccumulator()
         self.session_id = None
+        self.status: str = "rest"
+        """Pipeline status: ``"rest"`` (idle/done) or ``"processing"``."""
         self._ws: Optional[ClientConnection] = None
         self._closed = False
         self._iter_done = False
+        self._listener_task: Optional[asyncio.Task[None]] = None
 
     # ------------------------------------------------------------------
     # Connection lifecycle
@@ -259,8 +273,75 @@ class AsyncRealtimeSession:
         if self._closed:
             return
         self._closed = True
+        if self._listener_task is not None:
+            self._listener_task.cancel()
+            try:
+                await self._listener_task
+            except asyncio.CancelledError:
+                pass
+            self._listener_task = None
         if self._ws is not None:
             await self._ws.close()
+
+    # ------------------------------------------------------------------
+    # Background listener
+    # ------------------------------------------------------------------
+
+    def _start_listener(self) -> None:
+        """Start a background task that reads events and feeds the accumulator."""
+        if self._listener_task is None:
+            self._listener_task = asyncio.create_task(self._listen())
+
+    async def _listen(self) -> None:
+        """Read from the WebSocket in a loop, feeding events into the context accumulator."""
+        while self._ws is not None and not self._closed:
+            try:
+                message = await self._ws.recv()
+            except Exception:
+                break
+
+            if isinstance(message, bytes):
+                continue
+
+            data: dict[str, Any] = json.loads(message)
+            event = _parse_event(data)
+
+            if isinstance(event, ContextUpdateEvent):
+                self.context.on_context_update(event)
+            elif isinstance(event, TranscriptEvent):
+                self.context.on_transcript(event)
+            elif isinstance(event, StatusEvent):
+                self.status = event.status
+
+            if isinstance(event, (SessionEndedEvent, ErrorEvent)):
+                break
+
+    # ------------------------------------------------------------------
+    # Flush / Override
+    # ------------------------------------------------------------------
+
+    def flush(self) -> str:
+        """Drain the accumulated context and reset the accumulator.
+
+        Returns the context string built from all cards and transcripts
+        collected since the last flush (or since the session started).
+        """
+        context_string = self.context.build_context_string()
+        self.context.reset()
+        return context_string
+
+    async def override(self) -> None:
+        """Send a flush command to the server to request fresh context data.
+
+        This sends ``{"type": "flush"}`` over the WebSocket, which tells the
+        gateway to re-run retrieval and push updated context.
+        """
+        if self._ws is None or self._closed:
+            raise ElicitClientError("Session is not connected")
+        try:
+            await self._ws.send(json.dumps({"type": "flush"}))
+        except Exception as exc:
+            raise ElicitClientError(f"Failed to send override flush: {exc}") from exc
 
     # ------------------------------------------------------------------
     # Sending media
@@ -368,6 +449,8 @@ class AsyncRealtimeSession:
 
     async def __aenter__(self) -> AsyncRealtimeSession:
         await self._connect()
+        if self._auto_listen:
+            self._start_listener()
         return self
 
     async def __aexit__(self, *_: Any) -> None:

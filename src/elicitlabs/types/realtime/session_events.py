@@ -13,6 +13,7 @@ __all__ = [
     "RealtimeSessionEvent",
     "SessionEndedEvent",
     "SessionReadyEvent",
+    "StatusEvent",
     "TranscriptEvent",
 ]
 
@@ -102,10 +103,21 @@ class ErrorEvent(BaseModel):
     code: Optional[str] = None
 
 
+class StatusEvent(BaseModel):
+    """Emitted when the server reports a processing status change."""
+
+    type: Literal["status"]
+
+    status: Literal["processing", "done"]
+    """Current pipeline status: ``processing`` while the server is working,
+    ``done`` when the result is ready."""
+
+
 RealtimeSessionEvent = Union[
     SessionReadyEvent,
     TranscriptEvent,
     ContextUpdateEvent,
     SessionEndedEvent,
     ErrorEvent,
+    StatusEvent,
 ]

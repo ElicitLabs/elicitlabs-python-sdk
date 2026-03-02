@@ -32,6 +32,7 @@ from .chat_create_completion_response import ChatCreateCompletionResponse as Cha
 from .realtime import (
     ContextCard as ContextCard,
     ErrorEvent as ErrorEvent,
+    StatusEvent as StatusEvent,
     TranscriptEvent as TranscriptEvent,
     SessionReadyEvent as SessionReadyEvent,
     SessionEndedEvent as SessionEndedEvent,
