@@ -2,6 +2,17 @@
 
 from __future__ import annotations
 
+from .realtime import (
+    ErrorEvent as ErrorEvent,
+    ContextCard as ContextCard,
+    StatusEvent as StatusEvent,
+    TranscriptEvent as TranscriptEvent,
+    SessionEndedEvent as SessionEndedEvent,
+    SessionReadyEvent as SessionReadyEvent,
+    ContextUpdateEvent as ContextUpdateEvent,
+    ContextCardOperation as ContextCardOperation,
+    RealtimeSessionEvent as RealtimeSessionEvent,
+)
 from .data_ingest_params import DataIngestParams as DataIngestParams
 from .modal_learn_params import ModalLearnParams as ModalLearnParams
 from .modal_query_params import ModalQueryParams as ModalQueryParams
@@ -29,14 +40,3 @@ from .user_create_or_get_params import UserCreateOrGetParams as UserCreateOrGetP
 from .user_create_or_get_response import UserCreateOrGetResponse as UserCreateOrGetResponse
 from .chat_create_completion_params import ChatCreateCompletionParams as ChatCreateCompletionParams
 from .chat_create_completion_response import ChatCreateCompletionResponse as ChatCreateCompletionResponse
-from .realtime import (
-    ContextCard as ContextCard,
-    ErrorEvent as ErrorEvent,
-    StatusEvent as StatusEvent,
-    TranscriptEvent as TranscriptEvent,
-    SessionReadyEvent as SessionReadyEvent,
-    SessionEndedEvent as SessionEndedEvent,
-    ContextUpdateEvent as ContextUpdateEvent,
-    ContextCardOperation as ContextCardOperation,
-    RealtimeSessionEvent as RealtimeSessionEvent,
-)

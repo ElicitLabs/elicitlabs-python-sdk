@@ -1,3 +1,7 @@
+from .session import (
+    ContextAccumulator as ContextAccumulator,
+    AsyncRealtimeSession as AsyncRealtimeSession,
+)
 from .realtime import (
     RealtimeResource as RealtimeResource,
     AsyncRealtimeResource as AsyncRealtimeResource,
@@ -5,10 +9,6 @@ from .realtime import (
     AsyncRealtimeResourceWithRawResponse as AsyncRealtimeResourceWithRawResponse,
     RealtimeResourceWithStreamingResponse as RealtimeResourceWithStreamingResponse,
     AsyncRealtimeResourceWithStreamingResponse as AsyncRealtimeResourceWithStreamingResponse,
-)
-from .session import (
-    AsyncRealtimeSession as AsyncRealtimeSession,
-    ContextAccumulator as ContextAccumulator,
 )
 
 __all__ = [

@@ -31,7 +31,21 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import auth, chat, data, text, audio, modal, users, video, health, images, personas, projects, realtime
+    from .resources import (
+        auth,
+        chat,
+        data,
+        text,
+        audio,
+        modal,
+        users,
+        video,
+        health,
+        images,
+        personas,
+        projects,
+        realtime,
+    )
     from .resources.chat import ChatResource, AsyncChatResource
     from .resources.text import TextResource, AsyncTextResource
     from .resources.audio import AudioResource, AsyncAudioResource

@@ -3,9 +3,9 @@ from __future__ import annotations
 import os
 from typing import Optional
 
+from .session import AsyncRealtimeSession
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
-from .session import AsyncRealtimeSession
 
 __all__ = ["RealtimeResource", "AsyncRealtimeResource"]
 
