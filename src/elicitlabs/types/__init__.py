@@ -2,6 +2,17 @@
 
 from __future__ import annotations
 
+from .realtime import (
+    ErrorEvent as ErrorEvent,
+    ContextCard as ContextCard,
+    StatusEvent as StatusEvent,
+    TranscriptEvent as TranscriptEvent,
+    SessionEndedEvent as SessionEndedEvent,
+    SessionReadyEvent as SessionReadyEvent,
+    ContextUpdateEvent as ContextUpdateEvent,
+    ContextCardOperation as ContextCardOperation,
+    RealtimeSessionEvent as RealtimeSessionEvent,
+)
 from .data_ingest_params import DataIngestParams as DataIngestParams
 from .modal_learn_params import ModalLearnParams as ModalLearnParams
 from .modal_query_params import ModalQueryParams as ModalQueryParams
