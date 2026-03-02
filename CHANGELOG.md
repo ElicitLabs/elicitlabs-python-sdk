@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.13.0 (2026-03-02)
+
+Full Changelog: [v0.12.1...v0.13.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.12.1...v0.13.0)
+
+### Features
+
+* **api:** api update ([2d65cc7](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/2d65cc7cca2a03c18e7a82c6ebca38b86af528ad))
+* **realtime:** add WebSocket realtime resource for gateway streaming ([cf9832f](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/cf9832fc25a7266720b1e7faa57eb5e827160ceb))
+
+
+### Chores
+
+* **internal:** make `test_proxy_environment_variables` more resilient to env ([9871aac](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/9871aac2eb95dd73ad50179ef54c8735c1823b00))
+
 ## 0.12.1 (2026-02-25)
 
 Full Changelog: [v0.12.0...v0.12.1](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.12.0...v0.12.1)
