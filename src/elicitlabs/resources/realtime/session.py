@@ -2,18 +2,17 @@ from __future__ import annotations
 
 import json
 import asyncio
-from typing import Any, List, AsyncIterator, Optional
+from typing import Any, List, Optional, AsyncIterator
 
 from ..._exceptions import ElicitClientError
 from ...types.realtime.session_events import (
-    ContextCard,
     ErrorEvent,
+    ContextCard,
     StatusEvent,
     TranscriptEvent,
-    SessionReadyEvent,
     SessionEndedEvent,
+    SessionReadyEvent,
     ContextUpdateEvent,
-    ContextCardOperation,
     RealtimeSessionEvent,
 )
 
@@ -249,8 +248,8 @@ class AsyncRealtimeSession:
 
         try:
             resp_raw = await asyncio.wait_for(self._ws.recv(), timeout=30)
-        except asyncio.TimeoutError:
-            raise ElicitClientError("Gateway did not respond to handshake within 30s")
+        except asyncio.TimeoutError as exc:
+            raise ElicitClientError("Gateway did not respond to handshake within 30s") from exc
         except Exception as exc:
             raise ElicitClientError(f"Connection lost during handshake: {exc}") from exc
 
@@ -311,7 +310,7 @@ class AsyncRealtimeSession:
             elif isinstance(event, TranscriptEvent):
                 self.context.on_transcript(event)
             elif isinstance(event, StatusEvent):
-                self.status = event.status
+                self.status = "processing" if event.status == "processing" else "rest"
 
             if isinstance(event, (SessionEndedEvent, ErrorEvent)):
                 break
@@ -423,8 +422,8 @@ class AsyncRealtimeSession:
 
             try:
                 message = await self._ws.recv()
-            except Exception:
-                raise StopAsyncIteration
+            except Exception as exc:
+                raise StopAsyncIteration from exc
 
             if isinstance(message, bytes):
                 continue
