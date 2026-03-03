@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import struct
 import asyncio
+from collections import deque
 from typing import Any, List, Optional, AsyncIterator
 
 from ..._exceptions import ElicitClientError
@@ -73,24 +74,40 @@ def _parse_event(raw: dict[str, Any]) -> RealtimeSessionEvent:
 
 class ContextAccumulator:
     """Collects ``context_update`` events and builds a unified context string
-    that can be injected into your own LLM calls."""
+    that can be injected into your own LLM calls.
 
-    cards: List[ContextCard]
+    Identity cards (``face_identity``, ``speaker_identity``, ``identity``)
+    are **persistent** and never evicted.  All other cards are kept in a
+    rolling queue — once the queue reaches ``max_transient_cards``, the
+    oldest non-identity cards are dropped to make room for new ones.
+    """
+
+    # Card types that are never evicted
+    PERSISTENT_TYPES = frozenset({"face_identity", "speaker_identity", "identity"})
+
+    persistent_cards: List[ContextCard]
+    transient_cards: deque[ContextCard]
     messages: List[dict[str, object]]
-    transcripts: List[str]
+    transcripts: deque[str]
 
-    def __init__(self) -> None:
-        self.cards = []
-        self.messages = []
-        self.transcripts = []
+    def __init__(self, max_transient_cards: int = 20, max_transcripts: int = 20) -> None:
+        self.persistent_cards: List[ContextCard] = []
+        self.transient_cards: deque[ContextCard] = deque(maxlen=max_transient_cards)
+        self.messages: List[dict[str, object]] = []
+        self.transcripts: deque[str] = deque(maxlen=max_transcripts)
         self._context_version = 0
 
     def reset(self) -> None:
-        """Clear all accumulated state."""
-        self.cards.clear()
+        """Clear transient state but keep persistent identity cards."""
+        self.transient_cards.clear()
         self.messages.clear()
         self.transcripts.clear()
         self._context_version = 0
+
+    @property
+    def cards(self) -> List[ContextCard]:
+        """All cards (persistent + transient) for backward compatibility."""
+        return self.persistent_cards + list(self.transient_cards)
 
     def on_context_update(self, event: ContextUpdateEvent) -> None:
         version = event.context_version or 0
@@ -98,7 +115,13 @@ class ContextAccumulator:
 
         for op in event.ops or []:
             if op.op == "add" and op.card is not None:
-                self.cards.append(op.card)
+                if op.card.type in self.PERSISTENT_TYPES:
+                    # Deduplicate persistent cards by claim text
+                    if not any(c.claim == op.card.claim for c in self.persistent_cards):
+                        self.persistent_cards.append(op.card)
+                else:
+                    # Rolling queue — oldest auto-evicted when maxlen reached
+                    self.transient_cards.append(op.card)
 
         for msg in event.messages or []:
             self.messages.append(msg)
@@ -113,12 +136,14 @@ class ContextAccumulator:
         ready for injection as a system message in your own LLM."""
         sections: list[str] = []
 
-        episodic = [c for c in self.cards if c.type == "episodic"]
-        preferences = [c for c in self.cards if c.type == "preference"]
-        identity = [c for c in self.cards if c.type == "identity"]
+        all_cards = self.cards
+
+        episodic = [c for c in all_cards if c.type == "episodic"]
+        preferences = [c for c in all_cards if c.type == "preference"]
+        identity = [c for c in all_cards if c.type == "identity"]
         visual = [
             c
-            for c in self.cards
+            for c in all_cards
             if c.type in ("face_identity", "speaker_identity", "scene_fact", "attention_target")
         ]
 
@@ -324,14 +349,13 @@ class AsyncRealtimeSession:
     # ------------------------------------------------------------------
 
     def flush(self) -> str:
-        """Drain the accumulated context and reset the accumulator.
+        """Return the current context string without clearing anything.
 
-        Returns the context string built from all cards and transcripts
-        collected since the last flush (or since the session started).
+        The rolling queues (transient cards, transcripts) manage their
+        own size — oldest entries are automatically replaced when the
+        cap is reached.  Identity cards are always kept.
         """
-        context_string = self.context.build_context_string()
-        self.context.reset()
-        return context_string
+        return self.context.build_context_string()
 
     async def override(self) -> None:
         """Send a flush command to the server to request fresh context data.
