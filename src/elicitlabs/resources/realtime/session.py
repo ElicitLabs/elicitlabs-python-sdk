@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import struct
 import asyncio
 from typing import Any, List, Optional, AsyncIterator
 
@@ -33,6 +34,9 @@ GATEWAY_URL_DEFAULT = "wss://gateway.elicitlabs.ai/ws"
 
 FRAME_AUDIO: int = 0x01
 FRAME_VIDEO: int = 0x02
+
+VIDEO_SUB_JPEG: int = 0x00
+VIDEO_SUB_RAW: int = 0x01
 
 SAMPLE_RATE: int = 16_000
 CHANNELS: int = 1
@@ -364,16 +368,60 @@ class AsyncRealtimeSession:
         except Exception as exc:
             raise ElicitClientError(f"Failed to send audio: {exc}") from exc
 
-    async def send_video(self, jpeg: bytes) -> None:
-        """Send a JPEG video frame.
+    async def send_video(
+        self,
+        data: bytes,
+        *,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        format: Optional[str] = None,
+    ) -> None:
+        """Send a video frame.
 
-        The data is prefixed with the ``0x02`` video frame marker
-        before being sent over the wire.
+        Can send either a pre-encoded JPEG frame or raw pixel bytes with
+        format metadata so the server can decode/compress as needed.
+
+        **JPEG mode** (default)::
+
+            await session.send_video(jpeg_bytes)
+
+        **Raw pixel mode**::
+
+            await session.send_video(
+                raw_bytes, width=640, height=480, format="RGB"
+            )
+
+        Wire format
+        -----------
+        JPEG:  ``0x02 | 0x00 | <jpeg bytes>``
+
+        Raw:   ``0x02 | 0x01 | width(u16 BE) | height(u16 BE) |
+                fmt_len(u8) | fmt_str | <raw pixel bytes>``
         """
         if self._ws is None or self._closed:
             raise ElicitClientError("Session is not connected")
+
+        raw_mode = width is not None or height is not None or format is not None
+        if raw_mode:
+            if width is None or height is None or format is None:
+                raise ElicitClientError(
+                    "width, height, and format are all required for raw video frames"
+                )
+            fmt_bytes = format.encode("ascii")
+            if len(fmt_bytes) > 255:
+                raise ElicitClientError("format string too long (max 255 bytes)")
+            header = struct.pack(">HHB", width, height, len(fmt_bytes))
+            payload = (
+                bytes([FRAME_VIDEO, VIDEO_SUB_RAW])
+                + header
+                + fmt_bytes
+                + data
+            )
+        else:
+            payload = bytes([FRAME_VIDEO, VIDEO_SUB_JPEG]) + data
+
         try:
-            await self._ws.send(bytes([FRAME_VIDEO]) + jpeg)
+            await self._ws.send(payload)
         except Exception as exc:
             raise ElicitClientError(f"Failed to send video: {exc}") from exc
 
