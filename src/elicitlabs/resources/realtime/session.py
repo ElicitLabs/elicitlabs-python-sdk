@@ -76,30 +76,41 @@ class ContextAccumulator:
     """Collects ``context_update`` events and builds a unified context string
     that can be injected into your own LLM calls.
 
-    Identity cards (``face_identity``, ``speaker_identity``, ``identity``)
-    are **persistent** and never evicted.  All other cards are kept in a
-    rolling queue — once the queue reaches ``max_transient_cards``, the
-    oldest non-identity cards are dropped to make room for new ones.
+    All cards are deduplicated by claim text.  Cards are split into three
+    output sections:
+
+    * **scene_facts** — ``face_identity``, ``speaker_identity``,
+      ``scene_fact``, ``attention_target``
+    * **system_prompt** — ``identity``, ``preference``
+    * **episodes** — ``episodic``
+
+    ``scene_facts`` and ``system_prompt`` cards are persistent (never
+    evicted).  ``episodes`` and other transient cards are kept in a
+    rolling queue capped at ``max_transient_cards``.
     """
 
-    # Card types that are never evicted
-    PERSISTENT_TYPES = frozenset({"face_identity", "speaker_identity", "identity"})
+    # Card types grouped by output section
+    SCENE_FACT_TYPES = frozenset({"face_identity", "speaker_identity", "scene_fact", "attention_target"})
+    SYSTEM_PROMPT_TYPES = frozenset({"identity", "preference"})
+    EPISODE_TYPES = frozenset({"episodic"})
 
-    persistent_cards: List[ContextCard]
-    transient_cards: deque[ContextCard]
-    messages: List[dict[str, object]]
-    transcripts: deque[str]
+    # Persistent types = scene_facts + system_prompt (never evicted)
+    PERSISTENT_TYPES = SCENE_FACT_TYPES | SYSTEM_PROMPT_TYPES
 
     def __init__(self, max_transient_cards: int = 20, max_transcripts: int = 20) -> None:
         self.persistent_cards: List[ContextCard] = []
         self.transient_cards: deque[ContextCard] = deque(maxlen=max_transient_cards)
+        self._seen_claims: set[str] = set()  # dedup tracker for all cards
         self.messages: List[dict[str, object]] = []
         self.transcripts: deque[str] = deque(maxlen=max_transcripts)
         self._context_version = 0
 
     def reset(self) -> None:
-        """Clear transient state but keep persistent identity cards."""
+        """Clear transient state but keep persistent cards."""
         self.transient_cards.clear()
+        # Remove transient claims from the dedup set
+        persistent_claims = {c.claim for c in self.persistent_cards}
+        self._seen_claims = persistent_claims
         self.messages.clear()
         self.transcripts.clear()
         self._context_version = 0
@@ -115,10 +126,14 @@ class ContextAccumulator:
 
         for op in event.ops or []:
             if op.op == "add" and op.card is not None:
+                claim = op.card.claim or ""
+                # Deduplicate all cards by claim text
+                if claim in self._seen_claims:
+                    continue
+                self._seen_claims.add(claim)
+
                 if op.card.type in self.PERSISTENT_TYPES:
-                    # Deduplicate persistent cards by claim text
-                    if not any(c.claim == op.card.claim for c in self.persistent_cards):
-                        self.persistent_cards.append(op.card)
+                    self.persistent_cards.append(op.card)
                 else:
                     # Rolling queue — oldest auto-evicted when maxlen reached
                     self.transient_cards.append(op.card)
@@ -131,41 +146,36 @@ class ContextAccumulator:
         if text.strip():
             self.transcripts.append(text)
 
-    def build_context_string(self) -> str:
-        """Build a single context string from all accumulated cards,
-        ready for injection as a system message in your own LLM."""
-        sections: list[str] = []
+    def build_context_dict(self) -> dict[str, str]:
+        """Return context as a dict with four keys:
 
+        * ``scene_facts`` — face/speaker identity, scene facts, attention targets
+        * ``system_prompt`` — identity facts and user preferences
+        * ``episodes`` — episodic memories
+        * ``transcript`` — accumulated transcript text
+
+        Each value is a plain string (empty string if nothing in that section).
+        """
         all_cards = self.cards
 
-        episodic = [c for c in all_cards if c.type == "episodic"]
-        preferences = [c for c in all_cards if c.type == "preference"]
-        identity = [c for c in all_cards if c.type == "identity"]
-        visual = [
-            c
-            for c in all_cards
-            if c.type in ("face_identity", "speaker_identity", "scene_fact", "attention_target")
-        ]
+        scene_facts = [c for c in all_cards if c.type in self.SCENE_FACT_TYPES]
+        system_prompt = [c for c in all_cards if c.type in self.SYSTEM_PROMPT_TYPES]
+        episodes = [c for c in all_cards if c.type in self.EPISODE_TYPES]
 
-        if episodic:
-            lines = [f"  - {c.claim or ''}" for c in episodic]
-            sections.append("Episodic Memories:\n" + "\n".join(lines))
+        return {
+            "scene_facts": "\n".join(f"[{c.type}] {c.claim or ''}" for c in scene_facts),
+            "system_prompt": "\n".join(c.claim or "" for c in system_prompt),
+            "episodes": "\n".join(c.claim or "" for c in episodes),
+            "transcript": " ".join(self.transcripts),
+        }
 
-        if preferences:
-            lines = [f"  - {c.claim or ''}" for c in preferences]
-            sections.append("User Preferences:\n" + "\n".join(lines))
-
-        if identity:
-            lines = [f"  - {c.claim or ''}" for c in identity]
-            sections.append("Identity Facts:\n" + "\n".join(lines))
-
-        if visual:
-            lines = [f"  - [{c.type}] {c.claim or ''}" for c in visual]
-            sections.append("Visual Observations:\n" + "\n".join(lines))
-
-        if self.transcripts:
-            sections.append("Transcript:\n  " + " ".join(self.transcripts))
-
+    def build_context_string(self) -> str:
+        """Build a single context string from all sections."""
+        ctx = self.build_context_dict()
+        sections: list[str] = []
+        for key in ("scene_facts", "system_prompt", "episodes", "transcript"):
+            if ctx[key]:
+                sections.append(f"{key}:\n{ctx[key]}")
         return "\n\n".join(sections) if sections else "(no context retrieved)"
 
     def build_llm_messages(
@@ -348,14 +358,17 @@ class AsyncRealtimeSession:
     # Flush / Override
     # ------------------------------------------------------------------
 
-    def flush(self) -> str:
-        """Return the current context string without clearing anything.
+    def flush(self) -> dict[str, str]:
+        """Return the current context as a dict without clearing anything.
+
+        Keys: ``scene_facts``, ``system_prompt``, ``episodes``, ``transcript``.
+        Each value is a plain string (empty string if nothing in that section).
 
         The rolling queues (transient cards, transcripts) manage their
         own size — oldest entries are automatically replaced when the
-        cap is reached.  Identity cards are always kept.
+        cap is reached.  Persistent cards are always kept.
         """
-        return self.context.build_context_string()
+        return self.context.build_context_dict()
 
     async def override(self) -> None:
         """Send a flush command to the server to request fresh context data.
