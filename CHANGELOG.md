@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.13.2 (2026-03-03)
+
+Full Changelog: [v0.13.1...v0.13.2](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.13.1...v0.13.2)
+
 ## 0.13.1 (2026-03-03)
 
 Full Changelog: [v0.13.0...v0.13.1](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.13.0...v0.13.1)
