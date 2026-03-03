@@ -95,12 +95,13 @@ class ContextAccumulator:
     def __init__(self) -> None:
         self.cards: List[ContextCard] = []
         self._seen_claims: set[str] = set()
+        self._flushed_system_prompt: set[str] = set()  # tracks already-injected identity/preference
         self.messages: List[dict[str, object]] = []
         self.transcripts: List[str] = []
         self._context_version = 0
 
     def reset(self) -> None:
-        """Clear all accumulated state."""
+        """Clear all accumulated state (preserves flushed system_prompt tracker)."""
         self.cards.clear()
         self._seen_claims.clear()
         self.messages.clear()
@@ -152,19 +153,29 @@ class ContextAccumulator:
         """Return context as a dict with four keys:
 
         * ``scene_facts`` — face/speaker identity, scene facts, attention targets
-        * ``system_prompt`` — identity facts and user preferences
+        * ``system_prompt`` — **only new** identity/preference claims not yet flushed
         * ``episodes`` — episodic memories
         * ``transcript`` — accumulated transcript text
 
         Each value is a plain string (empty string if nothing in that section).
+        Identity/preference claims are tracked across flushes so they are
+        only returned once.
         """
         scene_facts = [c for c in self.cards if c.type in self.SCENE_FACT_TYPES]
-        system_prompt = [c for c in self.cards if c.type in self.SYSTEM_PROMPT_TYPES]
+        all_system = [c for c in self.cards if c.type in self.SYSTEM_PROMPT_TYPES]
         episodes = [c for c in self.cards if c.type in self.EPISODE_TYPES]
+
+        # Only include system_prompt entries that haven't been flushed before
+        new_system: list[ContextCard] = []
+        for c in all_system:
+            key = self._dedup_key(c)
+            if key not in self._flushed_system_prompt:
+                new_system.append(c)
+                self._flushed_system_prompt.add(key)
 
         return {
             "scene_facts": "\n".join(f"[{c.type}] {c.claim or ''}" for c in scene_facts),
-            "system_prompt": "\n".join(c.claim or "" for c in system_prompt),
+            "system_prompt": "\n".join(c.claim or "" for c in new_system),
             "episodes": "\n".join(c.claim or "" for c in episodes),
             "transcript": " ".join(self.transcripts),
         }
