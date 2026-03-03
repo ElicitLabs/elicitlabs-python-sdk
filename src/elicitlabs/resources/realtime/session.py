@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import re
 import json
 import struct
 import asyncio
-from collections import deque
 from typing import Any, List, Optional, AsyncIterator
 
 from ..._exceptions import ElicitClientError
@@ -76,17 +76,15 @@ class ContextAccumulator:
     """Collects ``context_update`` events and builds a unified context string
     that can be injected into your own LLM calls.
 
-    All cards are deduplicated by claim text.  Cards are split into three
-    output sections:
+    All cards are deduplicated by normalized claim text.  Cards are split
+    into three output sections:
 
     * **scene_facts** — ``face_identity``, ``speaker_identity``,
       ``scene_fact``, ``attention_target``
     * **system_prompt** — ``identity``, ``preference``
     * **episodes** — ``episodic``
 
-    ``scene_facts`` and ``system_prompt`` cards are persistent (never
-    evicted).  ``episodes`` and other transient cards are kept in a
-    rolling queue capped at ``max_transient_cards``.
+    On :meth:`flush`, the context dict is returned and all state is cleared.
     """
 
     # Card types grouped by output section
@@ -94,31 +92,35 @@ class ContextAccumulator:
     SYSTEM_PROMPT_TYPES = frozenset({"identity", "preference"})
     EPISODE_TYPES = frozenset({"episodic"})
 
-    # Persistent types = scene_facts + system_prompt (never evicted)
-    PERSISTENT_TYPES = SCENE_FACT_TYPES | SYSTEM_PROMPT_TYPES
-
-    def __init__(self, max_transient_cards: int = 20, max_transcripts: int = 20) -> None:
-        self.persistent_cards: List[ContextCard] = []
-        self.transient_cards: deque[ContextCard] = deque(maxlen=max_transient_cards)
-        self._seen_claims: set[str] = set()  # dedup tracker for all cards
+    def __init__(self) -> None:
+        self.cards: List[ContextCard] = []
+        self._seen_claims: set[str] = set()
+        self._flushed_system_prompt: set[str] = set()  # tracks already-injected identity/preference
         self.messages: List[dict[str, object]] = []
-        self.transcripts: deque[str] = deque(maxlen=max_transcripts)
+        self.transcripts: List[str] = []
         self._context_version = 0
 
     def reset(self) -> None:
-        """Clear transient state but keep persistent cards."""
-        self.transient_cards.clear()
-        # Remove transient claims from the dedup set
-        persistent_claims = {c.claim for c in self.persistent_cards}
-        self._seen_claims = persistent_claims
+        """Clear all accumulated state (preserves flushed system_prompt tracker)."""
+        self.cards.clear()
+        self._seen_claims.clear()
         self.messages.clear()
         self.transcripts.clear()
         self._context_version = 0
 
-    @property
-    def cards(self) -> List[ContextCard]:
-        """All cards (persistent + transient) for backward compatibility."""
-        return self.persistent_cards + list(self.transient_cards)
+    @staticmethod
+    def _dedup_key(card: ContextCard) -> str:
+        """Normalize a claim for dedup: strip confidence %, scores, and
+        collapse whitespace so the same entity/fact isn't stored twice."""
+        claim = card.claim or ""
+        # Remove patterns like "(match confidence 73%)" or "(confidence: 0.73)"
+        claim = re.sub(r"\(.*?confidence.*?\)", "", claim)
+        # Remove standalone percentages like "73%"
+        claim = re.sub(r"\d+%", "", claim)
+        # Collapse whitespace
+        claim = re.sub(r"\s+", " ", claim).strip()
+        # Prefix with card type so different types don't collide
+        return f"{card.type}:{claim}"
 
     def on_context_update(self, event: ContextUpdateEvent) -> None:
         version = event.context_version or 0
@@ -126,17 +128,18 @@ class ContextAccumulator:
 
         for op in event.ops or []:
             if op.op == "add" and op.card is not None:
-                claim = op.card.claim or ""
-                # Deduplicate all cards by claim text
-                if claim in self._seen_claims:
+                key = self._dedup_key(op.card)
+                if key in self._seen_claims:
+                    # Replace with higher-confidence version
+                    if op.card.score is not None:
+                        for i, existing in enumerate(self.cards):
+                            if self._dedup_key(existing) == key:
+                                if (existing.score or 0) < op.card.score:
+                                    self.cards[i] = op.card
+                                break
                     continue
-                self._seen_claims.add(claim)
-
-                if op.card.type in self.PERSISTENT_TYPES:
-                    self.persistent_cards.append(op.card)
-                else:
-                    # Rolling queue — oldest auto-evicted when maxlen reached
-                    self.transient_cards.append(op.card)
+                self._seen_claims.add(key)
+                self.cards.append(op.card)
 
         for msg in event.messages or []:
             self.messages.append(msg)
@@ -150,21 +153,29 @@ class ContextAccumulator:
         """Return context as a dict with four keys:
 
         * ``scene_facts`` — face/speaker identity, scene facts, attention targets
-        * ``system_prompt`` — identity facts and user preferences
+        * ``system_prompt`` — **only new** identity/preference claims not yet flushed
         * ``episodes`` — episodic memories
         * ``transcript`` — accumulated transcript text
 
         Each value is a plain string (empty string if nothing in that section).
+        Identity/preference claims are tracked across flushes so they are
+        only returned once.
         """
-        all_cards = self.cards
+        scene_facts = [c for c in self.cards if c.type in self.SCENE_FACT_TYPES]
+        all_system = [c for c in self.cards if c.type in self.SYSTEM_PROMPT_TYPES]
+        episodes = [c for c in self.cards if c.type in self.EPISODE_TYPES]
 
-        scene_facts = [c for c in all_cards if c.type in self.SCENE_FACT_TYPES]
-        system_prompt = [c for c in all_cards if c.type in self.SYSTEM_PROMPT_TYPES]
-        episodes = [c for c in all_cards if c.type in self.EPISODE_TYPES]
+        # Only include system_prompt entries that haven't been flushed before
+        new_system: list[ContextCard] = []
+        for c in all_system:
+            key = self._dedup_key(c)
+            if key not in self._flushed_system_prompt:
+                new_system.append(c)
+                self._flushed_system_prompt.add(key)
 
         return {
             "scene_facts": "\n".join(f"[{c.type}] {c.claim or ''}" for c in scene_facts),
-            "system_prompt": "\n".join(c.claim or "" for c in system_prompt),
+            "system_prompt": "\n".join(c.claim or "" for c in new_system),
             "episodes": "\n".join(c.claim or "" for c in episodes),
             "transcript": " ".join(self.transcripts),
         }
@@ -359,16 +370,14 @@ class AsyncRealtimeSession:
     # ------------------------------------------------------------------
 
     def flush(self) -> dict[str, str]:
-        """Return the current context as a dict without clearing anything.
+        """Return the current context as a dict and reset all state.
 
         Keys: ``scene_facts``, ``system_prompt``, ``episodes``, ``transcript``.
         Each value is a plain string (empty string if nothing in that section).
-
-        The rolling queues (transient cards, transcripts) manage their
-        own size — oldest entries are automatically replaced when the
-        cap is reached.  Persistent cards are always kept.
         """
-        return self.context.build_context_dict()
+        context = self.context.build_context_dict()
+        self.context.reset()
+        return context
 
     async def override(self) -> None:
         """Send a flush command to the server to request fresh context data.
