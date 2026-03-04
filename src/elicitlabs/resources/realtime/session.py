@@ -222,6 +222,7 @@ class AsyncRealtimeSession:
         context: A :class:`ContextAccumulator` that is automatically fed
             every ``context_update`` and ``transcript`` event.
         session_id: The server-assigned session ID (set after the handshake).
+
     """
 
     context: ContextAccumulator
@@ -391,6 +392,26 @@ class AsyncRealtimeSession:
             await self._ws.send(json.dumps({"type": "flush"}))
         except Exception as exc:
             raise ElicitClientError(f"Failed to send override flush: {exc}") from exc
+
+    async def send_assistant_message(self, text: str) -> None:
+        """Send an assistant message to the gateway for transcript storage.
+
+        Use this to feed your LLM's response back into the session so the
+        gateway can store it alongside user transcripts and context.
+
+        The message is sent as JSON over the WebSocket::
+
+            {"type": "assistant_message", "text": "The response text"}
+
+        Args:
+            text: The assistant's response text to send.
+        """
+        if self._ws is None or self._closed:
+            raise ElicitClientError("Session is not connected")
+        try:
+            await self._ws.send(json.dumps({"type": "assistant_message", "text": text}))
+        except Exception as exc:
+            raise ElicitClientError(f"Failed to send assistant message: {exc}") from exc
 
     # ------------------------------------------------------------------
     # Sending media
