@@ -19,7 +19,7 @@ class AudioGenerateParams(TypedDict, total=False):
     """Base64 encoded reference audio for context"""
 
     audio_type: Literal["speech", "sfx", "music"]
-    """Audio type: 'speech' (TTS), 'sfx', or 'music'"""
+    """Audio type: 'speech', 'sfx', or 'music'"""
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""

@@ -32,6 +32,7 @@ class TestImages:
         image = client.images.generate(
             text_input="A golden retriever in a space suit",
             user_id="user_123",
+            aspect_ratio="1:1",
             audio_base64="audio_base64",
             disabled_learning=True,
             image_base64="image_base64",
@@ -42,7 +43,6 @@ class TestImages:
             resolution="2K",
             seed=12345,
             session_id="session_id",
-            size="1024x1024",
             use_reasoning=False,
             video_base64="video_base64",
         )
@@ -97,6 +97,7 @@ class TestAsyncImages:
         image = await async_client.images.generate(
             text_input="A golden retriever in a space suit",
             user_id="user_123",
+            aspect_ratio="1:1",
             audio_base64="audio_base64",
             disabled_learning=True,
             image_base64="image_base64",
@@ -107,7 +108,6 @@ class TestAsyncImages:
             resolution="2K",
             seed=12345,
             session_id="session_id",
-            size="1024x1024",
             use_reasoning=False,
             video_base64="video_base64",
         )

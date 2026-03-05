@@ -49,6 +49,7 @@ class ImagesResource(SyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        aspect_ratio: str | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
@@ -56,10 +57,9 @@ class ImagesResource(SyncAPIResource):
         model: str | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
-        resolution: Optional[Literal["1K", "2K", "4K"]] | Omit = omit,
+        resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        size: Optional[str] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -91,8 +91,8 @@ class ImagesResource(SyncAPIResource):
 
             **Image Params (Flat):**
             - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3-pro, gemini-3.1-pro
-            - size (str, optional): Image dimensions as WxH, e.g. "1024x1024", "1920x1080" (default: 1024x1024).
-              Automatically mapped to the nearest aspect ratio and resolution tier.
+            - aspect_ratio (str, optional): Aspect ratio, e.g. "1:1", "16:9", "9:16" (default: 1:1).
+            - resolution (str, optional): Resolution tier: "1K", "2K", or "4K" (default: 4K).
             - seed (int, optional): Random seed for reproducibility
 
             **Authentication**: Requires valid API key or JWT token
@@ -101,6 +101,8 @@ class ImagesResource(SyncAPIResource):
           text_input: The prompt/description for image generation
 
           user_id: The end-user ID
+
+          aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
           audio_base64: Base64 encoded reference audio for context
 
@@ -116,17 +118,11 @@ class ImagesResource(SyncAPIResource):
 
           project_id: The project ID
 
-          resolution: Override the resolution tier derived from 'size'. Accepted values: '1K', '2K',
-              '4K'. When set, this takes precedence over the resolution inferred from the size
-              parameter.
+          resolution: Resolution tier for the generated image: '1K', '2K', or '4K'.
 
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
-
-          size: Image dimensions as WxH, e.g. '1024x1024', '1920x1080', '1080x1920'.
-              Automatically converted to the nearest supported aspect ratio (1:1, 16:9, 9:16,
-              …) and resolution tier (1K / 2K / 4K).
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -146,6 +142,7 @@ class ImagesResource(SyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "aspect_ratio": aspect_ratio,
                     "audio_base64": audio_base64,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
@@ -156,7 +153,6 @@ class ImagesResource(SyncAPIResource):
                     "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
-                    "size": size,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
@@ -194,6 +190,7 @@ class AsyncImagesResource(AsyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        aspect_ratio: str | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
@@ -201,10 +198,9 @@ class AsyncImagesResource(AsyncAPIResource):
         model: str | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
-        resolution: Optional[Literal["1K", "2K", "4K"]] | Omit = omit,
+        resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        size: Optional[str] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -236,8 +232,8 @@ class AsyncImagesResource(AsyncAPIResource):
 
             **Image Params (Flat):**
             - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3-pro, gemini-3.1-pro
-            - size (str, optional): Image dimensions as WxH, e.g. "1024x1024", "1920x1080" (default: 1024x1024).
-              Automatically mapped to the nearest aspect ratio and resolution tier.
+            - aspect_ratio (str, optional): Aspect ratio, e.g. "1:1", "16:9", "9:16" (default: 1:1).
+            - resolution (str, optional): Resolution tier: "1K", "2K", or "4K" (default: 4K).
             - seed (int, optional): Random seed for reproducibility
 
             **Authentication**: Requires valid API key or JWT token
@@ -246,6 +242,8 @@ class AsyncImagesResource(AsyncAPIResource):
           text_input: The prompt/description for image generation
 
           user_id: The end-user ID
+
+          aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
           audio_base64: Base64 encoded reference audio for context
 
@@ -261,17 +259,11 @@ class AsyncImagesResource(AsyncAPIResource):
 
           project_id: The project ID
 
-          resolution: Override the resolution tier derived from 'size'. Accepted values: '1K', '2K',
-              '4K'. When set, this takes precedence over the resolution inferred from the size
-              parameter.
+          resolution: Resolution tier for the generated image: '1K', '2K', or '4K'.
 
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
-
-          size: Image dimensions as WxH, e.g. '1024x1024', '1920x1080', '1080x1920'.
-              Automatically converted to the nearest supported aspect ratio (1:1, 16:9, 9:16,
-              …) and resolution tier (1K / 2K / 4K).
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -291,6 +283,7 @@ class AsyncImagesResource(AsyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "aspect_ratio": aspect_ratio,
                     "audio_base64": audio_base64,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
@@ -301,7 +294,6 @@ class AsyncImagesResource(AsyncAPIResource):
                     "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
-                    "size": size,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },

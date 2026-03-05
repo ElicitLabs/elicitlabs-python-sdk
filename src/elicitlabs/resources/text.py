@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Dict, Optional
 
 import httpx
 
@@ -52,6 +52,7 @@ class TextResource(SyncAPIResource):
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        output_schema: Optional[Dict[str, object]] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -103,6 +104,10 @@ class TextResource(SyncAPIResource):
 
           model: LLM model to use for generation
 
+          output_schema: Optional JSON Schema describing the desired output structure. When provided, the
+              LLM is forced to return a JSON object matching this schema instead of free-form
+              text. The result is returned in the 'structured_output' field of the response.
+
           persona_id: The specific system persona/voice to use
 
           project_id: The project ID
@@ -133,6 +138,7 @@ class TextResource(SyncAPIResource):
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "output_schema": output_schema,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
@@ -178,6 +184,7 @@ class AsyncTextResource(AsyncAPIResource):
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        output_schema: Optional[Dict[str, object]] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -229,6 +236,10 @@ class AsyncTextResource(AsyncAPIResource):
 
           model: LLM model to use for generation
 
+          output_schema: Optional JSON Schema describing the desired output structure. When provided, the
+              LLM is forced to return a JSON object matching this schema instead of free-form
+              text. The result is returned in the 'structured_output' field of the response.
+
           persona_id: The specific system persona/voice to use
 
           project_id: The project ID
@@ -259,6 +270,7 @@ class AsyncTextResource(AsyncAPIResource):
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "output_schema": output_schema,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
