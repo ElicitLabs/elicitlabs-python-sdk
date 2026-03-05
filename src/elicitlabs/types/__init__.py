@@ -8,6 +8,7 @@ from .modal_query_params import ModalQueryParams as ModalQueryParams
 from .data_ingest_response import DataIngestResponse as DataIngestResponse
 from .modal_learn_response import ModalLearnResponse as ModalLearnResponse
 from .modal_query_response import ModalQueryResponse as ModalQueryResponse
+from .project_clone_params import ProjectCloneParams as ProjectCloneParams
 from .text_generate_params import TextGenerateParams as TextGenerateParams
 from .audio_generate_params import AudioGenerateParams as AudioGenerateParams
 from .image_generate_params import ImageGenerateParams as ImageGenerateParams
@@ -16,6 +17,7 @@ from .persona_list_response import PersonaListResponse as PersonaListResponse
 from .project_create_params import ProjectCreateParams as ProjectCreateParams
 from .project_list_response import ProjectListResponse as ProjectListResponse
 from .video_generate_params import VideoGenerateParams as VideoGenerateParams
+from .project_clone_response import ProjectCloneResponse as ProjectCloneResponse
 from .text_generate_response import TextGenerateResponse as TextGenerateResponse
 from .audio_generate_response import AudioGenerateResponse as AudioGenerateResponse
 from .image_generate_response import ImageGenerateResponse as ImageGenerateResponse
