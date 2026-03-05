@@ -74,7 +74,7 @@ class AudioResource(SyncAPIResource):
         parameters.
 
             Supports three audio types:
-            - **speech**: Text-to-speech conversion
+            - **speech**: Multi-speaker TTS (auto-detects characters, designs unique voices per entity)
             - **music**: AI-generated music
             - **sfx**: AI-generated sound effects
 
@@ -112,7 +112,7 @@ class AudioResource(SyncAPIResource):
 
           audio_base64: Base64 encoded reference audio for context
 
-          audio_type: Audio type: 'speech' (TTS), 'sfx', or 'music'
+          audio_type: Audio type: 'speech', 'sfx', or 'music'
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -223,7 +223,7 @@ class AsyncAudioResource(AsyncAPIResource):
         parameters.
 
             Supports three audio types:
-            - **speech**: Text-to-speech conversion
+            - **speech**: Multi-speaker TTS (auto-detects characters, designs unique voices per entity)
             - **music**: AI-generated music
             - **sfx**: AI-generated sound effects
 
@@ -261,7 +261,7 @@ class AsyncAudioResource(AsyncAPIResource):
 
           audio_base64: Base64 encoded reference audio for context
 
-          audio_type: Audio type: 'speech' (TTS), 'sfx', or 'music'
+          audio_type: Audio type: 'speech', 'sfx', or 'music'
 
           disabled_learning: If true, this request is ignored by long-term memory
 

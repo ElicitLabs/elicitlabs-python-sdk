@@ -15,6 +15,9 @@ class ImageGenerateParams(TypedDict, total=False):
     user_id: Required[str]
     """The end-user ID"""
 
+    aspect_ratio: str
+    """Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'."""
+
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
 
@@ -36,25 +39,14 @@ class ImageGenerateParams(TypedDict, total=False):
     project_id: Optional[str]
     """The project ID"""
 
-    resolution: Optional[Literal["1K", "2K", "4K"]]
-    """Override the resolution tier derived from 'size'.
-
-    Accepted values: '1K', '2K', '4K'. When set, this takes precedence over the
-    resolution inferred from the size parameter.
-    """
+    resolution: Literal["1K", "2K", "4K"]
+    """Resolution tier for the generated image: '1K', '2K', or '4K'."""
 
     seed: Optional[int]
     """Random seed for reproducibility"""
 
     session_id: Optional[str]
     """Session ID for conversation context"""
-
-    size: Optional[str]
-    """Image dimensions as WxH, e.g.
-
-    '1024x1024', '1920x1080', '1080x1920'. Automatically converted to the nearest
-    supported aspect ratio (1:1, 16:9, 9:16, …) and resolution tier (1K / 2K / 4K).
-    """
 
     use_reasoning: bool
     """Enable Chain-of-Thought/Reasoning steps before generation"""

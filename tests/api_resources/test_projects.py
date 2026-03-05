@@ -11,6 +11,7 @@ from elicitlabs import ElicitClient, AsyncElicitClient
 from tests.utils import assert_matches_type
 from elicitlabs.types import (
     ProjectListResponse,
+    ProjectCloneResponse,
     ProjectCreateResponse,
     ProjectDeleteResponse,
     ProjectRetrieveResponse,
@@ -179,6 +180,52 @@ class TestProjects:
                 "",
             )
 
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_clone(self, client: ElicitClient) -> None:
+        project = client.projects.clone(
+            project_id="project_id",
+        )
+        assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_clone_with_all_params(self, client: ElicitClient) -> None:
+        project = client.projects.clone(
+            project_id="project_id",
+            description="description",
+            name="x",
+            source_user_id="source_user_id",
+            target_user_id="target_user_id",
+        )
+        assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_raw_response_clone(self, client: ElicitClient) -> None:
+        response = client.projects.with_raw_response.clone(
+            project_id="project_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        project = response.parse()
+        assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_streaming_response_clone(self, client: ElicitClient) -> None:
+        with client.projects.with_streaming_response.clone(
+            project_id="project_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            project = response.parse()
+            assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
 
 class TestAsyncProjects:
     parametrize = pytest.mark.parametrize(
@@ -341,3 +388,49 @@ class TestAsyncProjects:
             await async_client.projects.with_raw_response.delete(
                 "",
             )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_clone(self, async_client: AsyncElicitClient) -> None:
+        project = await async_client.projects.clone(
+            project_id="project_id",
+        )
+        assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_clone_with_all_params(self, async_client: AsyncElicitClient) -> None:
+        project = await async_client.projects.clone(
+            project_id="project_id",
+            description="description",
+            name="x",
+            source_user_id="source_user_id",
+            target_user_id="target_user_id",
+        )
+        assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_raw_response_clone(self, async_client: AsyncElicitClient) -> None:
+        response = await async_client.projects.with_raw_response.clone(
+            project_id="project_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        project = await response.parse()
+        assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_streaming_response_clone(self, async_client: AsyncElicitClient) -> None:
+        async with async_client.projects.with_streaming_response.clone(
+            project_id="project_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            project = await response.parse()
+            assert_matches_type(ProjectCloneResponse, project, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
