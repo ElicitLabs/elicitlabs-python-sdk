@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Dict, Optional
 from typing_extensions import Required, TypedDict
 
 __all__ = ["TextGenerateParams"]
@@ -26,6 +26,14 @@ class TextGenerateParams(TypedDict, total=False):
 
     model: str
     """LLM model to use for generation"""
+
+    output_schema: Optional[Dict[str, object]]
+    """Optional JSON Schema describing the desired output structure.
+
+    When provided, the LLM is forced to return a JSON object matching this schema
+    instead of free-form text. The result is returned in the 'structured_output'
+    field of the response.
+    """
 
     persona_id: Optional[str]
     """The specific system persona/voice to use"""

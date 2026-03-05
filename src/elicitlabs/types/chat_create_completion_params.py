@@ -63,11 +63,17 @@ class MessageContentUnionMember1(TypedDict, total=False):
     content: Optional[str]
     """Base64 encoded content (for image/video/audio)"""
 
+    format: Optional[str]
+    """Asset format, e.g. png, jpeg, mp3, wav, mp4"""
+
     image_url: Optional[Dict[str, str]]
     """Image URL object with 'url' key (can be data:image/... base64)"""
 
     text: Optional[str]
     """Text content (when type='text')"""
+
+    url: Optional[str]
+    """Signed GCS URL to download the asset (expires after 24 h)"""
 
     video_url: Optional[Dict[str, str]]
     """Video URL object with 'url' key"""
