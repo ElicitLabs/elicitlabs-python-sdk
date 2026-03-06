@@ -54,12 +54,14 @@ class AudioResource(SyncAPIResource):
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         speed: float | Omit = omit,
+        use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         voice: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -116,21 +118,28 @@ class AudioResource(SyncAPIResource):
 
           disabled_learning: If true, this request is ignored by long-term memory
 
-          duration: Max duration in seconds for music/sfx
+          duration: Max duration in seconds for music/sfx (Lyria 2 always generates 30s)
 
           image_base64: Base64 encoded reference image for context
 
-          model: Audio generation model ID
+          max_reasoning_iterations: Max reasoning steps if reasoning is enabled
+
+          model: Audio generation model: 'lyria-2' (Google Lyria 2 on Vertex AI, default for
+              music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
+              'eleven-turbo' (ElevenLabs TTS for speech)
 
           persona_id: The specific system persona/voice to use
 
           project_id: The project ID
 
-          seed: Random seed for reproducibility
+          seed: Random seed for deterministic generation (Lyria 2 only, cannot be combined with
+              sample_count)
 
           session_id: Session ID for conversation context
 
           speed: Playback speed (0.5-2.0), only for speech
+
+          use_reasoning: Enable Chain-of-Thought/Reasoning steps before answering
 
           video_base64: Base64 encoded reference video for context
 
@@ -155,12 +164,14 @@ class AudioResource(SyncAPIResource):
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
+                    "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
                     "session_id": session_id,
                     "speed": speed,
+                    "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                     "voice": voice,
                 },
@@ -203,12 +214,14 @@ class AsyncAudioResource(AsyncAPIResource):
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         speed: float | Omit = omit,
+        use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         voice: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -265,21 +278,28 @@ class AsyncAudioResource(AsyncAPIResource):
 
           disabled_learning: If true, this request is ignored by long-term memory
 
-          duration: Max duration in seconds for music/sfx
+          duration: Max duration in seconds for music/sfx (Lyria 2 always generates 30s)
 
           image_base64: Base64 encoded reference image for context
 
-          model: Audio generation model ID
+          max_reasoning_iterations: Max reasoning steps if reasoning is enabled
+
+          model: Audio generation model: 'lyria-2' (Google Lyria 2 on Vertex AI, default for
+              music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
+              'eleven-turbo' (ElevenLabs TTS for speech)
 
           persona_id: The specific system persona/voice to use
 
           project_id: The project ID
 
-          seed: Random seed for reproducibility
+          seed: Random seed for deterministic generation (Lyria 2 only, cannot be combined with
+              sample_count)
 
           session_id: Session ID for conversation context
 
           speed: Playback speed (0.5-2.0), only for speech
+
+          use_reasoning: Enable Chain-of-Thought/Reasoning steps before answering
 
           video_base64: Base64 encoded reference video for context
 
@@ -304,12 +324,14 @@ class AsyncAudioResource(AsyncAPIResource):
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
+                    "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
                     "session_id": session_id,
                     "speed": speed,
+                    "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                     "voice": voice,
                 },
