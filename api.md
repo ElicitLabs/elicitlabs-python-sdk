@@ -100,9 +100,9 @@ from elicitlabs.types import (
 Methods:
 
 - <code title="post /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">create</a>(\*\*<a href="src/elicitlabs/types/project_create_params.py">params</a>) -> <a href="./src/elicitlabs/types/project_create_response.py">ProjectCreateResponse</a></code>
-- <code title="get /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">retrieve</a>(project_id) -> <a href="./src/elicitlabs/types/project_retrieve_response.py">ProjectRetrieveResponse</a></code>
-- <code title="get /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">list</a>() -> <a href="./src/elicitlabs/types/project_list_response.py">ProjectListResponse</a></code>
-- <code title="delete /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">delete</a>(project_id) -> <a href="./src/elicitlabs/types/project_delete_response.py">ProjectDeleteResponse</a></code>
+- <code title="get /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">retrieve</a>(project_id, \*\*<a href="src/elicitlabs/types/project_retrieve_params.py">params</a>) -> <a href="./src/elicitlabs/types/project_retrieve_response.py">ProjectRetrieveResponse</a></code>
+- <code title="get /v1/projects">client.projects.<a href="./src/elicitlabs/resources/projects.py">list</a>(\*\*<a href="src/elicitlabs/types/project_list_params.py">params</a>) -> <a href="./src/elicitlabs/types/project_list_response.py">ProjectListResponse</a></code>
+- <code title="delete /v1/projects/{project_id}">client.projects.<a href="./src/elicitlabs/resources/projects.py">delete</a>(project_id, \*\*<a href="src/elicitlabs/types/project_delete_params.py">params</a>) -> <a href="./src/elicitlabs/types/project_delete_response.py">ProjectDeleteResponse</a></code>
 - <code title="post /v1/projects/clone">client.projects.<a href="./src/elicitlabs/resources/projects.py">clone</a>(\*\*<a href="src/elicitlabs/types/project_clone_params.py">params</a>) -> <a href="./src/elicitlabs/types/project_clone_response.py">ProjectCloneResponse</a></code>
 
 # Chat

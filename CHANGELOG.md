@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.15.0 (2026-03-09)
+
+Full Changelog: [v0.14.0...v0.15.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.14.0...v0.15.0)
+
+### Features
+
+* **api:** api update ([a443d8a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/a443d8a3c7dce7c42f0343086468ce8321a2e1bd))
+* **api:** api update ([94de8a3](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/94de8a3e31ccba7e26cf32a17dd6568cdb09fb7d))
+
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([97ffb6a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/97ffb6aebe5cdba74303cf0769a63ed3ccf6c621))
+
 ## 0.14.0 (2026-03-05)
 
 Full Changelog: [v0.13.5...v0.14.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.13.5...v0.14.0)

@@ -111,7 +111,7 @@ class PersonasResource(SyncAPIResource):
 
             This endpoint:
             - Returns full persona information including metadata
-            - Includes user information for the persona owner
+            - Any user in the same organization can access any persona
             - Returns 404 if persona is not found
 
             **Authentication**: Requires valid API key or JWT token in Authorization header
@@ -146,12 +146,12 @@ class PersonasResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> PersonaListResponse:
         """
-        Get all personas belonging to the authenticated user.
+        Get all personas accessible to the caller.
 
             This endpoint:
-            - Returns all personas created by the authenticated user
+            - Returns **all** personas across the organization (personas are shared org-wide)
+            - All users in the org can see all org personas
             - Includes persona metadata (name, description, creation date)
-            - Provides user information for each persona
 
             **Authentication**: Requires valid API key or JWT token
         """
@@ -250,7 +250,7 @@ class AsyncPersonasResource(AsyncAPIResource):
 
             This endpoint:
             - Returns full persona information including metadata
-            - Includes user information for the persona owner
+            - Any user in the same organization can access any persona
             - Returns 404 if persona is not found
 
             **Authentication**: Requires valid API key or JWT token in Authorization header
@@ -285,12 +285,12 @@ class AsyncPersonasResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> PersonaListResponse:
         """
-        Get all personas belonging to the authenticated user.
+        Get all personas accessible to the caller.
 
             This endpoint:
-            - Returns all personas created by the authenticated user
+            - Returns **all** personas across the organization (personas are shared org-wide)
+            - All users in the org can see all org personas
             - Includes persona metadata (name, description, creation date)
-            - Provides user information for each persona
 
             **Authentication**: Requires valid API key or JWT token
         """
