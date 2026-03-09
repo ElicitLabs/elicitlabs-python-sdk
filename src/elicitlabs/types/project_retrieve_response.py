@@ -5,11 +5,11 @@ from datetime import datetime
 
 from .._models import BaseModel
 
-__all__ = ["ProjectRetrieveResponse"]
+__all__ = ["ProjectRetrieveResponse", "Project"]
 
 
-class ProjectRetrieveResponse(BaseModel):
-    """Response model for project information"""
+class Project(BaseModel):
+    """The retrieved project"""
 
     created_at: datetime
 
@@ -32,3 +32,10 @@ class ProjectRetrieveResponse(BaseModel):
 
     When set, skips LLM classification.
     """
+
+
+class ProjectRetrieveResponse(BaseModel):
+    """Response model for retrieving a single project (consistent with create/update)"""
+
+    project: Project
+    """The retrieved project"""
