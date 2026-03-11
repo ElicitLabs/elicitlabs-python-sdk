@@ -40,11 +40,12 @@ Methods:
 Types:
 
 ```python
-from elicitlabs.types.data import JobRetrieveStatusResponse
+from elicitlabs.types.data import JobCancelResponse, JobRetrieveStatusResponse
 ```
 
 Methods:
 
+- <code title="post /v1/data/job/cancel">client.data.job.<a href="./src/elicitlabs/resources/data/job.py">cancel</a>(\*\*<a href="src/elicitlabs/types/data/job_cancel_params.py">params</a>) -> <a href="./src/elicitlabs/types/data/job_cancel_response.py">JobCancelResponse</a></code>
 - <code title="post /v1/data/job/status">client.data.job.<a href="./src/elicitlabs/resources/data/job.py">retrieve_status</a>(\*\*<a href="src/elicitlabs/types/data/job_retrieve_status_params.py">params</a>) -> <a href="./src/elicitlabs/types/data/job_retrieve_status_response.py">JobRetrieveStatusResponse</a></code>
 
 # Health
