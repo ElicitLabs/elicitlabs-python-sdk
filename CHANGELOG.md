@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.0 (2026-03-11)
+
+Full Changelog: [v0.15.0...v0.16.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.15.0...v0.16.0)
+
+### Features
+
+* **api:** api update ([3cab202](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/3cab202709686fe588d8d5beed5f779cbb0045ea))
+* **api:** api update ([adecb75](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/adecb75a594a44b99238eac9d8bf9fd8d1a74393))
+* **api:** manual updates ([3b4643c](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/3b4643ccad434c2727ac718cc0f93e10348d587d))
+
 ## 0.15.0 (2026-03-09)
 
 Full Changelog: [v0.14.0...v0.15.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.14.0...v0.15.0)
