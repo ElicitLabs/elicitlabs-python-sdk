@@ -14,7 +14,7 @@ class JobRetrieveStatusResponse(BaseModel):
     """The job ID"""
 
     status: str
-    """Current job status: done, partial, processing, not started, error"""
+    """Current job status: done, partial, processing, not started, error, cancelled"""
 
     completion: Optional[int] = None
     """Completion percentage (0-100)"""
