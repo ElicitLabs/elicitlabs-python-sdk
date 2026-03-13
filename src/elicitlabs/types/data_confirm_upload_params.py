@@ -24,3 +24,15 @@ class DataConfirmUploadParams(TypedDict, total=False):
 
     persona_id: Optional[str]
     """Optional persona ID. If provided, data is ingested to this persona"""
+
+    filename: Optional[str]
+    """Original filename of the uploaded file"""
+
+    content_description: Optional[str]
+    """Description of the content being ingested"""
+
+    session_id: Optional[str]
+    """Session ID for grouping related ingested content"""
+
+    timestamp: Optional[str]
+    """ISO-8601 timestamp to preserve original data moment"""

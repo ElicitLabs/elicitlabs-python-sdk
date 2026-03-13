@@ -113,6 +113,7 @@ class ProjectsResource(SyncAPIResource):
         self,
         project_id: str,
         *,
+        user_id: Optional[str] | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -125,13 +126,16 @@ class ProjectsResource(SyncAPIResource):
 
             This endpoint:
             - Returns full project information including metadata
-            - Includes user information for the project owner
-            - Verifies the authenticated user owns the project
+            - Root user (no user_id or user_id == self): can access any project in the org
+            - Sub-user (user_id set): can only access their own projects
             - Returns 404 if project is not found
 
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
+          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
+              If set to a sub-user ID, restricts access to that user's projects only.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -145,7 +149,11 @@ class ProjectsResource(SyncAPIResource):
         return self._get(
             f"/v1/projects/{project_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
             ),
             cast_to=ProjectRetrieveResponse,
         )
@@ -153,6 +161,7 @@ class ProjectsResource(SyncAPIResource):
     def list(
         self,
         *,
+        user_id: Optional[str] | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -161,19 +170,34 @@ class ProjectsResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> ProjectListResponse:
         """
-        Get all projects belonging to the authenticated user.
+        Get projects accessible to the caller.
 
             This endpoint:
-            - Returns all projects created by the authenticated user
-            - Includes project metadata (name, description, creation date)
-            - Projects inherit access to user's preferences, episodes, and identity
+            - No user_id (or user_id == root user): returns all projects across the org
+            - user_id set to a sub-user: returns only that sub-user's projects
 
             **Authentication**: Requires valid API key or JWT token
+
+        Args:
+          user_id: Optional user ID to filter projects. Omit for root user (all org projects).
+              Set to a sub-user ID to see only their projects.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get(
             "/v1/projects",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
             ),
             cast_to=ProjectListResponse,
         )
@@ -182,6 +206,7 @@ class ProjectsResource(SyncAPIResource):
         self,
         project_id: str,
         *,
+        user_id: Optional[str] | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -194,7 +219,8 @@ class ProjectsResource(SyncAPIResource):
 
             This endpoint:
             - Permanently deletes the project
-            - Verifies the authenticated user owns the project
+            - Root user (no user_id): can delete any project in the org
+            - Sub-user (user_id set): can only delete their own projects
             - Returns confirmation of deletion
 
             **Note**: This action cannot be undone.
@@ -202,6 +228,9 @@ class ProjectsResource(SyncAPIResource):
             **Authentication**: Requires valid API key or JWT token
 
         Args:
+          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
+              If set to a sub-user ID, restricts deletion to that user's projects only.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -215,7 +244,11 @@ class ProjectsResource(SyncAPIResource):
         return self._delete(
             f"/v1/projects/{project_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
             ),
             cast_to=ProjectDeleteResponse,
         )
@@ -307,6 +340,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         project_id: str,
         *,
+        user_id: Optional[str] | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -319,13 +353,16 @@ class AsyncProjectsResource(AsyncAPIResource):
 
             This endpoint:
             - Returns full project information including metadata
-            - Includes user information for the project owner
-            - Verifies the authenticated user owns the project
+            - Root user (no user_id or user_id == self): can access any project in the org
+            - Sub-user (user_id set): can only access their own projects
             - Returns 404 if project is not found
 
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
+          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
+              If set to a sub-user ID, restricts access to that user's projects only.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -339,7 +376,11 @@ class AsyncProjectsResource(AsyncAPIResource):
         return await self._get(
             f"/v1/projects/{project_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
             ),
             cast_to=ProjectRetrieveResponse,
         )
@@ -347,6 +388,7 @@ class AsyncProjectsResource(AsyncAPIResource):
     async def list(
         self,
         *,
+        user_id: Optional[str] | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -355,19 +397,34 @@ class AsyncProjectsResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> ProjectListResponse:
         """
-        Get all projects belonging to the authenticated user.
+        Get projects accessible to the caller.
 
             This endpoint:
-            - Returns all projects created by the authenticated user
-            - Includes project metadata (name, description, creation date)
-            - Projects inherit access to user's preferences, episodes, and identity
+            - No user_id (or user_id == root user): returns all projects across the org
+            - user_id set to a sub-user: returns only that sub-user's projects
 
             **Authentication**: Requires valid API key or JWT token
+
+        Args:
+          user_id: Optional user ID to filter projects. Omit for root user (all org projects).
+              Set to a sub-user ID to see only their projects.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._get(
             "/v1/projects",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
             ),
             cast_to=ProjectListResponse,
         )
@@ -376,6 +433,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         project_id: str,
         *,
+        user_id: Optional[str] | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -388,7 +446,8 @@ class AsyncProjectsResource(AsyncAPIResource):
 
             This endpoint:
             - Permanently deletes the project
-            - Verifies the authenticated user owns the project
+            - Root user (no user_id): can delete any project in the org
+            - Sub-user (user_id set): can only delete their own projects
             - Returns confirmation of deletion
 
             **Note**: This action cannot be undone.
@@ -396,6 +455,9 @@ class AsyncProjectsResource(AsyncAPIResource):
             **Authentication**: Requires valid API key or JWT token
 
         Args:
+          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
+              If set to a sub-user ID, restricts deletion to that user's projects only.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -409,7 +471,11 @@ class AsyncProjectsResource(AsyncAPIResource):
         return await self._delete(
             f"/v1/projects/{project_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
             ),
             cast_to=ProjectDeleteResponse,
         )

@@ -5,10 +5,10 @@ from datetime import datetime
 
 from .._models import BaseModel
 
-__all__ = ["PersonaRetrieveResponse"]
+__all__ = ["PersonaRetrieveResponse", "Persona"]
 
 
-class PersonaRetrieveResponse(BaseModel):
+class Persona(BaseModel):
     """Response model for persona information"""
 
     created_at: datetime
@@ -24,3 +24,10 @@ class PersonaRetrieveResponse(BaseModel):
     user_id: str
 
     user_name: Optional[str] = None
+
+
+class PersonaRetrieveResponse(BaseModel):
+    """Response model for retrieving a single persona"""
+
+    persona: Persona
+    """The retrieved persona"""

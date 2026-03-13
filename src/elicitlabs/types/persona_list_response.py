@@ -27,13 +27,16 @@ class Persona(BaseModel):
 
 
 class PersonaListResponse(BaseModel):
-    """Response model for getting user personas"""
+    """Response model for getting personas"""
 
     personas: List[Persona]
-    """List of personas for the user"""
+    """List of personas"""
 
     total_count: int
-    """Total number of personas for the user"""
+    """Total number of personas"""
 
-    user_id: str
-    """User ID"""
+    user_id: Optional[str] = None
+    """User ID (set when filtering by user)"""
+
+    org_id: Optional[str] = None
+    """Organization ID (set when returning org-wide personas)"""
