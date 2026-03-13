@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import os
 import base64
+import hashlib
+import logging
 import mimetypes
 from typing import Dict, Union, Iterable, Optional
 from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 from .job import (
     JobResource,
@@ -39,6 +43,7 @@ __all__ = ["DataResource", "AsyncDataResource"]
 
 _UPLOAD_THRESHOLD = 20 * 1024 * 1024  # 20 MB
 _FILE_TRANSFER_TIMEOUT = httpx.Timeout(connect=10.0, read=300.0, write=300.0, pool=10.0)
+_MAX_UPLOAD_RETRIES = 3
 
 
 def _is_url(value: object) -> bool:
@@ -61,6 +66,147 @@ def _is_file_path(value: object) -> bool:
         except (OSError, ValueError):
             return False
     return False
+
+
+def _download_from_url(url: str) -> tuple[bytes, str]:
+    """Download content from a URL with verification.
+
+    Returns (file_bytes, resolved_filename).
+    Raises on inaccessible URLs, non-success responses, and truncated downloads.
+    """
+    try:
+        download_resp = httpx.get(url, follow_redirects=True, timeout=_FILE_TRANSFER_TIMEOUT)
+    except httpx.ConnectError as exc:
+        raise ConnectionError(f"Could not connect to URL: {url}") from exc
+    except httpx.TimeoutException as exc:
+        raise TimeoutError(f"Timed out downloading from URL: {url}") from exc
+    except httpx.RequestError as exc:
+        raise ConnectionError(f"Failed to download from URL: {url} — {exc}") from exc
+
+    if download_resp.status_code != 200:
+        raise ValueError(
+            f"URL returned HTTP {download_resp.status_code}: {url}"
+        )
+
+    file_bytes = download_resp.content
+
+    # Verify download was not truncated
+    expected_length = download_resp.headers.get("content-length")
+    if expected_length is not None:
+        expected_length = int(expected_length)
+        if len(file_bytes) != expected_length:
+            raise ValueError(
+                f"Download truncated: expected {expected_length} bytes but received {len(file_bytes)} from {url}"
+            )
+
+    if len(file_bytes) == 0:
+        raise ValueError(f"Downloaded 0 bytes from URL (empty response): {url}")
+
+    # Verify content looks like the expected type, not an error page
+    resp_content_type = download_resp.headers.get("content-type", "")
+    if "text/html" in resp_content_type and not url.endswith((".html", ".htm")):
+        logger.warning(
+            "URL returned Content-Type 'text/html' which may indicate an error page "
+            "rather than the expected file: %s",
+            url,
+        )
+
+    # Resolve filename — prefer Content-Disposition, fall back to URL path
+    resolved_filename = None
+    content_disposition = download_resp.headers.get("content-disposition", "")
+    if "filename=" in content_disposition:
+        # Extract filename from Content-Disposition header
+        for part in content_disposition.split(";"):
+            part = part.strip()
+            if part.startswith("filename="):
+                resolved_filename = part.split("=", 1)[1].strip().strip('"\'')
+                break
+
+    if not resolved_filename:
+        resolved_filename = os.path.basename(urlparse(url).path) or "downloaded_file"
+
+    # If filename still lacks an extension, try to infer from Content-Type
+    if "." not in resolved_filename and resp_content_type:
+        mime_base = resp_content_type.split(";")[0].strip()
+        ext = mimetypes.guess_extension(mime_base)
+        if ext:
+            resolved_filename += ext
+
+    return file_bytes, resolved_filename
+
+
+async def _async_download_from_url(url: str) -> tuple[bytes, str]:
+    """Async version of _download_from_url."""
+    try:
+        async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
+            download_resp = await http.get(url, follow_redirects=True)
+    except httpx.ConnectError as exc:
+        raise ConnectionError(f"Could not connect to URL: {url}") from exc
+    except httpx.TimeoutException as exc:
+        raise TimeoutError(f"Timed out downloading from URL: {url}") from exc
+    except httpx.RequestError as exc:
+        raise ConnectionError(f"Failed to download from URL: {url} — {exc}") from exc
+
+    if download_resp.status_code != 200:
+        raise ValueError(
+            f"URL returned HTTP {download_resp.status_code}: {url}"
+        )
+
+    file_bytes = download_resp.content
+
+    expected_length = download_resp.headers.get("content-length")
+    if expected_length is not None:
+        expected_length = int(expected_length)
+        if len(file_bytes) != expected_length:
+            raise ValueError(
+                f"Download truncated: expected {expected_length} bytes but received {len(file_bytes)} from {url}"
+            )
+
+    if len(file_bytes) == 0:
+        raise ValueError(f"Downloaded 0 bytes from URL (empty response): {url}")
+
+    resp_content_type = download_resp.headers.get("content-type", "")
+    if "text/html" in resp_content_type and not url.endswith((".html", ".htm")):
+        logger.warning(
+            "URL returned Content-Type 'text/html' which may indicate an error page "
+            "rather than the expected file: %s",
+            url,
+        )
+
+    resolved_filename = None
+    content_disposition = download_resp.headers.get("content-disposition", "")
+    if "filename=" in content_disposition:
+        for part in content_disposition.split(";"):
+            part = part.strip()
+            if part.startswith("filename="):
+                resolved_filename = part.split("=", 1)[1].strip().strip('"\'')
+                break
+
+    if not resolved_filename:
+        resolved_filename = os.path.basename(urlparse(url).path) or "downloaded_file"
+
+    if "." not in resolved_filename and resp_content_type:
+        mime_base = resp_content_type.split(";")[0].strip()
+        ext = mimetypes.guess_extension(mime_base)
+        if ext:
+            resolved_filename += ext
+
+    return file_bytes, resolved_filename
+
+
+def _verify_gcs_upload(put_resp: httpx.Response, file_bytes: bytes) -> None:
+    """Verify the GCS upload integrity by comparing the ETag MD5 hash."""
+    etag = put_resp.headers.get("etag", "").strip('"')
+    if not etag or "-" in etag:
+        # Multipart uploads have ETags with a dash — skip verification
+        return
+
+    local_md5 = hashlib.md5(file_bytes).hexdigest()
+    if etag.lower() != local_md5.lower():
+        raise ValueError(
+            f"Upload integrity check failed: local MD5 {local_md5} != GCS ETag {etag}. "
+            f"The file may have been corrupted during upload."
+        )
 
 
 def _mime_to_content_category(mime: str) -> str:
@@ -182,10 +328,7 @@ class DataResource(SyncAPIResource):
             resolved_filename = payload.name
         elif isinstance(payload, str):
             if _is_url(payload):
-                download_resp = httpx.get(payload, follow_redirects=True, timeout=_FILE_TRANSFER_TIMEOUT)
-                download_resp.raise_for_status()
-                file_bytes = download_resp.content
-                resolved_filename = os.path.basename(urlparse(payload).path) or "downloaded_file"
+                file_bytes, resolved_filename = _download_from_url(payload)
             elif _is_file_path(payload):
                 path = Path(payload)
                 file_bytes = path.read_bytes()
@@ -196,18 +339,16 @@ class DataResource(SyncAPIResource):
                 filename if (filename is not omit and filename is not None) else resolved_filename
             )
 
-            if len(file_bytes) >= _UPLOAD_THRESHOLD:
-                return self._ingest_via_signed_url(
-                    file_bytes=file_bytes,
-                    filename=actual_filename or "uploaded_file",
-                    user_id=user_id,
-                    persona_id=persona_id if isinstance(persona_id, str) else None,
-                    project_id=project_id if isinstance(project_id, str) else None,
-                )
-
-            payload = base64.b64encode(file_bytes).decode("utf-8")
-            if actual_filename:
-                filename = actual_filename
+            return self._ingest_via_signed_url(
+                file_bytes=file_bytes,
+                filename=actual_filename or "uploaded_file",
+                user_id=user_id,
+                persona_id=persona_id if isinstance(persona_id, str) else None,
+                project_id=project_id if isinstance(project_id, str) else None,
+                content_description=content_description if isinstance(content_description, str) else None,
+                session_id=session_id if isinstance(session_id, str) else None,
+                timestamp=timestamp if isinstance(timestamp, str) else None,
+            )
 
         return self._post(
             "/v1/data/ingest",
@@ -267,6 +408,10 @@ class DataResource(SyncAPIResource):
         content_type: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
+        filename: Optional[str] = None,
+        content_description: Optional[str] = None,
+        session_id: Optional[str] = None,
+        timestamp: Optional[str] = None,
     ) -> DataConfirmUploadResponse:
         return self._post(
             "/v1/data/ingest/confirm-upload",
@@ -278,6 +423,10 @@ class DataResource(SyncAPIResource):
                     "content_type": content_type,
                     "project_id": project_id,
                     "persona_id": persona_id,
+                    "filename": filename,
+                    "content_description": content_description,
+                    "session_id": session_id,
+                    "timestamp": timestamp,
                 },
                 data_confirm_upload_params.DataConfirmUploadParams,
             ),
@@ -293,25 +442,50 @@ class DataResource(SyncAPIResource):
         user_id: str,
         persona_id: Optional[str] = None,
         project_id: Optional[str] = None,
+        content_description: Optional[str] = None,
+        session_id: Optional[str] = None,
+        timestamp: Optional[str] = None,
     ) -> DataIngestResponse:
         mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
         content_category = _mime_to_content_category(mime_type)
+        expected_size = len(file_bytes)
 
-        upload_info = self._get_upload_url(
-            user_id=user_id,
-            filename=filename,
-            content_type=content_category,
-            project_id=project_id if project_id else omit,
-            persona_id=persona_id if persona_id else omit,
-        )
+        last_error: Exception | None = None
+        for attempt in range(1, _MAX_UPLOAD_RETRIES + 1):
+            upload_info = self._get_upload_url(
+                user_id=user_id,
+                filename=filename,
+                content_type=content_category,
+                project_id=project_id if project_id else omit,
+                persona_id=persona_id if persona_id else omit,
+            )
 
-        put_resp = httpx.put(
-            upload_info.upload_url,
-            content=file_bytes,
-            headers={"Content-Type": mime_type},
-            timeout=_FILE_TRANSFER_TIMEOUT,
-        )
-        put_resp.raise_for_status()
+            try:
+                put_resp = httpx.put(
+                    upload_info.upload_url,
+                    content=file_bytes,
+                    headers={
+                        "Content-Type": mime_type,
+                        "Content-Length": str(expected_size),
+                    },
+                    timeout=_FILE_TRANSFER_TIMEOUT,
+                )
+                put_resp.raise_for_status()
+                _verify_gcs_upload(put_resp, file_bytes)
+            except (httpx.RequestError, ValueError) as exc:
+                last_error = exc
+                logger.warning(
+                    "Signed URL upload attempt %d/%d failed: %s",
+                    attempt, _MAX_UPLOAD_RETRIES, exc,
+                )
+                if attempt < _MAX_UPLOAD_RETRIES:
+                    continue
+                raise ValueError(
+                    f"File upload failed after {_MAX_UPLOAD_RETRIES} attempts. Last error: {last_error}"
+                ) from last_error
+
+            # Upload succeeded and integrity verified
+            break
 
         confirm = self._confirm_upload(
             job_id=upload_info.job_id,
@@ -320,6 +494,10 @@ class DataResource(SyncAPIResource):
             content_type=content_category,
             project_id=project_id if project_id else omit,
             persona_id=persona_id if persona_id else omit,
+            filename=filename,
+            content_description=content_description,
+            session_id=session_id,
+            timestamp=timestamp,
         )
 
         return DataIngestResponse(
@@ -427,11 +605,7 @@ class AsyncDataResource(AsyncAPIResource):
             resolved_filename = payload.name
         elif isinstance(payload, str):
             if _is_url(payload):
-                async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
-                    download_resp = await http.get(payload, follow_redirects=True)
-                    download_resp.raise_for_status()
-                file_bytes = download_resp.content
-                resolved_filename = os.path.basename(urlparse(payload).path) or "downloaded_file"
+                file_bytes, resolved_filename = await _async_download_from_url(payload)
             elif _is_file_path(payload):
                 path = Path(payload)
                 file_bytes = path.read_bytes()
@@ -442,18 +616,16 @@ class AsyncDataResource(AsyncAPIResource):
                 filename if (filename is not omit and filename is not None) else resolved_filename
             )
 
-            if len(file_bytes) >= _UPLOAD_THRESHOLD:
-                return await self._ingest_via_signed_url(
-                    file_bytes=file_bytes,
-                    filename=actual_filename or "uploaded_file",
-                    user_id=user_id,
-                    persona_id=persona_id if isinstance(persona_id, str) else None,
-                    project_id=project_id if isinstance(project_id, str) else None,
-                )
-
-            payload = base64.b64encode(file_bytes).decode("utf-8")
-            if actual_filename:
-                filename = actual_filename
+            return await self._ingest_via_signed_url(
+                file_bytes=file_bytes,
+                filename=actual_filename or "uploaded_file",
+                user_id=user_id,
+                persona_id=persona_id if isinstance(persona_id, str) else None,
+                project_id=project_id if isinstance(project_id, str) else None,
+                content_description=content_description if isinstance(content_description, str) else None,
+                session_id=session_id if isinstance(session_id, str) else None,
+                timestamp=timestamp if isinstance(timestamp, str) else None,
+            )
 
         return await self._post(
             "/v1/data/ingest",
@@ -513,6 +685,10 @@ class AsyncDataResource(AsyncAPIResource):
         content_type: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
+        filename: Optional[str] = None,
+        content_description: Optional[str] = None,
+        session_id: Optional[str] = None,
+        timestamp: Optional[str] = None,
     ) -> DataConfirmUploadResponse:
         return await self._post(
             "/v1/data/ingest/confirm-upload",
@@ -524,6 +700,10 @@ class AsyncDataResource(AsyncAPIResource):
                     "content_type": content_type,
                     "project_id": project_id,
                     "persona_id": persona_id,
+                    "filename": filename,
+                    "content_description": content_description,
+                    "session_id": session_id,
+                    "timestamp": timestamp,
                 },
                 data_confirm_upload_params.DataConfirmUploadParams,
             ),
@@ -539,25 +719,49 @@ class AsyncDataResource(AsyncAPIResource):
         user_id: str,
         persona_id: Optional[str] = None,
         project_id: Optional[str] = None,
+        content_description: Optional[str] = None,
+        session_id: Optional[str] = None,
+        timestamp: Optional[str] = None,
     ) -> DataIngestResponse:
         mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
         content_category = _mime_to_content_category(mime_type)
+        expected_size = len(file_bytes)
 
-        upload_info = await self._get_upload_url(
-            user_id=user_id,
-            filename=filename,
-            content_type=content_category,
-            project_id=project_id if project_id else omit,
-            persona_id=persona_id if persona_id else omit,
-        )
-
-        async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
-            put_resp = await http.put(
-                upload_info.upload_url,
-                content=file_bytes,
-                headers={"Content-Type": mime_type},
+        last_error: Exception | None = None
+        for attempt in range(1, _MAX_UPLOAD_RETRIES + 1):
+            upload_info = await self._get_upload_url(
+                user_id=user_id,
+                filename=filename,
+                content_type=content_category,
+                project_id=project_id if project_id else omit,
+                persona_id=persona_id if persona_id else omit,
             )
-            put_resp.raise_for_status()
+
+            try:
+                async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
+                    put_resp = await http.put(
+                        upload_info.upload_url,
+                        content=file_bytes,
+                        headers={
+                            "Content-Type": mime_type,
+                            "Content-Length": str(expected_size),
+                        },
+                    )
+                    put_resp.raise_for_status()
+                _verify_gcs_upload(put_resp, file_bytes)
+            except (httpx.RequestError, ValueError) as exc:
+                last_error = exc
+                logger.warning(
+                    "Signed URL upload attempt %d/%d failed: %s",
+                    attempt, _MAX_UPLOAD_RETRIES, exc,
+                )
+                if attempt < _MAX_UPLOAD_RETRIES:
+                    continue
+                raise ValueError(
+                    f"File upload failed after {_MAX_UPLOAD_RETRIES} attempts. Last error: {last_error}"
+                ) from last_error
+
+            break
 
         confirm = await self._confirm_upload(
             job_id=upload_info.job_id,
@@ -566,6 +770,10 @@ class AsyncDataResource(AsyncAPIResource):
             content_type=content_category,
             project_id=project_id if project_id else omit,
             persona_id=persona_id if persona_id else omit,
+            filename=filename,
+            content_description=content_description,
+            session_id=session_id,
+            timestamp=timestamp,
         )
 
         return DataIngestResponse(
