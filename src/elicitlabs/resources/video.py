@@ -48,10 +48,11 @@ class VideoResource(SyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        advanced_creative: bool | Omit = omit,
+        aspect_ratio: str | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
-        fps: int | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
@@ -59,7 +60,6 @@ class VideoResource(SyncAPIResource):
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        size: Optional[str] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -75,20 +75,24 @@ class VideoResource(SyncAPIResource):
 
             **Universal Base Schema:**
             - user_id (str, required): The end-user ID
-            - project_id (str, required): The project ID
+            - project_id (str, optional): The project ID
             - persona_id (str, optional): The specific system persona/voice to use
             - disabled_learning (bool, optional): If true, request is ignored by long-term memory
             - use_reasoning (bool, optional): Enable reasoning loop for constraint-satisfying generation
 
             **Input:**
             - text_input (str, required): The prompt/description for video generation
-            - context (str, optional): Additional context
+            - session_id (str, optional): Session ID for conversation context
+
+            **Reference inputs:**
+            - image_base64 (str, optional): Base64 encoded reference image for context
+            - video_base64 (str, optional): Base64 encoded reference video for context
+            - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Video Params (Flat):**
-            - model (str, required): Model ID (e.g., gemini-3-flash)
-            - duration (float, optional): Target duration in seconds
-            - fps (int, optional): Frames per second (default: 24)
-            - size (str, optional): Video dimensions
+            - model (str, optional): Model ID (default: veo-3.0-generate-preview)
+            - duration (float, optional): Target duration in seconds (4, 6, or 8)
+            - aspect_ratio (str, optional): Aspect ratio: "16:9" or "9:16" (default: 16:9)
             - seed (int, optional): Random seed for reproducibility
 
             **Authentication**: Requires valid API key or JWT token
@@ -98,13 +102,17 @@ class VideoResource(SyncAPIResource):
 
           user_id: The end-user ID
 
+          advanced_creative: Enable first+last frame workflow: generates a starting frame and an ending frame
+              via the image pipeline, then uses Veo's first-and-last-frame feature to animate
+              the transition between them.
+
+          aspect_ratio: Aspect ratio for the generated video: '16:9' or '9:16'.
+
           audio_base64: Base64 encoded reference audio for context
 
           disabled_learning: If true, this request is ignored by long-term memory
 
           duration: Target duration in seconds
-
-          fps: Frames per second
 
           image_base64: Base64 encoded reference image for context (e.g., start frame)
 
@@ -119,8 +127,6 @@ class VideoResource(SyncAPIResource):
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
-
-          size: Video dimensions (e.g., 1024x1024)
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -140,10 +146,11 @@ class VideoResource(SyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "advanced_creative": advanced_creative,
+                    "aspect_ratio": aspect_ratio,
                     "audio_base64": audio_base64,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
-                    "fps": fps,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
@@ -151,7 +158,6 @@ class VideoResource(SyncAPIResource):
                     "project_id": project_id,
                     "seed": seed,
                     "session_id": session_id,
-                    "size": size,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
@@ -189,10 +195,11 @@ class AsyncVideoResource(AsyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        advanced_creative: bool | Omit = omit,
+        aspect_ratio: str | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
-        fps: int | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
@@ -200,7 +207,6 @@ class AsyncVideoResource(AsyncAPIResource):
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
-        size: Optional[str] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -216,20 +222,24 @@ class AsyncVideoResource(AsyncAPIResource):
 
             **Universal Base Schema:**
             - user_id (str, required): The end-user ID
-            - project_id (str, required): The project ID
+            - project_id (str, optional): The project ID
             - persona_id (str, optional): The specific system persona/voice to use
             - disabled_learning (bool, optional): If true, request is ignored by long-term memory
             - use_reasoning (bool, optional): Enable reasoning loop for constraint-satisfying generation
 
             **Input:**
             - text_input (str, required): The prompt/description for video generation
-            - context (str, optional): Additional context
+            - session_id (str, optional): Session ID for conversation context
+
+            **Reference inputs:**
+            - image_base64 (str, optional): Base64 encoded reference image for context
+            - video_base64 (str, optional): Base64 encoded reference video for context
+            - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Video Params (Flat):**
-            - model (str, required): Model ID (e.g., gemini-3-flash)
-            - duration (float, optional): Target duration in seconds
-            - fps (int, optional): Frames per second (default: 24)
-            - size (str, optional): Video dimensions
+            - model (str, optional): Model ID (default: veo-3.0-generate-preview)
+            - duration (float, optional): Target duration in seconds (4, 6, or 8)
+            - aspect_ratio (str, optional): Aspect ratio: "16:9" or "9:16" (default: 16:9)
             - seed (int, optional): Random seed for reproducibility
 
             **Authentication**: Requires valid API key or JWT token
@@ -239,13 +249,17 @@ class AsyncVideoResource(AsyncAPIResource):
 
           user_id: The end-user ID
 
+          advanced_creative: Enable first+last frame workflow: generates a starting frame and an ending frame
+              via the image pipeline, then uses Veo's first-and-last-frame feature to animate
+              the transition between them.
+
+          aspect_ratio: Aspect ratio for the generated video: '16:9' or '9:16'.
+
           audio_base64: Base64 encoded reference audio for context
 
           disabled_learning: If true, this request is ignored by long-term memory
 
           duration: Target duration in seconds
-
-          fps: Frames per second
 
           image_base64: Base64 encoded reference image for context (e.g., start frame)
 
@@ -260,8 +274,6 @@ class AsyncVideoResource(AsyncAPIResource):
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
-
-          size: Video dimensions (e.g., 1024x1024)
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -281,10 +293,11 @@ class AsyncVideoResource(AsyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "advanced_creative": advanced_creative,
+                    "aspect_ratio": aspect_ratio,
                     "audio_base64": audio_base64,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
-                    "fps": fps,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
@@ -292,7 +305,6 @@ class AsyncVideoResource(AsyncAPIResource):
                     "project_id": project_id,
                     "seed": seed,
                     "session_id": session_id,
-                    "size": size,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },

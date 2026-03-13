@@ -35,7 +35,7 @@ class Project(BaseModel):
 
 
 class ProjectListResponse(BaseModel):
-    """Response model for getting projects"""
+    """Response model for getting user projects"""
 
     projects: List[Project]
     """List of projects"""
@@ -43,8 +43,8 @@ class ProjectListResponse(BaseModel):
     total_count: int
     """Total number of projects"""
 
-    user_id: Optional[str] = None
-    """User ID (set when filtering by user)"""
-
     org_id: Optional[str] = None
     """Organization ID (set when returning org-wide projects)"""
+
+    user_id: Optional[str] = None
+    """User ID (set when filtering by user)"""

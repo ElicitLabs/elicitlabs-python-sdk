@@ -7,7 +7,13 @@ from typing_extensions import Literal
 
 import httpx
 
-from ..types import project_create_params
+from ..types import (
+    project_list_params,
+    project_clone_params,
+    project_create_params,
+    project_delete_params,
+    project_retrieve_params,
+)
 from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -20,6 +26,7 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.project_list_response import ProjectListResponse
+from ..types.project_clone_response import ProjectCloneResponse
 from ..types.project_create_response import ProjectCreateResponse
 from ..types.project_delete_response import ProjectDeleteResponse
 from ..types.project_retrieve_response import ProjectRetrieveResponse
@@ -113,7 +120,7 @@ class ProjectsResource(SyncAPIResource):
         self,
         project_id: str,
         *,
-        user_id: Optional[str] | NotGiven = not_given,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -126,16 +133,13 @@ class ProjectsResource(SyncAPIResource):
 
             This endpoint:
             - Returns full project information including metadata
-            - Root user (no user_id or user_id == self): can access any project in the org
-            - Sub-user (user_id set): can only access their own projects
+            - Includes user information for the project owner
+            - Verifies the authenticated user owns the project or belongs to the same org
             - Returns 404 if project is not found
 
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
-          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
-              If set to a sub-user ID, restricts access to that user's projects only.
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -153,7 +157,7 @@ class ProjectsResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
+                query=maybe_transform({"user_id": user_id}, project_retrieve_params.ProjectRetrieveParams),
             ),
             cast_to=ProjectRetrieveResponse,
         )
@@ -161,7 +165,7 @@ class ProjectsResource(SyncAPIResource):
     def list(
         self,
         *,
-        user_id: Optional[str] | NotGiven = not_given,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -173,15 +177,13 @@ class ProjectsResource(SyncAPIResource):
         Get projects accessible to the caller.
 
             This endpoint:
-            - No user_id (or user_id == root user): returns all projects across the org
-            - user_id set to a sub-user: returns only that sub-user's projects
+            - **No user_id param** (or user_id == root user): root user → returns **all** projects across the org
+            - **user_id param** (sub-user): returns only that sub-user's projects
+            - Includes project metadata (name, description, creation date)
 
             **Authentication**: Requires valid API key or JWT token
 
         Args:
-          user_id: Optional user ID to filter projects. Omit for root user (all org projects).
-              Set to a sub-user ID to see only their projects.
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -197,7 +199,7 @@ class ProjectsResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
+                query=maybe_transform({"user_id": user_id}, project_list_params.ProjectListParams),
             ),
             cast_to=ProjectListResponse,
         )
@@ -206,7 +208,7 @@ class ProjectsResource(SyncAPIResource):
         self,
         project_id: str,
         *,
-        user_id: Optional[str] | NotGiven = not_given,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -219,8 +221,7 @@ class ProjectsResource(SyncAPIResource):
 
             This endpoint:
             - Permanently deletes the project
-            - Root user (no user_id): can delete any project in the org
-            - Sub-user (user_id set): can only delete their own projects
+            - Verifies the authenticated user owns the project
             - Returns confirmation of deletion
 
             **Note**: This action cannot be undone.
@@ -228,9 +229,6 @@ class ProjectsResource(SyncAPIResource):
             **Authentication**: Requires valid API key or JWT token
 
         Args:
-          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
-              If set to a sub-user ID, restricts deletion to that user's projects only.
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -248,9 +246,79 @@ class ProjectsResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
+                query=maybe_transform({"user_id": user_id}, project_delete_params.ProjectDeleteParams),
             ),
             cast_to=ProjectDeleteResponse,
+        )
+
+    def clone(
+        self,
+        *,
+        project_id: str,
+        description: Optional[str] | Omit = omit,
+        name: Optional[str] | Omit = omit,
+        source_user_id: str | Omit = omit,
+        target_user_id: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> ProjectCloneResponse:
+        """
+        Deep-clone a project, including all its Neo4j memory graph data and referenced
+        GCS assets, into a new independent project.
+
+            This endpoint:
+            - Creates a new project in PostgreSQL with the source project's metadata
+            - Copies all GCS files (images, objects) under a new project path
+            - Deep-copies all Neo4j nodes (episodes, entities, preferences, identity,
+              hierarchical data, multimodal nodes) with new UUIDs
+            - Rewrites GCS URLs in ImageNode/ObjectNode to point at the copied files
+            - Recreates all inter-node relationships
+
+            The clone is fully independent — changes to one project do not affect the other.
+
+            **Authentication**: Requires valid API key or JWT token
+
+        Args:
+          project_id: ID of the project to clone
+
+          description: Description for the cloned project. Defaults to the original's description.
+
+          name: Name for the cloned project. Defaults to '{original_name} (Copy)'.
+
+          source_user_id: User ID of the source project owner. If not provided, uses the authenticated
+              user's ID.
+
+          target_user_id: Target user ID to own the cloned project. If not provided, uses the
+              authenticated user.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/v1/projects/clone",
+            body=maybe_transform(
+                {
+                    "project_id": project_id,
+                    "description": description,
+                    "name": name,
+                    "source_user_id": source_user_id,
+                    "target_user_id": target_user_id,
+                },
+                project_clone_params.ProjectCloneParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ProjectCloneResponse,
         )
 
 
@@ -340,7 +408,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         project_id: str,
         *,
-        user_id: Optional[str] | NotGiven = not_given,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -353,16 +421,13 @@ class AsyncProjectsResource(AsyncAPIResource):
 
             This endpoint:
             - Returns full project information including metadata
-            - Root user (no user_id or user_id == self): can access any project in the org
-            - Sub-user (user_id set): can only access their own projects
+            - Includes user information for the project owner
+            - Verifies the authenticated user owns the project or belongs to the same org
             - Returns 404 if project is not found
 
             **Authentication**: Requires valid API key or JWT token in Authorization header
 
         Args:
-          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
-              If set to a sub-user ID, restricts access to that user's projects only.
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -380,7 +445,7 @@ class AsyncProjectsResource(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
+                query=await async_maybe_transform({"user_id": user_id}, project_retrieve_params.ProjectRetrieveParams),
             ),
             cast_to=ProjectRetrieveResponse,
         )
@@ -388,7 +453,7 @@ class AsyncProjectsResource(AsyncAPIResource):
     async def list(
         self,
         *,
-        user_id: Optional[str] | NotGiven = not_given,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -400,15 +465,13 @@ class AsyncProjectsResource(AsyncAPIResource):
         Get projects accessible to the caller.
 
             This endpoint:
-            - No user_id (or user_id == root user): returns all projects across the org
-            - user_id set to a sub-user: returns only that sub-user's projects
+            - **No user_id param** (or user_id == root user): root user → returns **all** projects across the org
+            - **user_id param** (sub-user): returns only that sub-user's projects
+            - Includes project metadata (name, description, creation date)
 
             **Authentication**: Requires valid API key or JWT token
 
         Args:
-          user_id: Optional user ID to filter projects. Omit for root user (all org projects).
-              Set to a sub-user ID to see only their projects.
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -424,7 +487,7 @@ class AsyncProjectsResource(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
+                query=await async_maybe_transform({"user_id": user_id}, project_list_params.ProjectListParams),
             ),
             cast_to=ProjectListResponse,
         )
@@ -433,7 +496,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         project_id: str,
         *,
-        user_id: Optional[str] | NotGiven = not_given,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -446,8 +509,7 @@ class AsyncProjectsResource(AsyncAPIResource):
 
             This endpoint:
             - Permanently deletes the project
-            - Root user (no user_id): can delete any project in the org
-            - Sub-user (user_id set): can only delete their own projects
+            - Verifies the authenticated user owns the project
             - Returns confirmation of deletion
 
             **Note**: This action cannot be undone.
@@ -455,9 +517,6 @@ class AsyncProjectsResource(AsyncAPIResource):
             **Authentication**: Requires valid API key or JWT token
 
         Args:
-          user_id: Optional user ID. If omitted or matches the root user, grants full org access.
-              If set to a sub-user ID, restricts deletion to that user's projects only.
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -475,9 +534,79 @@ class AsyncProjectsResource(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query={"user_id": user_id} if not isinstance(user_id, NotGiven) else {},
+                query=await async_maybe_transform({"user_id": user_id}, project_delete_params.ProjectDeleteParams),
             ),
             cast_to=ProjectDeleteResponse,
+        )
+
+    async def clone(
+        self,
+        *,
+        project_id: str,
+        description: Optional[str] | Omit = omit,
+        name: Optional[str] | Omit = omit,
+        source_user_id: str | Omit = omit,
+        target_user_id: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> ProjectCloneResponse:
+        """
+        Deep-clone a project, including all its Neo4j memory graph data and referenced
+        GCS assets, into a new independent project.
+
+            This endpoint:
+            - Creates a new project in PostgreSQL with the source project's metadata
+            - Copies all GCS files (images, objects) under a new project path
+            - Deep-copies all Neo4j nodes (episodes, entities, preferences, identity,
+              hierarchical data, multimodal nodes) with new UUIDs
+            - Rewrites GCS URLs in ImageNode/ObjectNode to point at the copied files
+            - Recreates all inter-node relationships
+
+            The clone is fully independent — changes to one project do not affect the other.
+
+            **Authentication**: Requires valid API key or JWT token
+
+        Args:
+          project_id: ID of the project to clone
+
+          description: Description for the cloned project. Defaults to the original's description.
+
+          name: Name for the cloned project. Defaults to '{original_name} (Copy)'.
+
+          source_user_id: User ID of the source project owner. If not provided, uses the authenticated
+              user's ID.
+
+          target_user_id: Target user ID to own the cloned project. If not provided, uses the
+              authenticated user.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/v1/projects/clone",
+            body=await async_maybe_transform(
+                {
+                    "project_id": project_id,
+                    "description": description,
+                    "name": name,
+                    "source_user_id": source_user_id,
+                    "target_user_id": target_user_id,
+                },
+                project_clone_params.ProjectCloneParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ProjectCloneResponse,
         )
 
 
@@ -497,6 +626,9 @@ class ProjectsResourceWithRawResponse:
         self.delete = to_raw_response_wrapper(
             projects.delete,
         )
+        self.clone = to_raw_response_wrapper(
+            projects.clone,
+        )
 
 
 class AsyncProjectsResourceWithRawResponse:
@@ -514,6 +646,9 @@ class AsyncProjectsResourceWithRawResponse:
         )
         self.delete = async_to_raw_response_wrapper(
             projects.delete,
+        )
+        self.clone = async_to_raw_response_wrapper(
+            projects.clone,
         )
 
 
@@ -533,6 +668,9 @@ class ProjectsResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             projects.delete,
         )
+        self.clone = to_streamed_response_wrapper(
+            projects.clone,
+        )
 
 
 class AsyncProjectsResourceWithStreamingResponse:
@@ -550,4 +688,7 @@ class AsyncProjectsResourceWithStreamingResponse:
         )
         self.delete = async_to_streamed_response_wrapper(
             projects.delete,
+        )
+        self.clone = async_to_streamed_response_wrapper(
+            projects.clone,
         )

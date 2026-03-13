@@ -35,8 +35,8 @@ class PersonaListResponse(BaseModel):
     total_count: int
     """Total number of personas"""
 
-    user_id: Optional[str] = None
-    """User ID (set when filtering by user)"""
-
     org_id: Optional[str] = None
     """Organization ID (set when returning org-wide personas)"""
+
+    user_id: Optional[str] = None
+    """User ID (set when filtering by user)"""

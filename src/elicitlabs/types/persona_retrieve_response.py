@@ -9,7 +9,7 @@ __all__ = ["PersonaRetrieveResponse", "Persona"]
 
 
 class Persona(BaseModel):
-    """Response model for persona information"""
+    """The retrieved persona"""
 
     created_at: datetime
 
@@ -27,7 +27,7 @@ class Persona(BaseModel):
 
 
 class PersonaRetrieveResponse(BaseModel):
-    """Response model for retrieving a single persona"""
+    """Response model for retrieving a single persona (consistent with create/update)"""
 
     persona: Persona
     """The retrieved persona"""

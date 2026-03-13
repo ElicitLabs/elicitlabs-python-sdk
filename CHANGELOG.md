@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.16.0 (2026-03-11)
+
+Full Changelog: [v0.15.0...v0.16.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.15.0...v0.16.0)
+
+### Features
+
+* **api:** api update ([3cab202](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/3cab202709686fe588d8d5beed5f779cbb0045ea))
+* **api:** api update ([adecb75](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/adecb75a594a44b99238eac9d8bf9fd8d1a74393))
+* **api:** manual updates ([3b4643c](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/3b4643ccad434c2727ac718cc0f93e10348d587d))
+
+## 0.15.0 (2026-03-09)
+
+Full Changelog: [v0.14.0...v0.15.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.14.0...v0.15.0)
+
+### Features
+
+* **api:** api update ([a443d8a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/a443d8a3c7dce7c42f0343086468ce8321a2e1bd))
+* **api:** api update ([94de8a3](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/94de8a3e31ccba7e26cf32a17dd6568cdb09fb7d))
+
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([97ffb6a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/97ffb6aebe5cdba74303cf0769a63ed3ccf6c621))
+
+## 0.14.0 (2026-03-05)
+
+Full Changelog: [v0.13.5...v0.14.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.13.5...v0.14.0)
+
+### Features
+
+* **api:** api update ([cbb2834](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/cbb28343c2f70475ca20b9ef9bd514ab3cc90041))
+* **api:** manual updates ([7c7e047](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/7c7e047186885068f1af52ed36737e55ba9b672e))
+
+## 0.13.5 (2026-03-04)
+
+Full Changelog: [v0.13.4...v0.13.5](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.13.4...v0.13.5)
+
 ## 0.13.4 (2026-03-03)
 
 Full Changelog: [v0.13.3...v0.13.4](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.13.3...v0.13.4)

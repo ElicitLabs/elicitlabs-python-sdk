@@ -5,11 +5,11 @@ from datetime import datetime
 
 from .._models import BaseModel
 
-__all__ = ["ProjectRetrieveResponse", "Project"]
+__all__ = ["ProjectCloneResponse", "Project"]
 
 
 class Project(BaseModel):
-    """The retrieved project"""
+    """The newly cloned project"""
 
     created_at: datetime
 
@@ -34,8 +34,14 @@ class Project(BaseModel):
     """
 
 
-class ProjectRetrieveResponse(BaseModel):
-    """Response model for retrieving a single project (consistent with create/update)"""
+class ProjectCloneResponse(BaseModel):
+    """Response model for cloning a project"""
+
+    message: str
+    """Success message"""
 
     project: Project
-    """The retrieved project"""
+    """The newly cloned project"""
+
+    source_project_id: str
+    """ID of the original project that was cloned"""

@@ -15,6 +15,16 @@ class VideoGenerateParams(TypedDict, total=False):
     user_id: Required[str]
     """The end-user ID"""
 
+    advanced_creative: bool
+    """
+    Enable first+last frame workflow: generates a starting frame and an ending frame
+    via the image pipeline, then uses Veo's first-and-last-frame feature to animate
+    the transition between them.
+    """
+
+    aspect_ratio: str
+    """Aspect ratio for the generated video: '16:9' or '9:16'."""
+
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
 
@@ -23,9 +33,6 @@ class VideoGenerateParams(TypedDict, total=False):
 
     duration: Optional[float]
     """Target duration in seconds"""
-
-    fps: int
-    """Frames per second"""
 
     image_base64: Optional[str]
     """Base64 encoded reference image for context (e.g., start frame)"""
@@ -47,9 +54,6 @@ class VideoGenerateParams(TypedDict, total=False):
 
     session_id: Optional[str]
     """Session ID for conversation context"""
-
-    size: Optional[str]
-    """Video dimensions (e.g., 1024x1024)"""
 
     use_reasoning: bool
     """Enable Chain-of-Thought/Reasoning steps before generation"""
