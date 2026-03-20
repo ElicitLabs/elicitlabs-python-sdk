@@ -60,6 +60,7 @@ class ImagesResource(SyncAPIResource):
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
+        temperature: Optional[float] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -90,7 +91,7 @@ class ImagesResource(SyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3-pro, gemini-3.1-pro
+            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3.1-pro
             - aspect_ratio (str, optional): Aspect ratio, e.g. "1:1", "16:9", "9:16" (default: 1:1).
             - resolution (str, optional): Resolution tier: "1K", "2K", or "4K" (default: 4K).
             - seed (int, optional): Random seed for reproducibility
@@ -124,6 +125,8 @@ class ImagesResource(SyncAPIResource):
 
           session_id: Session ID for conversation context
 
+          temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
+
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
           video_base64: Base64 encoded reference video for context
@@ -153,6 +156,7 @@ class ImagesResource(SyncAPIResource):
                     "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
+                    "temperature": temperature,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
@@ -201,6 +205,7 @@ class AsyncImagesResource(AsyncAPIResource):
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
+        temperature: Optional[float] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -231,7 +236,7 @@ class AsyncImagesResource(AsyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3-pro, gemini-3.1-pro
+            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3.1-pro
             - aspect_ratio (str, optional): Aspect ratio, e.g. "1:1", "16:9", "9:16" (default: 1:1).
             - resolution (str, optional): Resolution tier: "1K", "2K", or "4K" (default: 4K).
             - seed (int, optional): Random seed for reproducibility
@@ -265,6 +270,8 @@ class AsyncImagesResource(AsyncAPIResource):
 
           session_id: Session ID for conversation context
 
+          temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
+
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
           video_base64: Base64 encoded reference video for context
@@ -294,6 +301,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
+                    "temperature": temperature,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },

@@ -43,6 +43,7 @@ class TestImages:
             resolution="2K",
             seed=12345,
             session_id="session_id",
+            temperature=0,
             use_reasoning=False,
             video_base64="video_base64",
         )
@@ -108,6 +109,7 @@ class TestAsyncImages:
             resolution="2K",
             seed=12345,
             session_id="session_id",
+            temperature=0,
             use_reasoning=False,
             video_base64="video_base64",
         )
