@@ -48,6 +48,9 @@ class ImageGenerateParams(TypedDict, total=False):
     session_id: Optional[str]
     """Session ID for conversation context"""
 
+    temperature: Optional[float]
+    """Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic."""
+
     use_reasoning: bool
     """Enable Chain-of-Thought/Reasoning steps before generation"""
 

@@ -11,9 +11,13 @@ from ...types.realtime.session_events import (
     ErrorEvent,
     ContextCard,
     StatusEvent,
+    WorkingMemory,
     TranscriptEvent,
     SessionEndedEvent,
+    SessionInitEvent,
     SessionReadyEvent,
+    MemoryUpdateEvent,
+    ContextStatusEvent,
     ContextUpdateEvent,
     RealtimeSessionEvent,
 )
@@ -48,9 +52,12 @@ BYTES_PER_CHUNK: int = SAMPLES_PER_CHUNK * CHANNELS * BYTES_PER_SAMPLE
 
 _EVENT_TYPE_MAP: dict[str, type[Any]] = {
     "session_ready": SessionReadyEvent,
+    "session_init": SessionInitEvent,
+    "memory_update": MemoryUpdateEvent,
     "transcript": TranscriptEvent,
     "context_update": ContextUpdateEvent,
     "context_snapshot": ContextUpdateEvent,
+    "context_status": ContextStatusEvent,
     "session_ended": SessionEndedEvent,
     "error": ErrorEvent,
     "status": StatusEvent,
@@ -61,7 +68,8 @@ _TYPE_ALIASES: dict[str, str] = {
 }
 
 
-def _parse_event(raw: dict[str, Any]) -> RealtimeSessionEvent:
+def _parse_event(raw: dict[str, Any]) -> Optional[RealtimeSessionEvent]:
+    """Parse a raw JSON dict into a typed event, or ``None`` for unknown types."""
     event_type = raw.get("type", "")
     normalized = event_type.lower()
     canonical = _TYPE_ALIASES.get(normalized, normalized)
@@ -69,22 +77,25 @@ def _parse_event(raw: dict[str, Any]) -> RealtimeSessionEvent:
     if cls is not None:
         raw = {**raw, "type": canonical}
         return cls.model_validate(raw)  # type: ignore[return-value]
-    return SessionEndedEvent.model_validate({"type": "session_ended", "reason": f"unknown event: {event_type}"})
+    return None
 
 
 class ContextAccumulator:
-    """Collects ``context_update`` events and builds a unified context string
-    that can be injected into your own LLM calls.
+    """Collects ``CONTEXT_UPDATE`` and ``CONTEXT_STATUS`` events and builds a
+    unified context string that can be injected into your own LLM calls.
 
-    All cards are deduplicated by normalized claim text.  Cards are split
-    into three output sections:
+    Maintains a **card store** keyed by ``card.id``.  Applies ``add``,
+    ``update``, and ``expire`` operations sequentially.
+
+    Cards are split into three output sections:
 
     * **scene_facts** — ``face_identity``, ``speaker_identity``,
       ``scene_fact``, ``attention_target``
     * **system_prompt** — ``identity``, ``preference``
     * **episodes** — ``episodic``
 
-    On :meth:`flush`, the context dict is returned and all state is cleared.
+    Working memory is tracked from both ``CONTEXT_UPDATE`` and
+    ``CONTEXT_STATUS`` events and exposed via :attr:`working_memory`.
     """
 
     # Card types grouped by output section
@@ -93,56 +104,120 @@ class ContextAccumulator:
     EPISODE_TYPES = frozenset({"episodic"})
 
     def __init__(self) -> None:
-        self.cards: List[ContextCard] = []
-        self._seen_claims: set[str] = set()
-        self._flushed_system_prompt: set[str] = set()  # tracks already-injected identity/preference
-        self.messages: List[dict[str, object]] = []
+        self.card_store: dict[str, ContextCard] = {}
+        """Card store keyed by card.id. Apply ops to maintain."""
+
+        self._flushed_system_prompt: set[str] = set()
+        self.messages: List[Any] = []
         self.transcripts: List[str] = []
         self._context_version = 0
 
+        self.working_memory: Optional[WorkingMemory] = None
+        """Latest working memory state from the server (from MEMORY_UPDATE or CONTEXT_UPDATE)."""
+
+        self.short_term_memory: Optional[Any] = None
+        """Latest short-term memory from MEMORY_UPDATE (speaker-attributed transcript)."""
+
+        self.active_entities: dict[str, dict[str, str]] = {}
+        """Entity presence map from the latest CONTEXT_STATUS heartbeat.
+        Keyed by entity_id -> {name, modality}."""
+
+        self.stm_prior_transcripts: List[Any] = []
+        """Prior transcript segments from SESSION_INIT (cross-session context)."""
+
+        self.stm_prior_entities: List[Any] = []
+        """Prior entity observations from SESSION_INIT (cross-session context)."""
+
+    @property
+    def cards(self) -> List[ContextCard]:
+        """All cards currently in the store (convenience accessor)."""
+        return list(self.card_store.values())
+
     def reset(self) -> None:
         """Clear all accumulated state (preserves flushed system_prompt tracker)."""
-        self.cards.clear()
-        self._seen_claims.clear()
+        self.card_store.clear()
         self.messages.clear()
         self.transcripts.clear()
         self._context_version = 0
+        self.working_memory = None
 
     @staticmethod
     def _dedup_key(card: ContextCard) -> str:
         """Normalize a claim for dedup: strip confidence %, scores, and
         collapse whitespace so the same entity/fact isn't stored twice."""
         claim = card.claim or ""
-        # Remove patterns like "(match confidence 73%)" or "(confidence: 0.73)"
         claim = re.sub(r"\(.*?confidence.*?\)", "", claim)
-        # Remove standalone percentages like "73%"
         claim = re.sub(r"\d+%", "", claim)
-        # Collapse whitespace
         claim = re.sub(r"\s+", " ", claim).strip()
-        # Prefix with card type so different types don't collide
         return f"{card.type}:{claim}"
 
+    def on_session_init(self, event: SessionInitEvent) -> None:
+        """Process a SESSION_INIT event: store prior cross-session context from STM."""
+        if event.stm_prior_transcripts:
+            self.stm_prior_transcripts = list(event.stm_prior_transcripts)
+        if event.stm_prior_entities:
+            self.stm_prior_entities = list(event.stm_prior_entities)
+            # Seed active_entities from prior session data
+            for ent in event.stm_prior_entities:
+                if ent.entity_id and ent.entity_name:
+                    self.active_entities[ent.entity_id] = {
+                        "name": ent.entity_name,
+                        "modality": ent.modality or "unknown",
+                    }
+
+    def on_memory_update(self, event: MemoryUpdateEvent) -> None:
+        """Process a MEMORY_UPDATE event: update STM transcript and working memory."""
+        if event.short_term_memory is not None:
+            self.short_term_memory = event.short_term_memory
+        if event.working_memory is not None:
+            self.working_memory = event.working_memory
+
     def on_context_update(self, event: ContextUpdateEvent) -> None:
+        """Process a CONTEXT_UPDATE event: apply card ops, update working memory."""
         version = event.context_version or 0
         self._context_version = max(self._context_version, version)
 
         for op in event.ops or []:
             if op.op == "add" and op.card is not None:
-                key = self._dedup_key(op.card)
-                if key in self._seen_claims:
-                    # Replace with higher-confidence version
-                    if op.card.score is not None:
-                        for i, existing in enumerate(self.cards):
-                            if self._dedup_key(existing) == key:
-                                if (existing.score or 0) < op.card.score:
-                                    self.cards[i] = op.card
-                                break
-                    continue
-                self._seen_claims.add(key)
-                self.cards.append(op.card)
+                card_id = op.card.id
+                if card_id:
+                    self.card_store[card_id] = op.card
+                else:
+                    # Fallback for cards without an id — use dedup key
+                    fallback_id = self._dedup_key(op.card)
+                    self.card_store[fallback_id] = op.card
+
+            elif op.op == "update" and op.card_id:
+                existing = self.card_store.get(op.card_id)
+                if existing is not None and op.updates:
+                    # Merge updates into existing card
+                    data = existing.model_dump()
+                    data.update(op.updates)
+                    self.card_store[op.card_id] = ContextCard.model_validate(data)
+
+            elif op.op == "expire" and op.card_id:
+                self.card_store.pop(op.card_id, None)
+
+            # Legacy support: 'remove' treated as 'expire'
+            elif op.op == "remove" and op.card_id:
+                self.card_store.pop(op.card_id, None)
 
         for msg in event.messages or []:
             self.messages.append(msg)
+
+        if event.working_memory is not None:
+            self.working_memory = event.working_memory
+
+    def on_context_status(self, event: ContextStatusEvent) -> None:
+        """Process a CONTEXT_STATUS heartbeat: update entity presence and working memory."""
+        version = event.context_version or 0
+        self._context_version = max(self._context_version, version)
+
+        if event.active_entities is not None:
+            self.active_entities = dict(event.active_entities)
+
+        if event.working_memory is not None:
+            self.working_memory = event.working_memory
 
     def on_transcript(self, event: TranscriptEvent) -> None:
         text = event.text or ""
@@ -150,20 +225,22 @@ class ContextAccumulator:
             self.transcripts.append(text)
 
     def build_context_dict(self) -> dict[str, str]:
-        """Return context as a dict with four keys:
+        """Return context as a dict with five keys:
 
         * ``scene_facts`` — face/speaker identity, scene facts, attention targets
         * ``system_prompt`` — **only new** identity/preference claims not yet flushed
         * ``episodes`` — episodic memories
         * ``transcript`` — accumulated transcript text
+        * ``working_memory`` — pre-rendered working memory summary from the server
 
         Each value is a plain string (empty string if nothing in that section).
         Identity/preference claims are tracked across flushes so they are
         only returned once.
         """
-        scene_facts = [c for c in self.cards if c.type in self.SCENE_FACT_TYPES]
-        all_system = [c for c in self.cards if c.type in self.SYSTEM_PROMPT_TYPES]
-        episodes = [c for c in self.cards if c.type in self.EPISODE_TYPES]
+        all_cards = self.cards
+        scene_facts = [c for c in all_cards if c.type in self.SCENE_FACT_TYPES]
+        all_system = [c for c in all_cards if c.type in self.SYSTEM_PROMPT_TYPES]
+        episodes = [c for c in all_cards if c.type in self.EPISODE_TYPES]
 
         # Only include system_prompt entries that haven't been flushed before
         new_system: list[ContextCard] = []
@@ -173,18 +250,34 @@ class ContextAccumulator:
                 new_system.append(c)
                 self._flushed_system_prompt.add(key)
 
+        # Build working memory text from structured fields
+        wm_parts: list[str] = []
+        if self.working_memory:
+            wm = self.working_memory
+            if wm.conversation_summary:
+                wm_parts.append(f"Summary: {wm.conversation_summary}")
+            if wm.topic_summaries:
+                wm_parts.append(f"Topics: {', '.join(wm.topic_summaries)}")
+            if wm.people:
+                for p in wm.people:
+                    wm_parts.append(f"[{p.role or '?'}] {p.name or '?'}: {p.context or ''}")
+            if wm.scene:
+                for s in wm.scene:
+                    wm_parts.append(f"[scene] {s.content or '?'} (salience={s.salience or 0:.2f})")
+
         return {
             "scene_facts": "\n".join(f"[{c.type}] {c.claim or ''}" for c in scene_facts),
             "system_prompt": "\n".join(c.claim or "" for c in new_system),
             "episodes": "\n".join(c.claim or "" for c in episodes),
             "transcript": " ".join(self.transcripts),
+            "working_memory": "\n".join(wm_parts),
         }
 
     def build_context_string(self) -> str:
         """Build a single context string from all sections."""
         ctx = self.build_context_dict()
         sections: list[str] = []
-        for key in ("scene_facts", "system_prompt", "episodes", "transcript"):
+        for key in ("working_memory", "scene_facts", "system_prompt", "episodes", "transcript"):
             if ctx[key]:
                 sections.append(f"{key}:\n{ctx[key]}")
         return "\n\n".join(sections) if sections else "(no context retrieved)"
@@ -344,6 +437,8 @@ class AsyncRealtimeSession:
 
     async def _listen(self) -> None:
         """Read from the WebSocket in a loop, feeding events into the context accumulator."""
+        import sys
+
         while self._ws is not None and not self._closed:
             try:
                 message = await self._ws.recv()
@@ -351,13 +446,29 @@ class AsyncRealtimeSession:
                 break
 
             if isinstance(message, bytes):
+                print(f"[_listen] received binary frame ({len(message)} bytes)", file=sys.stderr)
                 continue
 
-            data: dict[str, Any] = json.loads(message)
-            event = _parse_event(data)
+            try:
+                data: dict[str, Any] = json.loads(message)
+                print(f"[_listen] received event: {data}", file=sys.stderr)
+                event = _parse_event(data)
+            except Exception as exc:
+                print(f"[_listen] failed to parse event: {exc}", file=sys.stderr)
+                continue
+
+            if event is None:
+                print(f"[_listen] unknown event type: {data.get('type')}", file=sys.stderr)
+                continue
 
             if isinstance(event, ContextUpdateEvent):
                 self.context.on_context_update(event)
+            elif isinstance(event, MemoryUpdateEvent):
+                self.context.on_memory_update(event)
+            elif isinstance(event, ContextStatusEvent):
+                self.context.on_context_status(event)
+            elif isinstance(event, SessionInitEvent):
+                self.context.on_session_init(event)
             elif isinstance(event, TranscriptEvent):
                 self.context.on_transcript(event)
             elif isinstance(event, StatusEvent):
@@ -396,10 +507,12 @@ class AsyncRealtimeSession:
     async def send_assistant_message(self, text: str) -> None:
         """Send an assistant message to the gateway for transcript storage.
 
-        Use this to feed your LLM's response back into the session so the
-        gateway can store it alongside user transcripts and context.
+        Use this when ``generation=False`` to feed your own LLM's response
+        back into the session.  The agent will record it in STM as an
+        assistant turn, publish ``ASSISTANT_TRANSCRIPT_DONE``, and push a
+        ``MEMORY_UPDATE`` with the updated transcript.
 
-        The message is sent as JSON over the WebSocket::
+        Wire format::
 
             {"type": "assistant_message", "text": "The response text"}
 
@@ -412,6 +525,33 @@ class AsyncRealtimeSession:
             await self._ws.send(json.dumps({"type": "assistant_message", "text": text}))
         except Exception as exc:
             raise ElicitClientError(f"Failed to send assistant message: {exc}") from exc
+
+    async def send_user_message(self, text: str, speaker: str = "User") -> None:
+        """Send a text-based user message to the gateway.
+
+        Use this to inject a typed/text user message into the session
+        (as opposed to audio captured by the microphone).  The agent will
+        record it in STM as a user turn attributed to ``speaker`` and
+        push a ``MEMORY_UPDATE`` with the updated transcript.
+
+        Wire format::
+
+            {"type": "user_message", "text": "...", "speaker": "Jordan"}
+
+        Args:
+            text: The user's message text.
+            speaker: Speaker name for STM attribution (default ``"User"``).
+        """
+        if self._ws is None or self._closed:
+            raise ElicitClientError("Session is not connected")
+        try:
+            await self._ws.send(json.dumps({
+                "type": "user_message",
+                "text": text,
+                "speaker": speaker,
+            }))
+        except Exception as exc:
+            raise ElicitClientError(f"Failed to send user message: {exc}") from exc
 
     # ------------------------------------------------------------------
     # Sending media
@@ -516,8 +656,17 @@ class AsyncRealtimeSession:
         data: dict[str, Any] = json.loads(message)
         event = _parse_event(data)
 
+        if event is None:
+            return None
+
         if isinstance(event, ContextUpdateEvent):
             self.context.on_context_update(event)
+        elif isinstance(event, MemoryUpdateEvent):
+            self.context.on_memory_update(event)
+        elif isinstance(event, ContextStatusEvent):
+            self.context.on_context_status(event)
+        elif isinstance(event, SessionInitEvent):
+            self.context.on_session_init(event)
         elif isinstance(event, TranscriptEvent):
             self.context.on_transcript(event)
 
@@ -546,12 +695,21 @@ class AsyncRealtimeSession:
             data: dict[str, Any] = json.loads(message)
             event = _parse_event(data)
 
+            if event is None:
+                continue
+
             if isinstance(event, ContextUpdateEvent):
                 self.context.on_context_update(event)
+            elif isinstance(event, MemoryUpdateEvent):
+                self.context.on_memory_update(event)
+            elif isinstance(event, ContextStatusEvent):
+                self.context.on_context_status(event)
+            elif isinstance(event, SessionInitEvent):
+                self.context.on_session_init(event)
             elif isinstance(event, TranscriptEvent):
                 self.context.on_transcript(event)
 
-            if isinstance(event, SessionEndedEvent) or isinstance(event, ErrorEvent):
+            if isinstance(event, (SessionEndedEvent, ErrorEvent)):
                 self._iter_done = True
                 return event
 
