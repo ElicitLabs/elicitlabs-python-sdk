@@ -75,14 +75,33 @@ Methods:
 Types:
 
 ```python
-from elicitlabs.types import PersonaCreateResponse, PersonaRetrieveResponse, PersonaListResponse
+from elicitlabs.types import (
+    PersonaCreateResponse,
+    PersonaRetrieveResponse,
+    PersonaListResponse,
+    PersonaListLinkedResponse,
+)
 ```
 
 Methods:
 
-- <code title="post /v1/personas">client.personas.<a href="./src/elicitlabs/resources/personas.py">create</a>(\*\*<a href="src/elicitlabs/types/persona_create_params.py">params</a>) -> <a href="./src/elicitlabs/types/persona_create_response.py">PersonaCreateResponse</a></code>
-- <code title="get /v1/personas/{persona_id}">client.personas.<a href="./src/elicitlabs/resources/personas.py">retrieve</a>(persona_id) -> <a href="./src/elicitlabs/types/persona_retrieve_response.py">PersonaRetrieveResponse</a></code>
-- <code title="get /v1/personas">client.personas.<a href="./src/elicitlabs/resources/personas.py">list</a>() -> <a href="./src/elicitlabs/types/persona_list_response.py">PersonaListResponse</a></code>
+- <code title="post /v1/personas">client.personas.<a href="./src/elicitlabs/resources/personas/personas.py">create</a>(\*\*<a href="src/elicitlabs/types/persona_create_params.py">params</a>) -> <a href="./src/elicitlabs/types/persona_create_response.py">PersonaCreateResponse</a></code>
+- <code title="get /v1/personas/{persona_id}">client.personas.<a href="./src/elicitlabs/resources/personas/personas.py">retrieve</a>(persona_id) -> <a href="./src/elicitlabs/types/persona_retrieve_response.py">PersonaRetrieveResponse</a></code>
+- <code title="get /v1/personas">client.personas.<a href="./src/elicitlabs/resources/personas/personas.py">list</a>() -> <a href="./src/elicitlabs/types/persona_list_response.py">PersonaListResponse</a></code>
+- <code title="get /v1/personas/linked/{user_id}">client.personas.<a href="./src/elicitlabs/resources/personas/personas.py">list_linked</a>(user_id) -> <a href="./src/elicitlabs/types/persona_list_linked_response.py">PersonaListLinkedResponse</a></code>
+
+## Link
+
+Types:
+
+```python
+from elicitlabs.types.personas import LinkCreateResponse, LinkDeleteResponse
+```
+
+Methods:
+
+- <code title="post /v1/personas/{persona_id}/link">client.personas.link.<a href="./src/elicitlabs/resources/personas/link.py">create</a>(persona_id, \*\*<a href="src/elicitlabs/types/personas/link_create_params.py">params</a>) -> <a href="./src/elicitlabs/types/personas/link_create_response.py">LinkCreateResponse</a></code>
+- <code title="delete /v1/personas/{persona_id}/link/{user_id}">client.personas.link.<a href="./src/elicitlabs/resources/personas/link.py">delete</a>(user_id, \*, persona_id) -> <a href="./src/elicitlabs/types/personas/link_delete_response.py">LinkDeleteResponse</a></code>
 
 # Projects
 
