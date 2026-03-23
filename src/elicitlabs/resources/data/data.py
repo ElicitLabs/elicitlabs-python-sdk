@@ -14,7 +14,7 @@ from .job import (
     JobResourceWithStreamingResponse,
     AsyncJobResourceWithStreamingResponse,
 )
-from ...types import data_ingest_params
+from ...types import data_ingest_params, data_confirm_upload_params, data_get_upload_url_params
 from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
@@ -27,6 +27,8 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.data_ingest_response import DataIngestResponse
+from ...types.data_confirm_upload_response import DataConfirmUploadResponse
+from ...types.data_get_upload_url_response import DataGetUploadURLResponse
 
 __all__ = ["DataResource", "AsyncDataResource"]
 
@@ -54,6 +56,171 @@ class DataResource(SyncAPIResource):
         For more information, see https://www.github.com/ElicitLabs/elicitlabs-python-sdk#with_streaming_response
         """
         return DataResourceWithStreamingResponse(self)
+
+    def confirm_upload(
+        self,
+        *,
+        job_id: str,
+        object_key: str,
+        user_id: str,
+        callback_url: Optional[str] | Omit = omit,
+        content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
+        filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        timestamp: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> DataConfirmUploadResponse:
+        """
+        **Step 2 of 2** — After uploading the file to the signed URL obtained from
+        `/ingest/upload-url`, call this endpoint to trigger the ingest pipeline.
+
+            The server verifies the file exists in GCS, auto-detects the content type
+            if it was not provided, and queues the processing job.
+
+            Returns the same `IngestResponse` as the regular `/ingest` endpoint.
+
+        Args:
+          job_id: Job ID returned by /ingest/upload-url
+
+          object_key: GCS object key returned by /ingest/upload-url
+
+          user_id: User ID (must match the upload-url request)
+
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state.
+
+          content_type: Content category (auto-detected from file bytes if omitted)
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/v1/data/ingest/confirm-upload",
+            body=maybe_transform(
+                {
+                    "job_id": job_id,
+                    "object_key": object_key,
+                    "user_id": user_id,
+                    "callback_url": callback_url,
+                    "content_description": content_description,
+                    "content_type": content_type,
+                    "filename": filename,
+                    "notification_email": notification_email,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
+                    "session_id": session_id,
+                    "timestamp": timestamp,
+                },
+                data_confirm_upload_params.DataConfirmUploadParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=DataConfirmUploadResponse,
+        )
+
+    def get_upload_url(
+        self,
+        *,
+        user_id: str,
+        callback_url: Optional[str] | Omit = omit,
+        content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
+        filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        timestamp: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> DataGetUploadURLResponse:
+        """
+        **Step 1 of 2** — Obtain a time-limited signed URL for uploading a file directly
+        to cloud storage (GCS).
+
+            Use this instead of `/ingest` when the payload is large (e.g. > 32 MB)
+            to avoid sending the entire file through the API server.
+
+            **Flow:**
+            1. Call this endpoint → receive `upload_url`, `job_id`, `object_key`
+            2. HTTP **PUT** the raw file bytes to `upload_url`
+            3. Call `/ingest/confirm-upload` with the `job_id` and `object_key`
+               to kick off the processing pipeline
+
+            The signed URL expires after the time indicated by `expires_in` (default 1 hour).
+
+        Args:
+          user_id: User ID (always required)
+
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state.
+
+          content_description: Optional description of the content being ingested
+
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
+              If omitted, the category is auto-detected after the file is uploaded.
+
+          filename: Filename of the file to upload
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
+
+          persona_id: Optional persona ID. If provided, data is ingested to this persona
+
+          project_id: Optional project ID. If provided, data is ingested to this project
+
+          session_id: Session ID for grouping related ingested content
+
+          timestamp: ISO-8601 timestamp to preserve original data moment
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/v1/data/ingest/upload-url",
+            body=maybe_transform(
+                {
+                    "user_id": user_id,
+                    "callback_url": callback_url,
+                    "content_description": content_description,
+                    "content_type": content_type,
+                    "filename": filename,
+                    "notification_email": notification_email,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
+                    "session_id": session_id,
+                    "timestamp": timestamp,
+                },
+                data_get_upload_url_params.DataGetUploadURLParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=DataGetUploadURLResponse,
+        )
 
     def ingest(
         self,
@@ -208,6 +375,171 @@ class AsyncDataResource(AsyncAPIResource):
         """
         return AsyncDataResourceWithStreamingResponse(self)
 
+    async def confirm_upload(
+        self,
+        *,
+        job_id: str,
+        object_key: str,
+        user_id: str,
+        callback_url: Optional[str] | Omit = omit,
+        content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
+        filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        timestamp: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> DataConfirmUploadResponse:
+        """
+        **Step 2 of 2** — After uploading the file to the signed URL obtained from
+        `/ingest/upload-url`, call this endpoint to trigger the ingest pipeline.
+
+            The server verifies the file exists in GCS, auto-detects the content type
+            if it was not provided, and queues the processing job.
+
+            Returns the same `IngestResponse` as the regular `/ingest` endpoint.
+
+        Args:
+          job_id: Job ID returned by /ingest/upload-url
+
+          object_key: GCS object key returned by /ingest/upload-url
+
+          user_id: User ID (must match the upload-url request)
+
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state.
+
+          content_type: Content category (auto-detected from file bytes if omitted)
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/v1/data/ingest/confirm-upload",
+            body=await async_maybe_transform(
+                {
+                    "job_id": job_id,
+                    "object_key": object_key,
+                    "user_id": user_id,
+                    "callback_url": callback_url,
+                    "content_description": content_description,
+                    "content_type": content_type,
+                    "filename": filename,
+                    "notification_email": notification_email,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
+                    "session_id": session_id,
+                    "timestamp": timestamp,
+                },
+                data_confirm_upload_params.DataConfirmUploadParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=DataConfirmUploadResponse,
+        )
+
+    async def get_upload_url(
+        self,
+        *,
+        user_id: str,
+        callback_url: Optional[str] | Omit = omit,
+        content_description: Optional[str] | Omit = omit,
+        content_type: Optional[str] | Omit = omit,
+        filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
+        project_id: Optional[str] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
+        timestamp: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> DataGetUploadURLResponse:
+        """
+        **Step 1 of 2** — Obtain a time-limited signed URL for uploading a file directly
+        to cloud storage (GCS).
+
+            Use this instead of `/ingest` when the payload is large (e.g. > 32 MB)
+            to avoid sending the entire file through the API server.
+
+            **Flow:**
+            1. Call this endpoint → receive `upload_url`, `job_id`, `object_key`
+            2. HTTP **PUT** the raw file bytes to `upload_url`
+            3. Call `/ingest/confirm-upload` with the `job_id` and `object_key`
+               to kick off the processing pipeline
+
+            The signed URL expires after the time indicated by `expires_in` (default 1 hour).
+
+        Args:
+          user_id: User ID (always required)
+
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state.
+
+          content_description: Optional description of the content being ingested
+
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
+              If omitted, the category is auto-detected after the file is uploaded.
+
+          filename: Filename of the file to upload
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
+
+          persona_id: Optional persona ID. If provided, data is ingested to this persona
+
+          project_id: Optional project ID. If provided, data is ingested to this project
+
+          session_id: Session ID for grouping related ingested content
+
+          timestamp: ISO-8601 timestamp to preserve original data moment
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/v1/data/ingest/upload-url",
+            body=await async_maybe_transform(
+                {
+                    "user_id": user_id,
+                    "callback_url": callback_url,
+                    "content_description": content_description,
+                    "content_type": content_type,
+                    "filename": filename,
+                    "notification_email": notification_email,
+                    "persona_id": persona_id,
+                    "project_id": project_id,
+                    "session_id": session_id,
+                    "timestamp": timestamp,
+                },
+                data_get_upload_url_params.DataGetUploadURLParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=DataGetUploadURLResponse,
+        )
+
     async def ingest(
         self,
         *,
@@ -341,6 +673,12 @@ class DataResourceWithRawResponse:
     def __init__(self, data: DataResource) -> None:
         self._data = data
 
+        self.confirm_upload = to_raw_response_wrapper(
+            data.confirm_upload,
+        )
+        self.get_upload_url = to_raw_response_wrapper(
+            data.get_upload_url,
+        )
         self.ingest = to_raw_response_wrapper(
             data.ingest,
         )
@@ -354,6 +692,12 @@ class AsyncDataResourceWithRawResponse:
     def __init__(self, data: AsyncDataResource) -> None:
         self._data = data
 
+        self.confirm_upload = async_to_raw_response_wrapper(
+            data.confirm_upload,
+        )
+        self.get_upload_url = async_to_raw_response_wrapper(
+            data.get_upload_url,
+        )
         self.ingest = async_to_raw_response_wrapper(
             data.ingest,
         )
@@ -367,6 +711,12 @@ class DataResourceWithStreamingResponse:
     def __init__(self, data: DataResource) -> None:
         self._data = data
 
+        self.confirm_upload = to_streamed_response_wrapper(
+            data.confirm_upload,
+        )
+        self.get_upload_url = to_streamed_response_wrapper(
+            data.get_upload_url,
+        )
         self.ingest = to_streamed_response_wrapper(
             data.ingest,
         )
@@ -380,6 +730,12 @@ class AsyncDataResourceWithStreamingResponse:
     def __init__(self, data: AsyncDataResource) -> None:
         self._data = data
 
+        self.confirm_upload = async_to_streamed_response_wrapper(
+            data.confirm_upload,
+        )
+        self.get_upload_url = async_to_streamed_response_wrapper(
+            data.get_upload_url,
+        )
         self.ingest = async_to_streamed_response_wrapper(
             data.ingest,
         )

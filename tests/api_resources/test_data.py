@@ -9,13 +9,127 @@ import pytest
 
 from elicitlabs import ElicitClient, AsyncElicitClient
 from tests.utils import assert_matches_type
-from elicitlabs.types import DataIngestResponse
+from elicitlabs.types import (
+    DataIngestResponse,
+    DataGetUploadURLResponse,
+    DataConfirmUploadResponse,
+)
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 
 class TestData:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_confirm_upload(self, client: ElicitClient) -> None:
+        data = client.data.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+        )
+        assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_confirm_upload_with_all_params(self, client: ElicitClient) -> None:
+        data = client.data.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+            callback_url="callback_url",
+            content_description="content_description",
+            content_type="content_type",
+            filename="filename",
+            notification_email="dev@stainless.com",
+            persona_id="persona_id",
+            project_id="project_id",
+            session_id="session_id",
+            timestamp="timestamp",
+        )
+        assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_raw_response_confirm_upload(self, client: ElicitClient) -> None:
+        response = client.data.with_raw_response.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        data = response.parse()
+        assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_streaming_response_confirm_upload(self, client: ElicitClient) -> None:
+        with client.data.with_streaming_response.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            data = response.parse()
+            assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_get_upload_url(self, client: ElicitClient) -> None:
+        data = client.data.get_upload_url(
+            user_id="user_id",
+        )
+        assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_get_upload_url_with_all_params(self, client: ElicitClient) -> None:
+        data = client.data.get_upload_url(
+            user_id="user_id",
+            callback_url="callback_url",
+            content_description="content_description",
+            content_type="content_type",
+            filename="filename",
+            notification_email="dev@stainless.com",
+            persona_id="persona_id",
+            project_id="project_id",
+            session_id="session_id",
+            timestamp="timestamp",
+        )
+        assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_raw_response_get_upload_url(self, client: ElicitClient) -> None:
+        response = client.data.with_raw_response.get_upload_url(
+            user_id="user_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        data = response.parse()
+        assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_streaming_response_get_upload_url(self, client: ElicitClient) -> None:
+        with client.data.with_streaming_response.get_upload_url(
+            user_id="user_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            data = response.parse()
+            assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -77,6 +191,116 @@ class TestAsyncData:
     parametrize = pytest.mark.parametrize(
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_confirm_upload(self, async_client: AsyncElicitClient) -> None:
+        data = await async_client.data.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+        )
+        assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_confirm_upload_with_all_params(self, async_client: AsyncElicitClient) -> None:
+        data = await async_client.data.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+            callback_url="callback_url",
+            content_description="content_description",
+            content_type="content_type",
+            filename="filename",
+            notification_email="dev@stainless.com",
+            persona_id="persona_id",
+            project_id="project_id",
+            session_id="session_id",
+            timestamp="timestamp",
+        )
+        assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_raw_response_confirm_upload(self, async_client: AsyncElicitClient) -> None:
+        response = await async_client.data.with_raw_response.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        data = await response.parse()
+        assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_streaming_response_confirm_upload(self, async_client: AsyncElicitClient) -> None:
+        async with async_client.data.with_streaming_response.confirm_upload(
+            job_id="job_id",
+            object_key="object_key",
+            user_id="user_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            data = await response.parse()
+            assert_matches_type(DataConfirmUploadResponse, data, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_get_upload_url(self, async_client: AsyncElicitClient) -> None:
+        data = await async_client.data.get_upload_url(
+            user_id="user_id",
+        )
+        assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_get_upload_url_with_all_params(self, async_client: AsyncElicitClient) -> None:
+        data = await async_client.data.get_upload_url(
+            user_id="user_id",
+            callback_url="callback_url",
+            content_description="content_description",
+            content_type="content_type",
+            filename="filename",
+            notification_email="dev@stainless.com",
+            persona_id="persona_id",
+            project_id="project_id",
+            session_id="session_id",
+            timestamp="timestamp",
+        )
+        assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_raw_response_get_upload_url(self, async_client: AsyncElicitClient) -> None:
+        response = await async_client.data.with_raw_response.get_upload_url(
+            user_id="user_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        data = await response.parse()
+        assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_streaming_response_get_upload_url(self, async_client: AsyncElicitClient) -> None:
+        async with async_client.data.with_streaming_response.get_upload_url(
+            user_id="user_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            data = await response.parse()
+            assert_matches_type(DataGetUploadURLResponse, data, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize

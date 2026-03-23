@@ -28,11 +28,13 @@ Methods:
 Types:
 
 ```python
-from elicitlabs.types import DataIngestResponse
+from elicitlabs.types import DataConfirmUploadResponse, DataGetUploadURLResponse, DataIngestResponse
 ```
 
 Methods:
 
+- <code title="post /v1/data/ingest/confirm-upload">client.data.<a href="./src/elicitlabs/resources/data/data.py">confirm_upload</a>(\*\*<a href="src/elicitlabs/types/data_confirm_upload_params.py">params</a>) -> <a href="./src/elicitlabs/types/data_confirm_upload_response.py">DataConfirmUploadResponse</a></code>
+- <code title="post /v1/data/ingest/upload-url">client.data.<a href="./src/elicitlabs/resources/data/data.py">get_upload_url</a>(\*\*<a href="src/elicitlabs/types/data_get_upload_url_params.py">params</a>) -> <a href="./src/elicitlabs/types/data_get_upload_url_response.py">DataGetUploadURLResponse</a></code>
 - <code title="post /v1/data/ingest">client.data.<a href="./src/elicitlabs/resources/data/data.py">ingest</a>(\*\*<a href="src/elicitlabs/types/data_ingest_params.py">params</a>) -> <a href="./src/elicitlabs/types/data_ingest_response.py">DataIngestResponse</a></code>
 
 ## Job
