@@ -42,6 +42,7 @@ class TestChat:
                 }
             ],
             user_id="user_id",
+            agent_mode=True,
             audio_config={
                 "audio_type": "audio_type",
                 "duration": 0,
@@ -49,20 +50,25 @@ class TestChat:
                 "speed": 0.25,
                 "voice": "voice",
             },
+            auto_detect_agent=True,
             disabled_learning=True,
+            history_limit=1,
             image_config={
                 "model": "model",
                 "seed": 0,
                 "size": "size",
             },
+            load_history=True,
             max_reasoning_iterations=1,
             modalities=["string"],
             model="model",
             persona_id="persona_id",
             project_id="project_id",
             session_id="session_id",
+            skip_initial_retrieval=True,
             stream=True,
             use_reasoning=True,
+            video_refs={"foo": "string"},
         )
         assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
 
@@ -135,6 +141,7 @@ class TestAsyncChat:
                 }
             ],
             user_id="user_id",
+            agent_mode=True,
             audio_config={
                 "audio_type": "audio_type",
                 "duration": 0,
@@ -142,20 +149,25 @@ class TestAsyncChat:
                 "speed": 0.25,
                 "voice": "voice",
             },
+            auto_detect_agent=True,
             disabled_learning=True,
+            history_limit=1,
             image_config={
                 "model": "model",
                 "seed": 0,
                 "size": "size",
             },
+            load_history=True,
             max_reasoning_iterations=1,
             modalities=["string"],
             model="model",
             persona_id="persona_id",
             project_id="project_id",
             session_id="session_id",
+            skip_initial_retrieval=True,
             stream=True,
             use_reasoning=True,
+            video_refs={"foo": "string"},
         )
         assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
 

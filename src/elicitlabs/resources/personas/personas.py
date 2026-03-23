@@ -6,26 +6,39 @@ from typing import Optional
 
 import httpx
 
-from ..types import persona_create_params
-from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
-from .._utils import path_template, maybe_transform, async_maybe_transform
-from .._compat import cached_property
-from .._resource import SyncAPIResource, AsyncAPIResource
-from .._response import (
+from .link import (
+    LinkResource,
+    AsyncLinkResource,
+    LinkResourceWithRawResponse,
+    AsyncLinkResourceWithRawResponse,
+    LinkResourceWithStreamingResponse,
+    AsyncLinkResourceWithStreamingResponse,
+)
+from ...types import persona_create_params
+from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from ..._utils import path_template, maybe_transform, async_maybe_transform
+from ..._compat import cached_property
+from ..._resource import SyncAPIResource, AsyncAPIResource
+from ..._response import (
     to_raw_response_wrapper,
     to_streamed_response_wrapper,
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from .._base_client import make_request_options
-from ..types.persona_list_response import PersonaListResponse
-from ..types.persona_create_response import PersonaCreateResponse
-from ..types.persona_retrieve_response import PersonaRetrieveResponse
+from ..._base_client import make_request_options
+from ...types.persona_list_response import PersonaListResponse
+from ...types.persona_create_response import PersonaCreateResponse
+from ...types.persona_retrieve_response import PersonaRetrieveResponse
+from ...types.persona_list_linked_response import PersonaListLinkedResponse
 
 __all__ = ["PersonasResource", "AsyncPersonasResource"]
 
 
 class PersonasResource(SyncAPIResource):
+    @cached_property
+    def link(self) -> LinkResource:
+        return LinkResource(self._client)
+
     @cached_property
     def with_raw_response(self) -> PersonasResourceWithRawResponse:
         """
@@ -163,8 +176,46 @@ class PersonasResource(SyncAPIResource):
             cast_to=PersonaListResponse,
         )
 
+    def list_linked(
+        self,
+        user_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> PersonaListLinkedResponse:
+        """
+        Returns all personas that a user is linked to (whose memories the user
+        inherits).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_id:
+            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
+        return self._get(
+            path_template("/v1/personas/linked/{user_id}", user_id=user_id),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=PersonaListLinkedResponse,
+        )
+
 
 class AsyncPersonasResource(AsyncAPIResource):
+    @cached_property
+    def link(self) -> AsyncLinkResource:
+        return AsyncLinkResource(self._client)
+
     @cached_property
     def with_raw_response(self) -> AsyncPersonasResourceWithRawResponse:
         """
@@ -302,6 +353,40 @@ class AsyncPersonasResource(AsyncAPIResource):
             cast_to=PersonaListResponse,
         )
 
+    async def list_linked(
+        self,
+        user_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> PersonaListLinkedResponse:
+        """
+        Returns all personas that a user is linked to (whose memories the user
+        inherits).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_id:
+            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
+        return await self._get(
+            path_template("/v1/personas/linked/{user_id}", user_id=user_id),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=PersonaListLinkedResponse,
+        )
+
 
 class PersonasResourceWithRawResponse:
     def __init__(self, personas: PersonasResource) -> None:
@@ -316,6 +401,13 @@ class PersonasResourceWithRawResponse:
         self.list = to_raw_response_wrapper(
             personas.list,
         )
+        self.list_linked = to_raw_response_wrapper(
+            personas.list_linked,
+        )
+
+    @cached_property
+    def link(self) -> LinkResourceWithRawResponse:
+        return LinkResourceWithRawResponse(self._personas.link)
 
 
 class AsyncPersonasResourceWithRawResponse:
@@ -331,6 +423,13 @@ class AsyncPersonasResourceWithRawResponse:
         self.list = async_to_raw_response_wrapper(
             personas.list,
         )
+        self.list_linked = async_to_raw_response_wrapper(
+            personas.list_linked,
+        )
+
+    @cached_property
+    def link(self) -> AsyncLinkResourceWithRawResponse:
+        return AsyncLinkResourceWithRawResponse(self._personas.link)
 
 
 class PersonasResourceWithStreamingResponse:
@@ -346,6 +445,13 @@ class PersonasResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             personas.list,
         )
+        self.list_linked = to_streamed_response_wrapper(
+            personas.list_linked,
+        )
+
+    @cached_property
+    def link(self) -> LinkResourceWithStreamingResponse:
+        return LinkResourceWithStreamingResponse(self._personas.link)
 
 
 class AsyncPersonasResourceWithStreamingResponse:
@@ -361,3 +467,10 @@ class AsyncPersonasResourceWithStreamingResponse:
         self.list = async_to_streamed_response_wrapper(
             personas.list,
         )
+        self.list_linked = async_to_streamed_response_wrapper(
+            personas.list_linked,
+        )
+
+    @cached_property
+    def link(self) -> AsyncLinkResourceWithStreamingResponse:
+        return AsyncLinkResourceWithStreamingResponse(self._personas.link)
