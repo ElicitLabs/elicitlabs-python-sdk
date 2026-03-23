@@ -4,7 +4,7 @@ from typing import Dict, List, Union, Optional
 
 from .._models import BaseModel
 
-__all__ = ["ChatCreateCompletionResponse", "Message", "MessageContentUnionMember1"]
+__all__ = ["ChatCreateCompletionResponse", "Message", "MessageContentUnionMember1", "AssistantOutput"]
 
 
 class MessageContentUnionMember1(BaseModel):
@@ -52,6 +52,28 @@ class Message(BaseModel):
     """Message role: 'system', 'user', or 'assistant'"""
 
 
+class AssistantOutput(BaseModel):
+    """
+    Convenience extraction of just the assistant's reply — useful for
+    stateless integrations like Instagram that only need the response.
+    """
+
+    audio_base64: Optional[str] = None
+    """Base64-encoded audio (if any)"""
+
+    audio_url: Optional[str] = None
+    """Signed URL for the audio (if any)"""
+
+    image_base64: Optional[str] = None
+    """Base64-encoded image (if any)"""
+
+    image_url: Optional[str] = None
+    """Signed URL for the image (if any)"""
+
+    text: Optional[str] = None
+    """Plain-text portion of the reply"""
+
+
 class ChatCreateCompletionResponse(BaseModel):
     """
     Response model for chat completions - returns the full conversation including the assistant's reply
@@ -65,3 +87,15 @@ class ChatCreateCompletionResponse(BaseModel):
 
     session_id: str
     """Session ID for conversation context"""
+
+    agent_trace: Optional[List[Dict[str, object]]] = None
+    """
+    Agent execution trace — present only when the request was handled by the agent
+    service
+    """
+
+    assistant_output: Optional[AssistantOutput] = None
+    """
+    Convenience extraction of just the assistant's reply — useful for stateless
+    integrations like Instagram that only need the response.
+    """

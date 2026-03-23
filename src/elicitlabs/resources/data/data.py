@@ -60,9 +60,11 @@ class DataResource(SyncAPIResource):
         *,
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
+        callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -124,6 +126,10 @@ class DataResource(SyncAPIResource):
 
           user_id: User ID (always required)
 
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state
+              (done, error, cancelled). The payload will match the /v1/data/job/status
+              response shape.
+
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
 
@@ -131,6 +137,8 @@ class DataResource(SyncAPIResource):
               If omitted, the category is auto-detected from the uploaded file bytes.
 
           filename: Filename of the uploaded file
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
 
           persona_id: Optional persona ID. If provided, data is ingested to this persona instead of
               the user
@@ -157,9 +165,11 @@ class DataResource(SyncAPIResource):
                 {
                     "payload": payload,
                     "user_id": user_id,
+                    "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
                     "filename": filename,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
@@ -203,9 +213,11 @@ class AsyncDataResource(AsyncAPIResource):
         *,
         payload: Union[str, Dict[str, object], Iterable[object]],
         user_id: str,
+        callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -267,6 +279,10 @@ class AsyncDataResource(AsyncAPIResource):
 
           user_id: User ID (always required)
 
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state
+              (done, error, cancelled). The payload will match the /v1/data/job/status
+              response shape.
+
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
 
@@ -274,6 +290,8 @@ class AsyncDataResource(AsyncAPIResource):
               If omitted, the category is auto-detected from the uploaded file bytes.
 
           filename: Filename of the uploaded file
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
 
           persona_id: Optional persona ID. If provided, data is ingested to this persona instead of
               the user
@@ -300,9 +318,11 @@ class AsyncDataResource(AsyncAPIResource):
                 {
                     "payload": payload,
                     "user_id": user_id,
+                    "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
                     "filename": filename,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
