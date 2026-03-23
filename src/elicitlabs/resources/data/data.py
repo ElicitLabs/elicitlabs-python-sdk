@@ -260,9 +260,11 @@ class DataResource(SyncAPIResource):
         *,
         payload: Union[str, Path, Dict[str, object], Iterable[object]],
         user_id: str,
+        callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -301,6 +303,8 @@ class DataResource(SyncAPIResource):
               'messages', 'file')
 
           filename: Filename for file uploads (auto-detected from path/URL when omitted)
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
 
           persona_id: Optional persona ID. If provided, data is ingested to this persona
 
@@ -357,8 +361,10 @@ class DataResource(SyncAPIResource):
                     "content_type": content_type,
                     "payload": payload,
                     "user_id": user_id,
+                    "callback_url": callback_url,
                     "content_description": content_description,
                     "filename": filename,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
@@ -537,9 +543,11 @@ class AsyncDataResource(AsyncAPIResource):
         *,
         payload: Union[str, Path, Dict[str, object], Iterable[object]],
         user_id: str,
+        callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
         filename: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
@@ -578,6 +586,8 @@ class AsyncDataResource(AsyncAPIResource):
               'messages', 'file')
 
           filename: Filename for file uploads (auto-detected from path/URL when omitted)
+
+          notification_email: Optional email address to notify when the job reaches a terminal state.
 
           persona_id: Optional persona ID. If provided, data is ingested to this persona
 
@@ -634,8 +644,10 @@ class AsyncDataResource(AsyncAPIResource):
                     "content_type": content_type,
                     "payload": payload,
                     "user_id": user_id,
+                    "callback_url": callback_url,
                     "content_description": content_description,
                     "filename": filename,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,

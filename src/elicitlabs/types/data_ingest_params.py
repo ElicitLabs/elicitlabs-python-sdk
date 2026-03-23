@@ -15,6 +15,13 @@ class DataIngestParams(TypedDict, total=False):
     user_id: Required[str]
     """User ID (always required)"""
 
+    callback_url: Optional[str]
+    """
+    Optional URL the server will POST to when the job reaches a terminal state
+    (done, error, cancelled). The payload will match the /v1/data/job/status
+    response shape.
+    """
+
     content_description: Optional[str]
     """
     Optional description of the content being ingested (e.g., 'Logo design
@@ -29,6 +36,9 @@ class DataIngestParams(TypedDict, total=False):
 
     filename: Optional[str]
     """Filename of the uploaded file"""
+
+    notification_email: Optional[str]
+    """Optional email address to notify when the job reaches a terminal state."""
 
     persona_id: Optional[str]
     """Optional persona ID.

@@ -32,9 +32,11 @@ class TestData:
         data = client.data.ingest(
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
             user_id="user-123",
+            callback_url="callback_url",
             content_description="Email correspondence about project updates",
             content_type="text",
             filename="filename",
+            notification_email="dev@stainless.com",
             persona_id="persona_id",
             project_id="project_id",
             session_id="session_id",
@@ -91,9 +93,11 @@ class TestAsyncData:
         data = await async_client.data.ingest(
             payload="From: john@example.com\nTo: jane@example.com\nSubject: Hello\n\nHello Jane!",
             user_id="user-123",
+            callback_url="callback_url",
             content_description="Email correspondence about project updates",
             content_type="text",
             filename="filename",
+            notification_email="dev@stainless.com",
             persona_id="persona_id",
             project_id="project_id",
             session_id="session_id",
