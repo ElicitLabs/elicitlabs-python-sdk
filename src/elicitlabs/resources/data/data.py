@@ -297,7 +297,12 @@ class DataResource(SyncAPIResource):
 
           user_id: User ID (always required)
 
-          content_description: Optional description of the content being ingested
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state
+              (done, error, cancelled). The payload will match the /v1/data/job/status
+              response shape.
+
+          content_description: Optional description of the content being ingested (e.g., 'Logo design
+              concepts', 'Meeting notes')
 
           content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
               'messages', 'file')
@@ -580,7 +585,12 @@ class AsyncDataResource(AsyncAPIResource):
 
           user_id: User ID (always required)
 
-          content_description: Optional description of the content being ingested
+          callback_url: Optional URL the server will POST to when the job reaches a terminal state
+              (done, error, cancelled). The payload will match the /v1/data/job/status
+              response shape.
+
+          content_description: Optional description of the content being ingested (e.g., 'Logo design
+              concepts', 'Meeting notes')
 
           content_type: Content type (e.g., 'text', 'image', 'video', 'pdf', 'word', 'audio',
               'messages', 'file')
