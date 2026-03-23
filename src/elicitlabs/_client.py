@@ -40,10 +40,10 @@ if TYPE_CHECKING:
     from .resources.video import VideoResource, AsyncVideoResource
     from .resources.health import HealthResource, AsyncHealthResource
     from .resources.images import ImagesResource, AsyncImagesResource
-    from .resources.personas import PersonasResource, AsyncPersonasResource
     from .resources.projects import ProjectsResource, AsyncProjectsResource
     from .resources.auth.auth import AuthResource, AsyncAuthResource
     from .resources.data.data import DataResource, AsyncDataResource
+    from .resources.personas.personas import PersonasResource, AsyncPersonasResource
 
 __all__ = [
     "Timeout",
