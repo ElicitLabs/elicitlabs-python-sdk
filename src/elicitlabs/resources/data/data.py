@@ -23,7 +23,7 @@ from .job import (
     JobResourceWithStreamingResponse,
     AsyncJobResourceWithStreamingResponse,
 )
-from ...types import data_ingest_params, data_upload_url_params, data_confirm_upload_params
+from ...types import data_ingest_params, data_get_upload_url_params, data_confirm_upload_params
 from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
@@ -36,7 +36,7 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.data_ingest_response import DataIngestResponse
-from ...types.data_upload_url_response import DataUploadUrlResponse
+from ...types.data_get_upload_url_response import DataGetUploadURLResponse
 from ...types.data_confirm_upload_response import DataConfirmUploadResponse
 
 __all__ = ["DataResource", "AsyncDataResource"]
@@ -382,7 +382,7 @@ class DataResource(SyncAPIResource):
         content_type: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
-    ) -> DataUploadUrlResponse:
+    ) -> DataGetUploadURLResponse:
         return self._post(
             "/v1/data/ingest/upload-url",
             body=maybe_transform(
@@ -393,10 +393,10 @@ class DataResource(SyncAPIResource):
                     "project_id": project_id,
                     "persona_id": persona_id,
                 },
-                data_upload_url_params.DataUploadUrlParams,
+                data_get_upload_url_params.DataGetUploadURLParams,
             ),
             options=make_request_options(),
-            cast_to=DataUploadUrlResponse,
+            cast_to=DataGetUploadURLResponse,
         )
 
     def _confirm_upload(
@@ -659,7 +659,7 @@ class AsyncDataResource(AsyncAPIResource):
         content_type: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
-    ) -> DataUploadUrlResponse:
+    ) -> DataGetUploadURLResponse:
         return await self._post(
             "/v1/data/ingest/upload-url",
             body=await async_maybe_transform(
@@ -670,10 +670,10 @@ class AsyncDataResource(AsyncAPIResource):
                     "project_id": project_id,
                     "persona_id": persona_id,
                 },
-                data_upload_url_params.DataUploadUrlParams,
+                data_get_upload_url_params.DataGetUploadURLParams,
             ),
             options=make_request_options(),
-            cast_to=DataUploadUrlResponse,
+            cast_to=DataGetUploadURLResponse,
         )
 
     async def _confirm_upload(
