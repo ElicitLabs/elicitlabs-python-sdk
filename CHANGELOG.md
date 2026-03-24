@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.19.1 (2026-03-24)
+
+Full Changelog: [v0.19.0...v0.19.1](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.19.0...v0.19.1)
+
+### Chores
+
+* **internal:** update gitignore ([b4627a7](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/b4627a799871d5ab98a875b7d62e0ed217cd539b))
+
 ## 0.19.0 (2026-03-23)
 
 Full Changelog: [v0.18.0...v0.19.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.18.0...v0.19.0)

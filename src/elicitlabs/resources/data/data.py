@@ -558,7 +558,7 @@ class DataResource(SyncAPIResource):
         content_type: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
-    ) -> DataUploadUrlResponse:
+    ) -> DataGetUploadURLResponse:
         return self._post(
             "/v1/data/ingest/upload-url",
             body=maybe_transform(
@@ -569,10 +569,10 @@ class DataResource(SyncAPIResource):
                     "project_id": project_id,
                     "persona_id": persona_id,
                 },
-                data_upload_url_params.DataUploadUrlParams,
+                data_get_upload_url_params.DataGetUploadURLParams,
             ),
             options=make_request_options(),
-            cast_to=DataUploadUrlResponse,
+            cast_to=DataGetUploadURLResponse,
         )
 
     def _confirm_upload(
@@ -1011,7 +1011,7 @@ class AsyncDataResource(AsyncAPIResource):
         content_type: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
-    ) -> DataUploadUrlResponse:
+    ) -> DataGetUploadURLResponse:
         return await self._post(
             "/v1/data/ingest/upload-url",
             body=await async_maybe_transform(
@@ -1022,10 +1022,10 @@ class AsyncDataResource(AsyncAPIResource):
                     "project_id": project_id,
                     "persona_id": persona_id,
                 },
-                data_upload_url_params.DataUploadUrlParams,
+                data_get_upload_url_params.DataGetUploadURLParams,
             ),
             options=make_request_options(),
-            cast_to=DataUploadUrlResponse,
+            cast_to=DataGetUploadURLResponse,
         )
 
     async def _confirm_upload(
