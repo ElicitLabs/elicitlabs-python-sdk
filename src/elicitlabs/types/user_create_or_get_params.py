@@ -17,3 +17,9 @@ class UserCreateOrGetParams(TypedDict, total=False):
 
     org_user_id: Optional[str]
     """Organization-specific user ID"""
+
+    persona_id: Optional[str]
+    """
+    If provided, the new user is automatically linked to this persona (cloning its
+    knowledge graph).
+    """

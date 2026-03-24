@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.19.0 (2026-03-23)
+
+Full Changelog: [v0.18.0...v0.19.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.18.0...v0.19.0)
+
+### Features
+
+* **api:** api update ([89a61b0](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/89a61b06cd4ee62d510a7487ee70e6e4559242cd))
+* **api:** api update ([75ce6dd](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/75ce6dd1a4462e79348dd4bc62bc46d7400a235b))
+* **api:** manual updates ([3cb88e8](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/3cb88e84c8db05d65d4250968f63fa349fc12aa4))
+* **api:** manual updates ([254767b](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/254767bcf476b3ec0221ec56772053b7c01d59a1))
+
+## 0.18.0 (2026-03-20)
+
+Full Changelog: [v0.17.0...v0.18.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.17.0...v0.18.0)
+
+### Features
+
+* **api:** api update ([d3605d6](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/d3605d653116f982d2790f63e18b33f349decbdc))
+* **api:** api update ([aa09964](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/aa09964b85791ec82316a5da9229cb423efa496d))
+
+
+### Bug Fixes
+
+* **deps:** bump minimum typing-extensions version ([6860af5](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/6860af59921a30513358ac7715c30d6db22c0e1e))
+* **pydantic:** do not pass `by_alias` unless set ([a022ba5](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/a022ba5a009dded7f0f52a22b4123844bc2dae6d))
+* sanitize endpoint path params ([0234463](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/023446352196db43272826c475c9d05ea38c815c))
+
+
+### Chores
+
+* **internal:** tweak CI branches ([47c7ece](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/47c7ece7a3e53c2e613b9613a2e9d24344df1b98))
+
 ## 0.17.0 (2026-03-13)
 
 Full Changelog: [v0.16.0...v0.17.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.16.0...v0.17.0)

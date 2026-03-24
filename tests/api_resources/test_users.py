@@ -33,6 +33,7 @@ class TestUsers:
             email="user@example.com",
             name="John Doe",
             org_user_id="org_123456",
+            persona_id="persona_id",
         )
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 
@@ -86,6 +87,7 @@ class TestAsyncUsers:
             email="user@example.com",
             name="John Doe",
             org_user_id="org_123456",
+            persona_id="persona_id",
         )
         assert_matches_type(UserCreateOrGetResponse, user, path=["response"])
 

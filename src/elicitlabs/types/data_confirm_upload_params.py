@@ -1,3 +1,5 @@
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
 from __future__ import annotations
 
 from typing import Optional
@@ -8,31 +10,31 @@ __all__ = ["DataConfirmUploadParams"]
 
 class DataConfirmUploadParams(TypedDict, total=False):
     job_id: Required[str]
-    """Job ID returned from the upload-url request"""
+    """Job ID returned by /ingest/upload-url"""
 
     object_key: Required[str]
-    """Object key returned from the upload-url request"""
+    """GCS object key returned by /ingest/upload-url"""
 
     user_id: Required[str]
-    """User ID (always required)"""
+    """User ID (must match the upload-url request)"""
 
-    content_type: Optional[str]
-    """MIME type of the uploaded file"""
-
-    project_id: Optional[str]
-    """Optional project ID. If provided, data is ingested to this project"""
-
-    persona_id: Optional[str]
-    """Optional persona ID. If provided, data is ingested to this persona"""
-
-    filename: Optional[str]
-    """Original filename of the uploaded file"""
+    callback_url: Optional[str]
+    """Optional URL the server will POST to when the job reaches a terminal state."""
 
     content_description: Optional[str]
-    """Description of the content being ingested"""
+
+    content_type: Optional[str]
+    """Content category (auto-detected from file bytes if omitted)"""
+
+    filename: Optional[str]
+
+    notification_email: Optional[str]
+    """Optional email address to notify when the job reaches a terminal state."""
+
+    persona_id: Optional[str]
+
+    project_id: Optional[str]
 
     session_id: Optional[str]
-    """Session ID for grouping related ingested content"""
 
     timestamp: Optional[str]
-    """ISO-8601 timestamp to preserve original data moment"""

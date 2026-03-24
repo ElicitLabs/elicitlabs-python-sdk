@@ -49,6 +49,7 @@ class UsersResource(SyncAPIResource):
         email: str,
         name: str,
         org_user_id: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -74,6 +75,9 @@ class UsersResource(SyncAPIResource):
 
           org_user_id: Organization-specific user ID
 
+          persona_id: If provided, the new user is automatically linked to this persona (cloning its
+              knowledge graph).
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -89,6 +93,7 @@ class UsersResource(SyncAPIResource):
                     "email": email,
                     "name": name,
                     "org_user_id": org_user_id,
+                    "persona_id": persona_id,
                 },
                 user_create_or_get_params.UserCreateOrGetParams,
             ),
@@ -125,6 +130,7 @@ class AsyncUsersResource(AsyncAPIResource):
         email: str,
         name: str,
         org_user_id: Optional[str] | Omit = omit,
+        persona_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -150,6 +156,9 @@ class AsyncUsersResource(AsyncAPIResource):
 
           org_user_id: Organization-specific user ID
 
+          persona_id: If provided, the new user is automatically linked to this persona (cloning its
+              knowledge graph).
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -165,6 +174,7 @@ class AsyncUsersResource(AsyncAPIResource):
                     "email": email,
                     "name": name,
                     "org_user_id": org_user_id,
+                    "persona_id": persona_id,
                 },
                 user_create_or_get_params.UserCreateOrGetParams,
             ),
