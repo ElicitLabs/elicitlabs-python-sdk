@@ -23,11 +23,7 @@ from .job import (
     JobResourceWithStreamingResponse,
     AsyncJobResourceWithStreamingResponse,
 )
-<<<<<<< HEAD
-from ...types import data_ingest_params, data_get_upload_url_params, data_confirm_upload_params
-=======
 from ...types import data_ingest_params, data_confirm_upload_params, data_get_upload_url_params
->>>>>>> b4627a799871d5ab98a875b7d62e0ed217cd539b
 from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
@@ -40,10 +36,6 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.data_ingest_response import DataIngestResponse
-<<<<<<< HEAD
-from ...types.data_get_upload_url_response import DataGetUploadURLResponse
-=======
->>>>>>> b4627a799871d5ab98a875b7d62e0ed217cd539b
 from ...types.data_confirm_upload_response import DataConfirmUploadResponse
 from ...types.data_get_upload_url_response import DataGetUploadURLResponse
 

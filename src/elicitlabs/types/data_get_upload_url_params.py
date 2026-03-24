@@ -12,13 +12,6 @@ class DataGetUploadURLParams(TypedDict, total=False):
     user_id: Required[str]
     """User ID (always required)"""
 
-<<<<<<< HEAD
-    filename: Required[str]
-    """Original filename of the file to upload"""
-
-    content_type: Optional[str]
-    """MIME type of the file (auto-detected if omitted)"""
-=======
     callback_url: Optional[str]
     """Optional URL the server will POST to when the job reaches a terminal state."""
 
@@ -39,18 +32,12 @@ class DataGetUploadURLParams(TypedDict, total=False):
 
     persona_id: Optional[str]
     """Optional persona ID. If provided, data is ingested to this persona"""
->>>>>>> b4627a799871d5ab98a875b7d62e0ed217cd539b
 
     project_id: Optional[str]
     """Optional project ID. If provided, data is ingested to this project"""
 
-<<<<<<< HEAD
-    persona_id: Optional[str]
-    """Optional persona ID. If provided, data is ingested to this persona"""
-=======
     session_id: Optional[str]
     """Session ID for grouping related ingested content"""
 
     timestamp: Optional[str]
     """ISO-8601 timestamp to preserve original data moment"""
->>>>>>> b4627a799871d5ab98a875b7d62e0ed217cd539b
