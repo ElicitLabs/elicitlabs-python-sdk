@@ -50,10 +50,14 @@ _MEDIA_PART_TYPES = frozenset({"image", "audio", "video"})
 
 def _is_already_gcs_key(value: str) -> bool:
     """GCS object keys have no scheme, no ``data:`` prefix, and at least
-    three path segments (e.g. ``prod/user-uuid/ingest/2026/file.png``)."""
+    three path segments (e.g. ``prod/user-uuid/ingest/2026/file.png``).
+
+    Absolute (``/``), home-relative (``~``), and dot-relative (``.``) paths
+    are excluded — GCS keys always start with an alphanumeric segment.
+    """
     return (
         "://" not in value
-        and not value.startswith("data:")
+        and not value.startswith(("data:", "/", ".", "~"))
         and value.count("/") >= 3
     )
 
