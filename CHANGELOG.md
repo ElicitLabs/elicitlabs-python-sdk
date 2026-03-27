@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.20.0 (2026-03-27)
+
+Full Changelog: [v0.19.1...v0.20.0](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.19.1...v0.20.0)
+
+### Features
+
+* **internal:** implement indices array format for query and form serialization ([ae3268a](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/ae3268a08208299055a04153d6337bf4df19bbd9))
+
+
+### Chores
+
+* **ci:** skip lint on metadata-only changes ([33764fe](https://github.com/ElicitLabs/elicitlabs-python-sdk/commit/33764fe11b29315e9a3c000d813f534aed3e8ec4))
+
 ## 0.19.1 (2026-03-24)
 
 Full Changelog: [v0.19.0...v0.19.1](https://github.com/ElicitLabs/elicitlabs-python-sdk/compare/v0.19.0...v0.19.1)
