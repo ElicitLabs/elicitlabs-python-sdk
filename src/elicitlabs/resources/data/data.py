@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import os
 import base64
 import hashlib
@@ -44,6 +45,44 @@ __all__ = ["DataResource", "AsyncDataResource"]
 _UPLOAD_THRESHOLD = 20 * 1024 * 1024  # 20 MB
 _FILE_TRANSFER_TIMEOUT = httpx.Timeout(connect=10.0, read=300.0, write=300.0, pool=10.0)
 _MAX_UPLOAD_RETRIES = 3
+_MEDIA_PART_TYPES = frozenset({"image", "audio", "video"})
+
+
+def _is_already_gcs_key(value: str) -> bool:
+    """GCS object keys have no scheme, no ``data:`` prefix, and at least
+    three path segments (e.g. ``prod/user-uuid/ingest/2026/file.png``)."""
+    return (
+        "://" not in value
+        and not value.startswith("data:")
+        and value.count("/") >= 3
+    )
+
+
+def _resolve_media_bytes(value: str) -> tuple[bytes, str] | None:
+    """Attempt to decode *value* as a ``data:`` URI or raw base64 string.
+
+    Returns ``(file_bytes, extension)`` on success, ``None`` when *value*
+    does not look like inline data.
+    """
+    if value.startswith("data:"):
+        try:
+            header, b64_data = value.split(",", 1)
+        except ValueError:
+            return None
+        mime = header.split(";")[0].replace("data:", "")
+        ext = mime.split("/")[-1] if "/" in mime else "bin"
+        return base64.b64decode(b64_data), ext
+
+    # Last resort: try raw base64 — if it fails, the value is something else
+    # (plain text, already a GCS key, etc.) and we leave it alone.
+    try:
+        decoded = base64.b64decode(value, validate=True)
+        if len(decoded) > 0:
+            return decoded, "bin"
+    except Exception:
+        pass
+
+    return None
 
 
 def _is_url(value: object) -> bool:
@@ -524,6 +563,14 @@ class DataResource(SyncAPIResource):
                 timestamp=timestamp if isinstance(timestamp, str) else None,
             )
 
+        if isinstance(payload, list):
+            payload = self._resolve_message_files(
+                payload=payload,
+                user_id=user_id,
+                project_id=project_id if isinstance(project_id, str) else None,
+                persona_id=persona_id if isinstance(persona_id, str) else None,
+            )
+
         return self._post(
             "/v1/data/ingest",
             body=maybe_transform(
@@ -681,6 +728,171 @@ class DataResource(SyncAPIResource):
             status=confirm.status,
             message=confirm.message,
             success=True,
+        )
+
+
+    def _upload_to_gcs(
+        self,
+        *,
+        file_bytes: bytes,
+        filename: str,
+        user_id: str,
+        project_id: Optional[str] = None,
+        persona_id: Optional[str] = None,
+    ) -> str:
+        """Upload file bytes to GCS via signed URL and return the object key.
+
+        Unlike ``_ingest_via_signed_url`` this does **not** call
+        ``confirm_upload`` — it is meant for attaching files to a messages
+        payload where the top-level ``/ingest`` call handles processing.
+        """
+        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        content_category = _mime_to_content_category(mime_type)
+
+        last_error: Exception | None = None
+        upload_info: DataGetUploadURLResponse | None = None
+        for attempt in range(1, _MAX_UPLOAD_RETRIES + 1):
+            upload_info = self._get_upload_url(
+                user_id=user_id,
+                filename=filename,
+                content_type=content_category,
+                project_id=project_id if project_id else omit,
+                persona_id=persona_id if persona_id else omit,
+            )
+
+            try:
+                put_resp = httpx.put(
+                    upload_info.upload_url,
+                    content=file_bytes,
+                    headers={
+                        "Content-Type": mime_type,
+                        "Content-Length": str(len(file_bytes)),
+                    },
+                    timeout=_FILE_TRANSFER_TIMEOUT,
+                )
+                put_resp.raise_for_status()
+                _verify_gcs_upload(put_resp, file_bytes)
+            except (httpx.RequestError, ValueError) as exc:
+                last_error = exc
+                logger.warning(
+                    "Signed URL upload attempt %d/%d failed: %s",
+                    attempt, _MAX_UPLOAD_RETRIES, exc,
+                )
+                if attempt < _MAX_UPLOAD_RETRIES:
+                    continue
+                raise ValueError(
+                    f"File upload failed after {_MAX_UPLOAD_RETRIES} attempts. "
+                    f"Last error: {last_error}"
+                ) from last_error
+
+            break
+
+        assert upload_info is not None
+        return upload_info.object_key
+
+    def _resolve_message_files(
+        self,
+        *,
+        payload: list[object],
+        user_id: str,
+        project_id: Optional[str] = None,
+        persona_id: Optional[str] = None,
+    ) -> list[object]:
+        """Walk a messages payload, upload inline media to GCS, and return a
+        copy with references replaced by GCS object keys.
+
+        Handles ``{"type": "image"|"audio"|"video", "content": ...}`` parts
+        and ``{"type": "image_url", "image_url": {"url": ...}}`` parts.
+
+        *content* / *url* values that are already GCS keys are left untouched.
+        Local file paths, HTTP(S) URLs, ``data:`` URIs, and raw base64 strings
+        are resolved, uploaded, and replaced.
+        """
+        resolved = copy.deepcopy(payload)
+
+        for message in resolved:
+            if not isinstance(message, dict):
+                continue
+            content = message.get("content")
+            if not isinstance(content, list):
+                continue
+            for part in content:
+                if not isinstance(part, dict):
+                    continue
+
+                part_type = part.get("type", "")
+
+                if part_type in _MEDIA_PART_TYPES:
+                    value = part.get("content")
+                    gcs_key = self._resolve_value_to_gcs_key(
+                        value, part_type, user_id, project_id, persona_id,
+                    )
+                    if gcs_key is not None:
+                        part["content"] = gcs_key
+
+                elif part_type == "image_url":
+                    url_obj = part.get("image_url")
+                    if not isinstance(url_obj, dict):
+                        continue
+                    value = url_obj.get("url")
+                    gcs_key = self._resolve_value_to_gcs_key(
+                        value, "image", user_id, project_id, persona_id,
+                    )
+                    if gcs_key is not None:
+                        part["image_url"] = {"url": gcs_key}
+
+        return resolved
+
+    def _resolve_value_to_gcs_key(
+        self,
+        value: object,
+        media_type: str,
+        user_id: str,
+        project_id: Optional[str],
+        persona_id: Optional[str],
+    ) -> str | None:
+        """Resolve a single content value to a GCS object key.
+
+        Returns the key if the value was uploaded, or ``None`` if it should be
+        left as-is (empty, already a GCS key, or unrecognised).
+        """
+        if not value:
+            return None
+
+        file_bytes: bytes | None = None
+        resolved_filename: str | None = None
+
+        if isinstance(value, Path):
+            if not value.is_file():
+                raise FileNotFoundError(f"File not found: {value}")
+            file_bytes = value.read_bytes()
+            resolved_filename = value.name
+        elif isinstance(value, str):
+            if _is_already_gcs_key(value):
+                return None
+            if _is_url(value):
+                file_bytes, resolved_filename = _download_from_url(value)
+            elif _is_file_path(value):
+                p = Path(value)
+                file_bytes = p.read_bytes()
+                resolved_filename = p.name
+            else:
+                result = _resolve_media_bytes(value)
+                if result is not None:
+                    file_bytes, ext = result
+                    resolved_filename = f"inline_media.{ext}"
+        else:
+            return None
+
+        if file_bytes is None:
+            return None
+
+        return self._upload_to_gcs(
+            file_bytes=file_bytes,
+            filename=resolved_filename or f"inline_media.{media_type}",
+            user_id=user_id,
+            project_id=project_id,
+            persona_id=persona_id,
         )
 
 
@@ -977,6 +1189,14 @@ class AsyncDataResource(AsyncAPIResource):
                 timestamp=timestamp if isinstance(timestamp, str) else None,
             )
 
+        if isinstance(payload, list):
+            payload = await self._resolve_message_files(
+                payload=payload,
+                user_id=user_id,
+                project_id=project_id if isinstance(project_id, str) else None,
+                persona_id=persona_id if isinstance(persona_id, str) else None,
+            )
+
         return await self._post(
             "/v1/data/ingest",
             body=await async_maybe_transform(
@@ -1133,6 +1353,158 @@ class AsyncDataResource(AsyncAPIResource):
             status=confirm.status,
             message=confirm.message,
             success=True,
+        )
+
+    async def _upload_to_gcs(
+        self,
+        *,
+        file_bytes: bytes,
+        filename: str,
+        user_id: str,
+        project_id: Optional[str] = None,
+        persona_id: Optional[str] = None,
+    ) -> str:
+        """Async version: upload file bytes to GCS and return the object key
+        (no ``confirm_upload``)."""
+        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        content_category = _mime_to_content_category(mime_type)
+
+        last_error: Exception | None = None
+        upload_info: DataGetUploadURLResponse | None = None
+        for attempt in range(1, _MAX_UPLOAD_RETRIES + 1):
+            upload_info = await self._get_upload_url(
+                user_id=user_id,
+                filename=filename,
+                content_type=content_category,
+                project_id=project_id if project_id else omit,
+                persona_id=persona_id if persona_id else omit,
+            )
+
+            try:
+                async with httpx.AsyncClient(timeout=_FILE_TRANSFER_TIMEOUT) as http:
+                    put_resp = await http.put(
+                        upload_info.upload_url,
+                        content=file_bytes,
+                        headers={
+                            "Content-Type": mime_type,
+                            "Content-Length": str(len(file_bytes)),
+                        },
+                    )
+                    put_resp.raise_for_status()
+                _verify_gcs_upload(put_resp, file_bytes)
+            except (httpx.RequestError, ValueError) as exc:
+                last_error = exc
+                logger.warning(
+                    "Signed URL upload attempt %d/%d failed: %s",
+                    attempt, _MAX_UPLOAD_RETRIES, exc,
+                )
+                if attempt < _MAX_UPLOAD_RETRIES:
+                    continue
+                raise ValueError(
+                    f"File upload failed after {_MAX_UPLOAD_RETRIES} attempts. "
+                    f"Last error: {last_error}"
+                ) from last_error
+
+            break
+
+        assert upload_info is not None
+        return upload_info.object_key
+
+    async def _resolve_message_files(
+        self,
+        *,
+        payload: list[object],
+        user_id: str,
+        project_id: Optional[str] = None,
+        persona_id: Optional[str] = None,
+    ) -> list[object]:
+        """Async version: walk messages, upload inline media to GCS, and
+        return a copy with references replaced by GCS object keys.
+
+        Handles ``{"type": "image"|"audio"|"video", "content": ...}`` parts
+        and ``{"type": "image_url", "image_url": {"url": ...}}`` parts.
+        """
+        resolved = copy.deepcopy(payload)
+
+        for message in resolved:
+            if not isinstance(message, dict):
+                continue
+            content = message.get("content")
+            if not isinstance(content, list):
+                continue
+            for part in content:
+                if not isinstance(part, dict):
+                    continue
+
+                part_type = part.get("type", "")
+
+                if part_type in _MEDIA_PART_TYPES:
+                    value = part.get("content")
+                    gcs_key = await self._resolve_value_to_gcs_key(
+                        value, part_type, user_id, project_id, persona_id,
+                    )
+                    if gcs_key is not None:
+                        part["content"] = gcs_key
+
+                elif part_type == "image_url":
+                    url_obj = part.get("image_url")
+                    if not isinstance(url_obj, dict):
+                        continue
+                    value = url_obj.get("url")
+                    gcs_key = await self._resolve_value_to_gcs_key(
+                        value, "image", user_id, project_id, persona_id,
+                    )
+                    if gcs_key is not None:
+                        part["image_url"] = {"url": gcs_key}
+
+        return resolved
+
+    async def _resolve_value_to_gcs_key(
+        self,
+        value: object,
+        media_type: str,
+        user_id: str,
+        project_id: Optional[str],
+        persona_id: Optional[str],
+    ) -> str | None:
+        """Async version: resolve a single content value to a GCS object key."""
+        if not value:
+            return None
+
+        file_bytes: bytes | None = None
+        resolved_filename: str | None = None
+
+        if isinstance(value, Path):
+            if not value.is_file():
+                raise FileNotFoundError(f"File not found: {value}")
+            file_bytes = value.read_bytes()
+            resolved_filename = value.name
+        elif isinstance(value, str):
+            if _is_already_gcs_key(value):
+                return None
+            if _is_url(value):
+                file_bytes, resolved_filename = await _async_download_from_url(value)
+            elif _is_file_path(value):
+                p = Path(value)
+                file_bytes = p.read_bytes()
+                resolved_filename = p.name
+            else:
+                result = _resolve_media_bytes(value)
+                if result is not None:
+                    file_bytes, ext = result
+                    resolved_filename = f"inline_media.{ext}"
+        else:
+            return None
+
+        if file_bytes is None:
+            return None
+
+        return await self._upload_to_gcs(
+            file_bytes=file_bytes,
+            filename=resolved_filename or f"inline_media.{media_type}",
+            user_id=user_id,
+            project_id=project_id,
+            persona_id=persona_id,
         )
 
 
