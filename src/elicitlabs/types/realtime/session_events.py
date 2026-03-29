@@ -8,15 +8,22 @@ from ..._models import BaseModel
 __all__ = [
     "ContextCard",
     "ContextCardOperation",
+    "ContextSnapshotEvent",
     "ContextStatusEvent",
     "ContextUpdateEvent",
+    "DetectedObject",
     "ErrorEvent",
+    "LongTermMemory",
     "MemoryUpdateEvent",
     "RealtimeSessionEvent",
     "SessionEndedEvent",
     "SessionInitEvent",
     "SessionReadyEvent",
     "ShortTermMemory",
+    "SnapshotMessage",
+    "SnapshotShortTermMemory",
+    "SnapshotWorkingMemory",
+    "Speaker",
     "StmEntity",
     "StmTranscript",
     "StmTranscriptTurn",
@@ -149,6 +156,98 @@ class WorkingMemory(BaseModel):
 
     scene: Optional[List[WorkingMemorySceneItem]] = None
     """Real-time perception items (people/objects currently visible)."""
+
+
+class Speaker(BaseModel):
+    """A person currently detected in the scene via face or voice recognition."""
+
+    name: Optional[str] = None
+    """Person's name."""
+
+    description: Optional[str] = None
+    """Natural language description, LLM-ready."""
+
+    modality: Optional[str] = None
+    """Detection modality: 'face', 'voice', or 'unknown'."""
+
+    confidence: Optional[str] = None
+    """Confidence level: 'high', 'medium', or 'low'."""
+
+
+class DetectedObject(BaseModel):
+    """An object currently visible in the camera scene."""
+
+    label: Optional[str] = None
+    """Object label (e.g. 'laptop', 'coffee mug')."""
+
+    description: Optional[str] = None
+    """Natural language description, LLM-ready."""
+
+    confidence: Optional[str] = None
+    """Confidence level: 'high', 'medium', or 'low'."""
+
+
+class SnapshotWorkingMemory(BaseModel):
+    """Working memory as delivered in CONTEXT_SNAPSHOT events.
+
+    Contains detected speakers and objects (from perception), conversation
+    summary and topics (from graduation LLM), and identified people.
+    """
+
+    speakers: Optional[List[Speaker]] = None
+    """People currently detected in the scene (face/voice)."""
+
+    objects: Optional[List[DetectedObject]] = None
+    """Objects currently visible in the camera."""
+
+    conversation_summary: Optional[str] = None
+    """Running narrative of the conversation so far."""
+
+    topics: Optional[List[str]] = None
+    """Key topics discussed."""
+
+    people: Optional[List[WorkingMemoryPerson]] = None
+    """All known people (broader than speakers — includes mentioned people)."""
+
+
+class SnapshotMessage(BaseModel):
+    """A single message in the short-term memory transcript (snapshot format)."""
+
+    role: Optional[str] = None
+    """Role: 'user' or 'assistant'."""
+
+    speaker: Optional[str] = None
+    """Human name (e.g. 'Elias', 'Jordan', 'Assistant')."""
+
+    content: Optional[str] = None
+    """What was said."""
+
+    ts: Optional[float] = None
+    """Unix timestamp."""
+
+
+class SnapshotShortTermMemory(BaseModel):
+    """Short-term memory as delivered in CONTEXT_SNAPSHOT events."""
+
+    messages: Optional[List[SnapshotMessage]] = None
+    """Conversation turns in chronological order."""
+
+
+class LongTermMemory(BaseModel):
+    """Long-term memory as delivered in CONTEXT_SNAPSHOT events.
+
+    Replaces the card-based system with simple string arrays grouped by
+    memory type.
+    """
+
+    episodic: Optional[List[str]] = None
+    """Past events and experiences recalled from the knowledge graph."""
+
+    preference: Optional[List[str]] = None
+    """Known preferences of people in the conversation."""
+
+    identity: Optional[List[str]] = None
+    """Identity facts about people in the conversation."""
 
 
 class StmTranscript(BaseModel):
@@ -313,6 +412,37 @@ class ContextStatusEvent(BaseModel):
     """Current working memory state."""
 
 
+class ContextSnapshotEvent(BaseModel):
+    """Full-state snapshot of all context, replacing MEMORY_UPDATE and CONTEXT_UPDATE.
+
+    Each snapshot is the complete current state — the SDK replaces (not merges)
+    previous state when processing this event.
+
+    Published at turn boundaries, during active speech (~every 2s), after
+    assistant responses, and when new context cards are flushed.
+    """
+
+    type: Literal["context_snapshot"]
+
+    session_id: Optional[str] = None
+    """Session identifier."""
+
+    turn_id: Optional[int] = None
+    """Turn counter for this event."""
+
+    ts: Optional[float] = None
+    """Unix timestamp."""
+
+    working_memory: Optional[SnapshotWorkingMemory] = None
+    """Current working memory: speakers, objects, summary, topics, people."""
+
+    short_term_memory: Optional[SnapshotShortTermMemory] = None
+    """Conversation transcript (messages in chronological order)."""
+
+    long_term_memory: Optional[LongTermMemory] = None
+    """Recalled memories: episodic events, preferences, identity facts."""
+
+
 class SessionEndedEvent(BaseModel):
     """Emitted when the server ends the session."""
 
@@ -347,6 +477,7 @@ RealtimeSessionEvent = Union[
     MemoryUpdateEvent,
     TranscriptEvent,
     ContextUpdateEvent,
+    ContextSnapshotEvent,
     ContextStatusEvent,
     SessionEndedEvent,
     ErrorEvent,
