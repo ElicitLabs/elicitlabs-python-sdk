@@ -681,6 +681,9 @@ class AsyncRealtimeSession:
         disabled_learning: bool = False,
         auto_listen: bool = True,
         scene_understanding: Optional[bool] = None,
+        auto_reconnect: bool = True,
+        max_reconnect_attempts: int = 5,
+        reconnect_delay: float = 2.0,
     ) -> None:
         if websockets is None:
             raise ElicitClientError(
@@ -698,6 +701,9 @@ class AsyncRealtimeSession:
         self._disabled_learning = disabled_learning
         self._auto_listen = auto_listen
         self._scene_understanding = scene_understanding
+        self._auto_reconnect = auto_reconnect
+        self._max_reconnect_attempts = max_reconnect_attempts
+        self._reconnect_delay = reconnect_delay
 
         self.context = ContextAccumulator()
         self.session_id = None
@@ -707,6 +713,8 @@ class AsyncRealtimeSession:
         self._closed = False
         self._iter_done = False
         self._listener_task: Optional[asyncio.Task[None]] = None
+        self._reconnecting = False
+        self._reconnect_lock = asyncio.Lock()
 
     # ------------------------------------------------------------------
     # Connection lifecycle
@@ -762,6 +770,48 @@ class AsyncRealtimeSession:
 
         self.session_id = data.get("session_id", self._init_session_id)
 
+    async def _reconnect(self) -> bool:
+        """Attempt to reconnect after a dropped connection.
+
+        Returns ``True`` if reconnected successfully, ``False`` if all
+        attempts were exhausted.  The accumulated context is preserved.
+        """
+        import sys
+
+        async with self._reconnect_lock:
+            if self._closed or self._reconnecting:
+                return self._ws is not None
+            self._reconnecting = True
+
+        try:
+            # Close stale socket silently
+            if self._ws is not None:
+                try:
+                    await self._ws.close()
+                except Exception:
+                    pass
+                self._ws = None
+
+            for attempt in range(1, self._max_reconnect_attempts + 1):
+                if self._closed:
+                    return False
+                print(
+                    f"[realtime] reconnecting (attempt {attempt}/{self._max_reconnect_attempts})...",
+                    file=sys.stderr,
+                )
+                await asyncio.sleep(self._reconnect_delay * attempt)
+                try:
+                    await self._connect()
+                    print("[realtime] reconnected", file=sys.stderr)
+                    return True
+                except Exception as exc:
+                    print(f"[realtime] reconnect failed: {exc}", file=sys.stderr)
+
+            print("[realtime] giving up after max reconnect attempts", file=sys.stderr)
+            return False
+        finally:
+            self._reconnecting = False
+
     async def close(self) -> None:
         """Close the WebSocket connection."""
         if self._closed:
@@ -808,11 +858,26 @@ class AsyncRealtimeSession:
             self._listener_task = asyncio.create_task(self._listen())
 
     async def _listen(self) -> None:
-        """Read from the WebSocket in a loop, feeding events into the context accumulator."""
-        while self._ws is not None and not self._closed:
+        """Read from the WebSocket in a loop, feeding events into the context accumulator.
+
+        If the connection drops and ``auto_reconnect`` is enabled, attempts
+        to re-establish the connection and resumes listening.  The
+        :class:`ContextAccumulator` state is preserved across reconnects.
+        """
+        while not self._closed:
+            if self._ws is None:
+                break
+
             try:
                 message = await self._ws.recv()
             except Exception:
+                # Connection dropped
+                if self._closed:
+                    break
+                if self._auto_reconnect:
+                    ok = await self._reconnect()
+                    if ok:
+                        continue  # resume reading from new connection
                 break
 
             if isinstance(message, bytes):
@@ -833,6 +898,27 @@ class AsyncRealtimeSession:
                 break
 
     # ------------------------------------------------------------------
+    # Send helper (with auto-reconnect)
+    # ------------------------------------------------------------------
+
+    async def _send(self, data: bytes | str, error_msg: str = "Failed to send") -> None:
+        """Send data over the WebSocket, reconnecting once on failure."""
+        if self._ws is None or self._closed:
+            raise ElicitClientError("Session is not connected")
+        try:
+            await self._ws.send(data)
+        except Exception:
+            if self._auto_reconnect and not self._closed:
+                ok = await self._reconnect()
+                if ok:
+                    try:
+                        await self._ws.send(data)  # type: ignore[union-attr]
+                        return
+                    except Exception as exc:
+                        raise ElicitClientError(f"{error_msg}: {exc}") from exc
+            raise ElicitClientError(f"{error_msg}: connection lost")
+
+    # ------------------------------------------------------------------
     # Flush / Override
     # ------------------------------------------------------------------
 
@@ -851,12 +937,7 @@ class AsyncRealtimeSession:
         This sends ``{"type": "flush"}`` over the WebSocket, which tells the
         gateway to re-run retrieval and push updated context.
         """
-        if self._ws is None or self._closed:
-            raise ElicitClientError("Session is not connected")
-        try:
-            await self._ws.send(json.dumps({"type": "flush"}))
-        except Exception as exc:
-            raise ElicitClientError(f"Failed to send override flush: {exc}") from exc
+        await self._send(json.dumps({"type": "flush"}), "Failed to send override flush")
 
     async def send_assistant_message(self, text: str) -> None:
         """Send an assistant message to the gateway for transcript storage.
@@ -866,19 +947,13 @@ class AsyncRealtimeSession:
         assistant turn, publish ``ASSISTANT_TRANSCRIPT_DONE``, and push a
         ``MEMORY_UPDATE`` with the updated transcript.
 
-        Wire format::
-
-            {"type": "assistant_message", "text": "The response text"}
-
         Args:
             text: The assistant's response text to send.
         """
-        if self._ws is None or self._closed:
-            raise ElicitClientError("Session is not connected")
-        try:
-            await self._ws.send(json.dumps({"type": "assistant_message", "text": text}))
-        except Exception as exc:
-            raise ElicitClientError(f"Failed to send assistant message: {exc}") from exc
+        await self._send(
+            json.dumps({"type": "assistant_message", "text": text}),
+            "Failed to send assistant message",
+        )
 
     async def send_user_message(self, text: str, speaker: str = "User") -> None:
         """Send a text-based user message to the gateway.
@@ -888,24 +963,14 @@ class AsyncRealtimeSession:
         record it in STM as a user turn attributed to ``speaker`` and
         push a ``MEMORY_UPDATE`` with the updated transcript.
 
-        Wire format::
-
-            {"type": "user_message", "text": "...", "speaker": "Jordan"}
-
         Args:
             text: The user's message text.
             speaker: Speaker name for STM attribution (default ``"User"``).
         """
-        if self._ws is None or self._closed:
-            raise ElicitClientError("Session is not connected")
-        try:
-            await self._ws.send(json.dumps({
-                "type": "user_message",
-                "text": text,
-                "speaker": speaker,
-            }))
-        except Exception as exc:
-            raise ElicitClientError(f"Failed to send user message: {exc}") from exc
+        await self._send(
+            json.dumps({"type": "user_message", "text": text, "speaker": speaker}),
+            "Failed to send user message",
+        )
 
     # ------------------------------------------------------------------
     # Sending media
@@ -1038,12 +1103,7 @@ class AsyncRealtimeSession:
         The data is prefixed with the ``0x01`` audio frame marker
         before being sent over the wire.
         """
-        if self._ws is None or self._closed:
-            raise ElicitClientError("Session is not connected")
-        try:
-            await self._ws.send(bytes([FRAME_AUDIO]) + pcm)
-        except Exception as exc:
-            raise ElicitClientError(f"Failed to send audio: {exc}") from exc
+        await self._send(bytes([FRAME_AUDIO]) + pcm, "Failed to send audio")
 
     async def send_video(
         self,
@@ -1067,17 +1127,7 @@ class AsyncRealtimeSession:
             await session.send_video(
                 raw_bytes, width=640, height=480, format="RGB"
             )
-
-        Wire format
-        -----------
-        JPEG:  ``0x02 | 0x00 | <jpeg bytes>``
-
-        Raw:   ``0x02 | 0x01 | width(u16 BE) | height(u16 BE) |
-                fmt_len(u8) | fmt_str | <raw pixel bytes>``
         """
-        if self._ws is None or self._closed:
-            raise ElicitClientError("Session is not connected")
-
         raw_mode = width is not None or height is not None or format is not None
         if raw_mode:
             if width is None or height is None or format is None:
@@ -1097,10 +1147,7 @@ class AsyncRealtimeSession:
         else:
             payload = bytes([FRAME_VIDEO, VIDEO_SUB_JPEG]) + data
 
-        try:
-            await self._ws.send(payload)
-        except Exception as exc:
-            raise ElicitClientError(f"Failed to send video: {exc}") from exc
+        await self._send(payload, "Failed to send video")
 
     # ------------------------------------------------------------------
     # Receiving events

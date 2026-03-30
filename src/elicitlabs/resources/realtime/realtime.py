@@ -38,6 +38,9 @@ class RealtimeResource(SyncAPIResource):
         disabled_learning: bool = False,
         auto_listen: bool = True,
         scene_understanding: Optional[bool] = None,
+        auto_reconnect: bool = True,
+        max_reconnect_attempts: int = 5,
+        reconnect_delay: float = 2.0,
     ) -> AsyncRealtimeSession:
         """Create a realtime session context manager.
 
@@ -75,6 +78,10 @@ class RealtimeResource(SyncAPIResource):
             scene_understanding: Enable or disable server-side scene
                 understanding for this session.  Defaults to ``None``
                 (server default, typically enabled).
+            auto_reconnect: Automatically reconnect on connection drops.
+            max_reconnect_attempts: Max retries before giving up.
+            reconnect_delay: Base delay in seconds between retries
+                (multiplied by attempt number).
         """
         url = gateway_url or os.environ.get("ELICIT_GATEWAY_URL")
         return AsyncRealtimeSession(
@@ -88,6 +95,9 @@ class RealtimeResource(SyncAPIResource):
             disabled_learning=disabled_learning,
             auto_listen=auto_listen,
             scene_understanding=scene_understanding,
+            auto_reconnect=auto_reconnect,
+            max_reconnect_attempts=max_reconnect_attempts,
+            reconnect_delay=reconnect_delay,
         )
 
 
@@ -126,6 +136,9 @@ class AsyncRealtimeResource(AsyncAPIResource):
         disabled_learning: bool = False,
         auto_listen: bool = True,
         scene_understanding: Optional[bool] = None,
+        auto_reconnect: bool = True,
+        max_reconnect_attempts: int = 5,
+        reconnect_delay: float = 2.0,
     ) -> AsyncRealtimeSession:
         """Create a realtime session context manager.
 
@@ -140,7 +153,7 @@ class AsyncRealtimeResource(AsyncAPIResource):
                 await session.send_audio(pcm_data)
                 async for event in session:
                     if event.type == "context_update":
-                        print(session.context.build_context_string())
+                        print(session.prompt_full())
 
         Args:
             session_id: Unique session identifier.
@@ -163,6 +176,10 @@ class AsyncRealtimeResource(AsyncAPIResource):
             scene_understanding: Enable or disable server-side scene
                 understanding for this session.  Defaults to ``None``
                 (server default, typically enabled).
+            auto_reconnect: Automatically reconnect on connection drops.
+            max_reconnect_attempts: Max retries before giving up.
+            reconnect_delay: Base delay in seconds between retries
+                (multiplied by attempt number).
         """
         url = gateway_url or os.environ.get("ELICIT_GATEWAY_URL")
         return AsyncRealtimeSession(
@@ -176,6 +193,9 @@ class AsyncRealtimeResource(AsyncAPIResource):
             disabled_learning=disabled_learning,
             auto_listen=auto_listen,
             scene_understanding=scene_understanding,
+            auto_reconnect=auto_reconnect,
+            max_reconnect_attempts=max_reconnect_attempts,
+            reconnect_delay=reconnect_delay,
         )
 
 
