@@ -902,20 +902,29 @@ class AsyncRealtimeSession:
     # ------------------------------------------------------------------
 
     async def _send(self, data: bytes | str, error_msg: str = "Failed to send") -> None:
-        """Send data over the WebSocket, reconnecting once on failure."""
-        if self._ws is None or self._closed:
+        """Send data over the WebSocket, reconnecting once on failure.
+
+        If a reconnect is already in progress, silently drops the data
+        to avoid spamming errors from high-frequency senders (audio/video).
+        """
+        # Silently drop while reconnecting or disconnected
+        if self._reconnecting:
+            return
+        if self._closed:
             raise ElicitClientError("Session is not connected")
+        if self._ws is None:
+            if self._auto_reconnect:
+                return  # will be restored by listener reconnect
+            raise ElicitClientError("Session is not connected")
+
         try:
             await self._ws.send(data)
         except Exception:
-            if self._auto_reconnect and not self._closed:
-                ok = await self._reconnect()
-                if ok:
-                    try:
-                        await self._ws.send(data)  # type: ignore[union-attr]
-                        return
-                    except Exception as exc:
-                        raise ElicitClientError(f"{error_msg}: {exc}") from exc
+            if self._closed:
+                raise ElicitClientError(f"{error_msg}: session closed")
+            if self._auto_reconnect:
+                # Let the listener handle reconnection; drop this frame
+                return
             raise ElicitClientError(f"{error_msg}: connection lost")
 
     # ------------------------------------------------------------------
