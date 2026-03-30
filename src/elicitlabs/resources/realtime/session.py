@@ -775,42 +775,63 @@ class AsyncRealtimeSession:
 
         Returns ``True`` if reconnected successfully, ``False`` if all
         attempts were exhausted.  The accumulated context is preserved.
+
+        Only one reconnect runs at a time — concurrent callers wait on
+        the lock and return the result of the in-progress attempt.
         """
         import sys
 
         async with self._reconnect_lock:
-            if self._closed or self._reconnecting:
-                return self._ws is not None
+            # If another coroutine already reconnected while we waited
+            # on the lock, check if the connection is back.
+            if self._closed:
+                return False
+            if self._ws is not None and not self._reconnecting:
+                return True
+
             self._reconnecting = True
+            try:
+                # Close stale socket silently
+                if self._ws is not None:
+                    try:
+                        await self._ws.close()
+                    except Exception:
+                        pass
+                    self._ws = None
 
-        try:
-            # Close stale socket silently
-            if self._ws is not None:
-                try:
-                    await self._ws.close()
-                except Exception:
-                    pass
-                self._ws = None
+                for attempt in range(1, self._max_reconnect_attempts + 1):
+                    if self._closed:
+                        return False
+                    print(
+                        f"[realtime] reconnecting (attempt {attempt}/{self._max_reconnect_attempts})...",
+                        file=sys.stderr,
+                    )
+                    try:
+                        await asyncio.sleep(self._reconnect_delay * attempt)
+                    except asyncio.CancelledError:
+                        return False
+                    if self._closed:
+                        return False
+                    try:
+                        await self._connect()
+                        print("[realtime] reconnected", file=sys.stderr)
+                        return True
+                    except asyncio.CancelledError:
+                        # close() cancelled us mid-handshake — clean up
+                        if self._ws is not None:
+                            try:
+                                await self._ws.close()
+                            except Exception:
+                                pass
+                            self._ws = None
+                        return False
+                    except Exception as exc:
+                        print(f"[realtime] reconnect failed: {exc}", file=sys.stderr)
 
-            for attempt in range(1, self._max_reconnect_attempts + 1):
-                if self._closed:
-                    return False
-                print(
-                    f"[realtime] reconnecting (attempt {attempt}/{self._max_reconnect_attempts})...",
-                    file=sys.stderr,
-                )
-                await asyncio.sleep(self._reconnect_delay * attempt)
-                try:
-                    await self._connect()
-                    print("[realtime] reconnected", file=sys.stderr)
-                    return True
-                except Exception as exc:
-                    print(f"[realtime] reconnect failed: {exc}", file=sys.stderr)
-
-            print("[realtime] giving up after max reconnect attempts", file=sys.stderr)
-            return False
-        finally:
-            self._reconnecting = False
+                print("[realtime] giving up after max reconnect attempts", file=sys.stderr)
+                return False
+            finally:
+                self._reconnecting = False
 
     async def close(self) -> None:
         """Close the WebSocket connection."""
@@ -878,6 +899,8 @@ class AsyncRealtimeSession:
                     ok = await self._reconnect()
                     if ok:
                         continue  # resume reading from new connection
+                # Reconnect disabled or permanently failed — mark session dead
+                self._closed = True
                 break
 
             if isinstance(message, bytes):
@@ -907,14 +930,14 @@ class AsyncRealtimeSession:
         If a reconnect is already in progress, silently drops the data
         to avoid spamming errors from high-frequency senders (audio/video).
         """
-        # Silently drop while reconnecting or disconnected
+        # Silently drop while reconnecting
         if self._reconnecting:
             return
         if self._closed:
             raise ElicitClientError("Session is not connected")
         if self._ws is None:
             if self._auto_reconnect:
-                return  # will be restored by listener reconnect
+                return  # will be restored by reconnect in progress
             raise ElicitClientError("Session is not connected")
 
         try:
@@ -922,10 +945,25 @@ class AsyncRealtimeSession:
         except Exception:
             if self._closed:
                 raise ElicitClientError(f"{error_msg}: session closed")
-            if self._auto_reconnect:
-                # Let the listener handle reconnection; drop this frame
+            if not self._auto_reconnect:
+                raise ElicitClientError(f"{error_msg}: connection lost")
+            # With auto_listen, the listener task handles reconnect.
+            # Without it, we need to reconnect ourselves.
+            if not self._auto_listen:
+                ok = await self._reconnect()
+                if ok:
+                    try:
+                        await self._ws.send(data)  # type: ignore[union-attr]
+                        return
+                    except Exception:
+                        pass
+                # Reconnect failed permanently
+                if not ok:
+                    self._closed = True
+                    raise ElicitClientError(f"{error_msg}: reconnect failed")
                 return
-            raise ElicitClientError(f"{error_msg}: connection lost")
+            # Drop this frame — listener will reconnect
+            return
 
     # ------------------------------------------------------------------
     # Flush / Override
@@ -987,8 +1025,21 @@ class AsyncRealtimeSession:
 
     @property
     def alive(self) -> bool:
-        """``True`` if the connection is open and :meth:`close` has not been called."""
-        return self._ws is not None and not self._closed
+        """``True`` if the session has not been closed.
+
+        Returns ``True`` even during a reconnect — the session is still
+        logically alive while reconnection is in progress.  Only returns
+        ``False`` after :meth:`close` has been called or reconnection
+        has permanently failed.
+        """
+        if self._closed:
+            return False
+        if self._ws is not None:
+            return True
+        # ws is None but we're reconnecting — still alive
+        if self._reconnecting:
+            return True
+        return False
 
     @property
     def turn_id(self) -> Optional[int]:
