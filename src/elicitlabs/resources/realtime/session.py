@@ -809,8 +809,6 @@ class AsyncRealtimeSession:
 
     async def _listen(self) -> None:
         """Read from the WebSocket in a loop, feeding events into the context accumulator."""
-        import sys
-
         while self._ws is not None and not self._closed:
             try:
                 message = await self._ws.recv()
@@ -818,19 +816,15 @@ class AsyncRealtimeSession:
                 break
 
             if isinstance(message, bytes):
-                print(f"[_listen] received binary frame ({len(message)} bytes)", file=sys.stderr)
                 continue
 
             try:
                 data: dict[str, Any] = json.loads(message)
-                print(f"[_listen] received event: {data}", file=sys.stderr)
                 event = _parse_event(data)
-            except Exception as exc:
-                print(f"[_listen] failed to parse event: {exc}", file=sys.stderr)
+            except Exception:
                 continue
 
             if event is None:
-                print(f"[_listen] unknown event type: {data.get('type')}", file=sys.stderr)
                 continue
 
             self._dispatch_event(event)
