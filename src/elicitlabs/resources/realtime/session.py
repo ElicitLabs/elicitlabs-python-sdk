@@ -4,6 +4,7 @@ import re
 import json
 import struct
 import asyncio
+import warnings
 from typing import Any, List, Optional, AsyncIterator
 
 from ..._exceptions import ElicitClientError
@@ -317,123 +318,205 @@ class ContextAccumulator:
                     claim=claim,
                 )
 
-    def build_llm_prompt(self) -> str:
-        """Build an LLM-ready prompt from the latest CONTEXT_SNAPSHOT data.
+    # ------------------------------------------------------------------
+    # Atomic prompt renderers
+    # ------------------------------------------------------------------
 
-        Returns a structured string with sections for people present, objects
-        in scene, conversation summary, long-term memories, and conversation
-        history.  Falls back to :meth:`build_context_string` if no snapshot
-        data is available.
+    def prompt_scene(self) -> str:
+        """Render everything from camera + voice perception.
 
-        The output follows the format from the CONTEXT_SNAPSHOT migration guide
-        and can be used directly as a system message.
+        Includes speakers (face/voice identification), detected objects,
+        and the natural language scene description from the vision pipeline.
+
+        Returns an empty string if no perception data is available.
         """
         wm = self.snapshot_working_memory
+        if wm is None:
+            return ""
+
+        parts: list[str] = []
+
+        if wm.speakers:
+            parts.append("## People Present")
+            for s in wm.speakers:
+                parts.append(f"- {s.description or s.name or '?'}")
+
+        if wm.objects:
+            parts.append("\n## Objects in Scene")
+            for o in wm.objects:
+                parts.append(f"- {o.description or o.label or '?'}")
+
+        if wm.scene:
+            parts.append(f"\n## Scene Description\n{wm.scene}")
+
+        return "\n".join(parts)
+
+    def prompt_working_memory(self) -> str:
+        """Render cognitive working memory: summary, topics, and known people.
+
+        Does NOT include perception data (speakers/objects/scene) —
+        use :meth:`prompt_scene` for that.
+
+        Returns an empty string if no working memory data is available.
+        """
+        wm = self.snapshot_working_memory
+        if wm is None:
+            return ""
+
+        parts: list[str] = []
+
+        if wm.conversation_summary:
+            parts.append(f"## Conversation Summary\n{wm.conversation_summary}")
+
+        if wm.topics:
+            parts.append(f"\n## Topics\n{', '.join(wm.topics)}")
+
+        if wm.people:
+            parts.append("\n## People")
+            for p in wm.people:
+                parts.append(f"- {p.name or '?'} [{p.role or '?'}]: {p.context or ''}")
+
+        return "\n".join(parts)
+
+    def prompt_transcript(self) -> str:
+        """Render the conversation transcript from short-term memory.
+
+        Returns an empty string if no transcript data is available.
+        """
         stm = self.snapshot_short_term_memory
+        if stm is None or not stm.messages:
+            return ""
+
+        parts: list[str] = ["## Transcript"]
+        for msg in stm.messages:
+            speaker = msg.speaker or msg.role or "?"
+            content = msg.content or ""
+            parts.append(f"{speaker}: {content}")
+
+        return "\n".join(parts)
+
+    def prompt_memories(self) -> str:
+        """Render long-term memories: episodic events, preferences, and identity facts.
+
+        Returns an empty string if no long-term memory data is available.
+        """
         ltm = self.long_term_memory
+        if ltm is None:
+            return ""
 
-        # Fall back to legacy format if no snapshot data
-        if wm is None and stm is None and ltm is None:
-            return self.build_context_string()
+        has_any = ltm.episodic or ltm.preference or ltm.identity
+        if not has_any:
+            return ""
 
+        parts: list[str] = ["## Memories"]
+        for mem in (ltm.episodic or []):
+            parts.append(f"- [Episode] {mem}")
+        for mem in (ltm.preference or []):
+            parts.append(f"- [Preference] {mem}")
+        for mem in (ltm.identity or []):
+            parts.append(f"- [Identity] {mem}")
+
+        return "\n".join(parts)
+
+    def prompt_cross_session(self) -> str:
+        """Render prior session context from SESSION_INIT.
+
+        Includes transcript segments and entity observations from recent
+        sessions.  Returns an empty string if no cross-session data exists.
+        """
+        if not self.stm_prior_transcripts and not self.stm_prior_entities:
+            return ""
+
+        parts: list[str] = ["## Prior Session Context"]
+
+        if self.stm_prior_transcripts:
+            parts.append("\n### Recent Transcripts")
+            for t in self.stm_prior_transcripts:
+                speaker = t.speaker or "?"
+                text = t.text or ""
+                parts.append(f"- {speaker}: {text}")
+
+        if self.stm_prior_entities:
+            parts.append("\n### Known Entities")
+            for e in self.stm_prior_entities:
+                name = e.entity_name or "?"
+                modality = e.modality or "unknown"
+                parts.append(f"- {name} ({modality})")
+
+        return "\n".join(parts)
+
+    # ------------------------------------------------------------------
+    # Composed prompt methods
+    # ------------------------------------------------------------------
+
+    def prompt_full(self) -> str:
+        """Build a complete prompt from all available context.
+
+        Composes :meth:`prompt_scene`, :meth:`prompt_working_memory`,
+        :meth:`prompt_memories`, and :meth:`prompt_transcript`.
+
+        Cross-session context is excluded by default — use
+        :meth:`prompt_cross_session` or :meth:`build_messages` to include it.
+
+        Returns ``"(no context available)"`` if all sections are empty.
+        """
+        sections = [
+            self.prompt_scene(),
+            self.prompt_working_memory(),
+            self.prompt_memories(),
+            self.prompt_transcript(),
+        ]
+        sections = [s for s in sections if s]
+        return "\n\n".join(sections) if sections else "(no context available)"
+
+    def build_messages(
+        self,
+        user_question: str = "Respond based on the context above.",
+        *,
+        include_scene: bool = True,
+        include_working_memory: bool = True,
+        include_memories: bool = True,
+        include_transcript: bool = True,
+        include_cross_session: bool = False,
+    ) -> list[dict[str, str]]:
+        """Return an OpenAI-compatible messages list with selectable sections.
+
+        The system message is composed from whichever sections are enabled.
+        Transcript messages are expanded as individual user/assistant turns.
+
+        Args:
+            user_question: Appended as the final user message.
+            include_scene: Include speakers, objects, scene description.
+            include_working_memory: Include summary, topics, people.
+            include_memories: Include long-term memories.
+            include_transcript: Expand STM messages as conversation turns.
+            include_cross_session: Include prior session context.
+        """
         system_parts: list[str] = []
-
-        if wm is not None:
-            if wm.speakers:
-                system_parts.append("## People Present")
-                for s in wm.speakers:
-                    system_parts.append(f"- {s.description or s.name or '?'}")
-
-            if wm.objects:
-                system_parts.append("\n## Objects in Scene")
-                for o in wm.objects:
-                    system_parts.append(f"- {o.description or o.label or '?'}")
-
-            if wm.conversation_summary:
-                system_parts.append(f"\n## Conversation Summary\n{wm.conversation_summary}")
-
-        if ltm is not None:
-            has_memories = (ltm.episodic or ltm.preference or ltm.identity)
-            if has_memories:
-                system_parts.append("\n## Memories")
-                for mem in (ltm.episodic or []):
-                    system_parts.append(f"- [Episode] {mem}")
-                for mem in (ltm.preference or []):
-                    system_parts.append(f"- [Preference] {mem}")
-                for mem in (ltm.identity or []):
-                    system_parts.append(f"- [Identity] {mem}")
+        if include_cross_session:
+            s = self.prompt_cross_session()
+            if s:
+                system_parts.append(s)
+        if include_scene:
+            s = self.prompt_scene()
+            if s:
+                system_parts.append(s)
+        if include_working_memory:
+            s = self.prompt_working_memory()
+            if s:
+                system_parts.append(s)
+        if include_memories:
+            s = self.prompt_memories()
+            if s:
+                system_parts.append(s)
 
         messages: list[dict[str, str]] = []
         if system_parts:
-            messages.append({"role": "system", "content": "\n".join(system_parts)})
+            messages.append({"role": "system", "content": "\n\n".join(system_parts)})
 
-        if stm is not None and stm.messages:
-            for msg in stm.messages:
-                role = msg.role or "user"
-                speaker = msg.speaker or ""
-                content = msg.content or ""
-                if role == "user":
-                    messages.append({"role": "user", "content": f"{speaker}: {content}" if speaker else content})
-                else:
-                    messages.append({"role": "assistant", "content": content})
-
-        if not messages:
-            return "(no context available)"
-
-        # Render as a single string with role labels
-        parts: list[str] = []
-        for msg in messages:
-            parts.append(f"[{msg['role']}]\n{msg['content']}")
-        return "\n\n".join(parts)
-
-    def build_llm_messages(
-        self,
-        user_question: str = "Respond based on the context above.",
-    ) -> list[dict[str, str]]:
-        """Return a ``messages`` list suitable for ``openai.chat.completions.create()``
-        or ``anthropic.messages.create()``.
-
-        If CONTEXT_SNAPSHOT data is available, uses the snapshot format.
-        Otherwise falls back to the legacy context string.
-        """
-        wm = self.snapshot_working_memory
-        stm = self.snapshot_short_term_memory
-        ltm = self.long_term_memory
-
-        if wm is not None or stm is not None or ltm is not None:
-            # Build from snapshot data
-            system_parts: list[str] = []
-
-            if wm is not None:
-                if wm.speakers:
-                    system_parts.append("## People Present")
-                    for s in wm.speakers:
-                        system_parts.append(f"- {s.description or s.name or '?'}")
-
-                if wm.objects:
-                    system_parts.append("\n## Objects in Scene")
-                    for o in wm.objects:
-                        system_parts.append(f"- {o.description or o.label or '?'}")
-
-                if wm.conversation_summary:
-                    system_parts.append(f"\n## Conversation Summary\n{wm.conversation_summary}")
-
-            if ltm is not None:
-                has_memories = (ltm.episodic or ltm.preference or ltm.identity)
-                if has_memories:
-                    system_parts.append("\n## Memories")
-                    for mem in (ltm.episodic or []):
-                        system_parts.append(f"- [Episode] {mem}")
-                    for mem in (ltm.preference or []):
-                        system_parts.append(f"- [Preference] {mem}")
-                    for mem in (ltm.identity or []):
-                        system_parts.append(f"- [Identity] {mem}")
-
-            messages: list[dict[str, str]] = [
-                {"role": "system", "content": "\n".join(system_parts) if system_parts else ""},
-            ]
-
-            if stm is not None and stm.messages:
+        if include_transcript:
+            stm = self.snapshot_short_term_memory
+            if stm and stm.messages:
                 for msg in stm.messages:
                     role = msg.role or "user"
                     speaker = msg.speaker or ""
@@ -443,41 +526,85 @@ class ContextAccumulator:
                     else:
                         messages.append({"role": "assistant", "content": content})
 
-            messages.append({"role": "user", "content": user_question})
-            return messages
+        messages.append({"role": "user", "content": user_question})
+        return messages
 
-        # Legacy fallback
-        context = self.build_context_string()
-        return [
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant. Use the following retrieved "
-                    "context to inform your response.\n\n" + context
-                ),
-            },
-            {"role": "user", "content": user_question},
-        ]
+    # ------------------------------------------------------------------
+    # Structured getters
+    # ------------------------------------------------------------------
+
+    def get_scene(self) -> dict[str, Any]:
+        """Return scene perception data as a structured dict.
+
+        Keys: ``scene``, ``speakers``, ``objects``.
+        """
+        wm = self.snapshot_working_memory
+        return {
+            "scene": wm.scene if wm else None,
+            "speakers": [s.model_dump() for s in (wm.speakers or [])] if wm else [],
+            "objects": [o.model_dump() for o in (wm.objects or [])] if wm else [],
+        }
+
+    def get_working_memory(self) -> dict[str, Any]:
+        """Return cognitive working memory as a structured dict.
+
+        Keys: ``summary``, ``topics``, ``people``.
+        """
+        wm = self.snapshot_working_memory
+        return {
+            "summary": wm.conversation_summary if wm else None,
+            "topics": list(wm.topics or []) if wm else [],
+            "people": [p.model_dump() for p in (wm.people or [])] if wm else [],
+        }
+
+    def get_transcript(self) -> list[dict[str, Any]]:
+        """Return the conversation transcript as a list of message dicts."""
+        stm = self.snapshot_short_term_memory
+        if stm and stm.messages:
+            return [m.model_dump() for m in stm.messages]
+        return []
+
+    def get_memories(self) -> dict[str, list[str]]:
+        """Return long-term memories as a structured dict.
+
+        Keys: ``episodic``, ``preference``, ``identity``.
+        """
+        ltm = self.long_term_memory
+        return {
+            "episodic": list(ltm.episodic or []) if ltm else [],
+            "preference": list(ltm.preference or []) if ltm else [],
+            "identity": list(ltm.identity or []) if ltm else [],
+        }
+
+    # ------------------------------------------------------------------
+    # Legacy methods (deprecated)
+    # ------------------------------------------------------------------
+
+    def build_llm_prompt(self) -> str:
+        """.. deprecated:: Use :meth:`prompt_full` instead."""
+        warnings.warn("build_llm_prompt() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
+        return self.prompt_full()
+
+    def build_llm_messages(
+        self,
+        user_question: str = "Respond based on the context above.",
+    ) -> list[dict[str, str]]:
+        """.. deprecated:: Use :meth:`build_messages` instead."""
+        warnings.warn("build_llm_messages() is deprecated, use build_messages() instead", DeprecationWarning, stacklevel=2)
+        return self.build_messages(user_question)
 
     def build_context_dict(self) -> dict[str, str]:
-        """Return context as a dict with five keys:
+        """.. deprecated:: Use :meth:`get_scene`, :meth:`get_working_memory`,
+        :meth:`get_transcript`, :meth:`get_memories` instead.
 
-        * ``scene_facts`` — face/speaker identity, scene facts, attention targets
-        * ``system_prompt`` — **only new** identity/preference claims not yet flushed
-        * ``episodes`` — episodic memories
-        * ``transcript`` — accumulated transcript text
-        * ``working_memory`` — pre-rendered working memory summary from the server
-
-        Each value is a plain string (empty string if nothing in that section).
-        Identity/preference claims are tracked across flushes so they are
-        only returned once.
+        Legacy card-based context dict. Kept for backward compatibility.
         """
+        warnings.warn("build_context_dict() is deprecated, use get_scene()/get_working_memory()/get_transcript()/get_memories() instead", DeprecationWarning, stacklevel=2)
         all_cards = self.cards
         scene_facts = [c for c in all_cards if c.type in self.SCENE_FACT_TYPES]
         all_system = [c for c in all_cards if c.type in self.SYSTEM_PROMPT_TYPES]
         episodes = [c for c in all_cards if c.type in self.EPISODE_TYPES]
 
-        # Only include system_prompt entries that haven't been flushed before
         new_system: list[ContextCard] = []
         for c in all_system:
             key = self._dedup_key(c)
@@ -485,7 +612,6 @@ class ContextAccumulator:
                 new_system.append(c)
                 self._flushed_system_prompt.add(key)
 
-        # Build working memory text from structured fields
         wm_parts: list[str] = []
         if self.working_memory:
             wm = self.working_memory
@@ -509,7 +635,11 @@ class ContextAccumulator:
         }
 
     def build_context_string(self) -> str:
-        """Build a single context string from all sections."""
+        """.. deprecated:: Use :meth:`prompt_full` instead.
+
+        Legacy card-based context string. Kept for backward compatibility.
+        """
+        warnings.warn("build_context_string() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
         ctx = self.build_context_dict()
         sections: list[str] = []
         for key in ("working_memory", "scene_facts", "system_prompt", "episodes", "transcript"):
@@ -712,13 +842,12 @@ class AsyncRealtimeSession:
     # Flush / Override
     # ------------------------------------------------------------------
 
-    def flush(self) -> dict[str, str]:
-        """Return the current context as a dict and reset all state.
+    def flush(self) -> dict[str, Any]:
+        """Return the current understanding as a dict and reset all state.
 
-        Keys: ``scene_facts``, ``system_prompt``, ``episodes``, ``transcript``.
-        Each value is a plain string (empty string if nothing in that section).
+        Returns the same dict as :meth:`get_understanding`.
         """
-        context = self.context.build_context_dict()
+        context = self.get_understanding()
         self.context.reset()
         return context
 
@@ -827,12 +956,87 @@ class AsyncRealtimeSession:
         wm = self.context.snapshot_working_memory
         return wm.scene if wm is not None else None
 
-    def render_for_prompt(self) -> str:
-        """Build an LLM-ready prompt string from the latest context.
+    # ------------------------------------------------------------------
+    # Prompt builders (delegate to ContextAccumulator)
+    # ------------------------------------------------------------------
 
-        Delegates to :meth:`ContextAccumulator.build_llm_prompt`.
+    def prompt_scene(self) -> str:
+        """Everything from camera + voice: speakers, objects, scene description."""
+        return self.context.prompt_scene()
+
+    def prompt_working_memory(self) -> str:
+        """Cognitive state: conversation summary, topics, known people."""
+        return self.context.prompt_working_memory()
+
+    def prompt_transcript(self) -> str:
+        """Conversation transcript from short-term memory."""
+        return self.context.prompt_transcript()
+
+    def prompt_memories(self) -> str:
+        """Long-term memories: episodic, preference, identity."""
+        return self.context.prompt_memories()
+
+    def prompt_cross_session(self) -> str:
+        """Prior session context from SESSION_INIT."""
+        return self.context.prompt_cross_session()
+
+    def prompt_full(self) -> str:
+        """Complete prompt from all sections (scene + WM + memories + transcript)."""
+        return self.context.prompt_full()
+
+    def build_messages(
+        self,
+        user_question: str = "Respond based on the context above.",
+        *,
+        include_scene: bool = True,
+        include_working_memory: bool = True,
+        include_memories: bool = True,
+        include_transcript: bool = True,
+        include_cross_session: bool = False,
+    ) -> list[dict[str, str]]:
+        """OpenAI-compatible messages list with selectable context sections."""
+        return self.context.build_messages(
+            user_question,
+            include_scene=include_scene,
+            include_working_memory=include_working_memory,
+            include_memories=include_memories,
+            include_transcript=include_transcript,
+            include_cross_session=include_cross_session,
+        )
+
+    # ------------------------------------------------------------------
+    # Structured getters (delegate to ContextAccumulator)
+    # ------------------------------------------------------------------
+
+    def get_understanding(self) -> dict[str, Any]:
+        """Return everything the SDK knows right now as a structured dict.
+
+        Combines scene, working memory, transcript, and memories into
+        a single dict. For individual sections, use :meth:`get_scene`,
+        :meth:`get_working_memory`, etc. on ``session.context``.
         """
-        return self.context.build_llm_prompt()
+        scene = self.context.get_scene()
+        wm = self.context.get_working_memory()
+        return {
+            **scene,
+            **wm,
+            "transcript": self.context.get_transcript(),
+            "memories": self.context.get_memories(),
+        }
+
+    # ------------------------------------------------------------------
+    # Deprecated methods
+    # ------------------------------------------------------------------
+
+    def render_understanding(self) -> str:
+        """.. deprecated:: Use :meth:`prompt_full` instead."""
+        warnings.warn("render_understanding() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
+        return self.context.prompt_full()
+
+    def render_for_prompt(self) -> str:
+        """.. deprecated:: Use :meth:`prompt_full` instead."""
+        warnings.warn("render_for_prompt() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
+        return self.context.prompt_full()
 
     async def send_audio(self, pcm: bytes) -> None:
         """Send a raw PCM audio frame (16-bit mono 16 kHz).
