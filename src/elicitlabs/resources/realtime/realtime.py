@@ -37,6 +37,7 @@ class RealtimeResource(SyncAPIResource):
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
         auto_listen: bool = True,
+        scene_understanding: Optional[bool] = None,
     ) -> AsyncRealtimeSession:
         """Create a realtime session context manager.
 
@@ -71,6 +72,9 @@ class RealtimeResource(SyncAPIResource):
                 If ``False``, no background listener is started — use
                 ``async for event in session`` or :meth:`~AsyncRealtimeSession.recv`
                 to consume events manually.
+            scene_understanding: Enable or disable server-side scene
+                understanding for this session.  Defaults to ``None``
+                (server default, typically enabled).
         """
         url = gateway_url or os.environ.get("ELICIT_GATEWAY_URL")
         return AsyncRealtimeSession(
@@ -83,6 +87,7 @@ class RealtimeResource(SyncAPIResource):
             persona_id=persona_id,
             disabled_learning=disabled_learning,
             auto_listen=auto_listen,
+            scene_understanding=scene_understanding,
         )
 
 
@@ -120,6 +125,7 @@ class AsyncRealtimeResource(AsyncAPIResource):
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
         auto_listen: bool = True,
+        scene_understanding: Optional[bool] = None,
     ) -> AsyncRealtimeSession:
         """Create a realtime session context manager.
 
@@ -154,6 +160,9 @@ class AsyncRealtimeResource(AsyncAPIResource):
                 If ``False``, no background listener is started — use
                 ``async for event in session`` or :meth:`~AsyncRealtimeSession.recv`
                 to consume events manually.
+            scene_understanding: Enable or disable server-side scene
+                understanding for this session.  Defaults to ``None``
+                (server default, typically enabled).
         """
         url = gateway_url or os.environ.get("ELICIT_GATEWAY_URL")
         return AsyncRealtimeSession(
@@ -166,6 +175,7 @@ class AsyncRealtimeResource(AsyncAPIResource):
             persona_id=persona_id,
             disabled_learning=disabled_learning,
             auto_listen=auto_listen,
+            scene_understanding=scene_understanding,
         )
 
 

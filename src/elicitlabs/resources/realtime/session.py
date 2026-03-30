@@ -4,6 +4,7 @@ import re
 import json
 import struct
 import asyncio
+import warnings
 from typing import Any, List, Optional, AsyncIterator
 
 from ..._exceptions import ElicitClientError
@@ -12,13 +13,19 @@ from ...types.realtime.session_events import (
     ContextCard,
     StatusEvent,
     WorkingMemory,
+    LongTermMemory,
+    ShortTermMemory,
     TranscriptEvent,
+    StmTranscriptTurn,
     SessionEndedEvent,
     SessionInitEvent,
     SessionReadyEvent,
     MemoryUpdateEvent,
     ContextStatusEvent,
     ContextUpdateEvent,
+    ContextSnapshotEvent,
+    SnapshotWorkingMemory,
+    SnapshotShortTermMemory,
     RealtimeSessionEvent,
 )
 
@@ -56,15 +63,11 @@ _EVENT_TYPE_MAP: dict[str, type[Any]] = {
     "memory_update": MemoryUpdateEvent,
     "transcript": TranscriptEvent,
     "context_update": ContextUpdateEvent,
-    "context_snapshot": ContextUpdateEvent,
+    "context_snapshot": ContextSnapshotEvent,
     "context_status": ContextStatusEvent,
     "session_ended": SessionEndedEvent,
     "error": ErrorEvent,
     "status": StatusEvent,
-}
-
-_TYPE_ALIASES: dict[str, str] = {
-    "context_snapshot": "context_update",
 }
 
 
@@ -72,33 +75,29 @@ def _parse_event(raw: dict[str, Any]) -> Optional[RealtimeSessionEvent]:
     """Parse a raw JSON dict into a typed event, or ``None`` for unknown types."""
     event_type = raw.get("type", "")
     normalized = event_type.lower()
-    canonical = _TYPE_ALIASES.get(normalized, normalized)
     cls = _EVENT_TYPE_MAP.get(normalized)
-    if cls is not None:
-        raw = {**raw, "type": canonical}
-        return cls.model_validate(raw)  # type: ignore[return-value]
-    return None
+    if cls is None:
+        return None
+    # Normalize the type field to lowercase so Literal validators match
+    if event_type != normalized:
+        raw = {**raw, "type": normalized}
+    return cls.model_validate(raw)  # type: ignore[return-value]
 
 
 class ContextAccumulator:
-    """Collects ``CONTEXT_UPDATE`` and ``CONTEXT_STATUS`` events and builds a
-    unified context string that can be injected into your own LLM calls.
+    """Collects realtime events and builds unified context for LLM injection.
 
-    Maintains a **card store** keyed by ``card.id``.  Applies ``add``,
-    ``update``, and ``expire`` operations sequentially.
+    Supports both the new ``CONTEXT_SNAPSHOT`` events (full-state replacement)
+    and legacy ``CONTEXT_UPDATE`` / ``MEMORY_UPDATE`` events (delta-based).
 
-    Cards are split into three output sections:
+    For legacy events, maintains a **card store** keyed by ``card.id`` with
+    ``add``, ``update``, and ``expire`` operations.
 
-    * **scene_facts** — ``face_identity``, ``speaker_identity``,
-      ``scene_fact``, ``attention_target``
-    * **system_prompt** — ``identity``, ``preference``
-    * **episodes** — ``episodic``
-
-    Working memory is tracked from both ``CONTEXT_UPDATE`` and
-    ``CONTEXT_STATUS`` events and exposed via :attr:`working_memory`.
+    For ``CONTEXT_SNAPSHOT`` events, replaces all state atomically and also
+    populates the legacy card store for backward compatibility.
     """
 
-    # Card types grouped by output section
+    # Card types grouped by output section (legacy)
     SCENE_FACT_TYPES = frozenset({"face_identity", "speaker_identity", "scene_fact", "attention_target"})
     SYSTEM_PROMPT_TYPES = frozenset({"identity", "preference"})
     EPISODE_TYPES = frozenset({"episodic"})
@@ -113,10 +112,10 @@ class ContextAccumulator:
         self._context_version = 0
 
         self.working_memory: Optional[WorkingMemory] = None
-        """Latest working memory state from the server (from MEMORY_UPDATE or CONTEXT_UPDATE)."""
+        """Latest legacy working memory (from MEMORY_UPDATE or CONTEXT_UPDATE)."""
 
         self.short_term_memory: Optional[Any] = None
-        """Latest short-term memory from MEMORY_UPDATE (speaker-attributed transcript)."""
+        """Latest legacy short-term memory from MEMORY_UPDATE."""
 
         self.active_entities: dict[str, dict[str, str]] = {}
         """Entity presence map from the latest CONTEXT_STATUS heartbeat.
@@ -127,6 +126,23 @@ class ContextAccumulator:
 
         self.stm_prior_entities: List[Any] = []
         """Prior entity observations from SESSION_INIT (cross-session context)."""
+
+        # --- CONTEXT_SNAPSHOT state (new) ---
+
+        self.turn_id: Optional[int] = None
+        """Latest turn_id from any event."""
+
+        self.ts: Optional[float] = None
+        """Timestamp of the latest snapshot."""
+
+        self.snapshot_working_memory: Optional[SnapshotWorkingMemory] = None
+        """Latest working memory from CONTEXT_SNAPSHOT (speakers, objects, summary, topics, people)."""
+
+        self.snapshot_short_term_memory: Optional[SnapshotShortTermMemory] = None
+        """Latest short-term memory from CONTEXT_SNAPSHOT (messages list)."""
+
+        self.long_term_memory: Optional[LongTermMemory] = None
+        """Latest long-term memory from CONTEXT_SNAPSHOT (episodic, preference, identity)."""
 
     @property
     def cards(self) -> List[ContextCard]:
@@ -140,6 +156,12 @@ class ContextAccumulator:
         self.transcripts.clear()
         self._context_version = 0
         self.working_memory = None
+        self.short_term_memory = None
+        self.turn_id = None
+        self.ts = None
+        self.snapshot_working_memory = None
+        self.snapshot_short_term_memory = None
+        self.long_term_memory = None
 
     @staticmethod
     def _dedup_key(card: ContextCard) -> str:
@@ -167,6 +189,8 @@ class ContextAccumulator:
 
     def on_memory_update(self, event: MemoryUpdateEvent) -> None:
         """Process a MEMORY_UPDATE event: update STM transcript and working memory."""
+        if event.turn_id is not None:
+            self.turn_id = event.turn_id
         if event.short_term_memory is not None:
             self.short_term_memory = event.short_term_memory
         if event.working_memory is not None:
@@ -174,6 +198,8 @@ class ContextAccumulator:
 
     def on_context_update(self, event: ContextUpdateEvent) -> None:
         """Process a CONTEXT_UPDATE event: apply card ops, update working memory."""
+        if event.turn_id is not None:
+            self.turn_id = event.turn_id
         version = event.context_version or 0
         self._context_version = max(self._context_version, version)
 
@@ -224,25 +250,361 @@ class ContextAccumulator:
         if text.strip():
             self.transcripts.append(text)
 
-    def build_context_dict(self) -> dict[str, str]:
-        """Return context as a dict with five keys:
+    def on_context_snapshot(self, event: ContextSnapshotEvent) -> None:
+        """Process a CONTEXT_SNAPSHOT event: replace full state.
 
-        * ``scene_facts`` — face/speaker identity, scene facts, attention targets
-        * ``system_prompt`` — **only new** identity/preference claims not yet flushed
-        * ``episodes`` — episodic memories
-        * ``transcript`` — accumulated transcript text
-        * ``working_memory`` — pre-rendered working memory summary from the server
+        Unlike ``CONTEXT_UPDATE`` (which applies deltas via card ops),
+        ``CONTEXT_SNAPSHOT`` delivers the complete current state.  The SDK
+        replaces all previous state on each snapshot.
 
-        Each value is a plain string (empty string if nothing in that section).
-        Identity/preference claims are tracked across flushes so they are
-        only returned once.
+        Also populates legacy fields (``working_memory``, ``short_term_memory``,
+        ``card_store``) for backward compatibility.
         """
+        if event.turn_id is not None:
+            self.turn_id = event.turn_id
+        if event.ts is not None:
+            self.ts = event.ts
+
+        # Full replacement — not merge
+        if event.working_memory is not None:
+            self.snapshot_working_memory = event.working_memory
+            # Populate legacy working_memory for backward compat
+            self.working_memory = WorkingMemory(
+                conversation_summary=event.working_memory.conversation_summary,
+                topic_summaries=event.working_memory.topics,
+                people=event.working_memory.people,
+                scene=None,
+            )
+
+        if event.short_term_memory is not None:
+            self.snapshot_short_term_memory = event.short_term_memory
+            # Populate legacy short_term_memory for backward compat
+            if event.short_term_memory.messages:
+                turns = []
+                for msg in event.short_term_memory.messages:
+                    turns.append(StmTranscriptTurn(
+                        role=msg.role,
+                        speaker=msg.speaker,
+                        content=msg.content,
+                        ts=msg.ts,
+                    ))
+                self.short_term_memory = ShortTermMemory(transcript=turns)
+
+        if event.long_term_memory is not None:
+            self.long_term_memory = event.long_term_memory
+            self._sync_ltm_to_cards(event.long_term_memory)
+
+    def _sync_ltm_to_cards(self, ltm: LongTermMemory) -> None:
+        """Sync LongTermMemory string arrays into the card_store for backward compat.
+
+        Since snapshots are full-state, clears existing cards of LTM types
+        and replaces with the new data.
+        """
+        ltm_types = {"episodic", "preference", "identity"}
+        to_remove = [k for k, v in self.card_store.items() if v.type in ltm_types]
+        for k in to_remove:
+            del self.card_store[k]
+
+        for card_type, claims in [
+            ("episodic", ltm.episodic or []),
+            ("preference", ltm.preference or []),
+            ("identity", ltm.identity or []),
+        ]:
+            for i, claim in enumerate(claims):
+                card_id = f"ltm_{card_type}_{i}"
+                self.card_store[card_id] = ContextCard(
+                    id=card_id,
+                    type=card_type,
+                    claim=claim,
+                )
+
+    # ------------------------------------------------------------------
+    # Atomic prompt renderers
+    # ------------------------------------------------------------------
+
+    def prompt_scene(self) -> str:
+        """Render everything from camera + voice perception.
+
+        Includes speakers (face/voice identification), detected objects,
+        and the natural language scene description from the vision pipeline.
+
+        Returns an empty string if no perception data is available.
+        """
+        wm = self.snapshot_working_memory
+        if wm is None:
+            return ""
+
+        parts: list[str] = []
+
+        if wm.speakers:
+            parts.append("## People Present")
+            for s in wm.speakers:
+                parts.append(f"- {s.description or s.name or '?'}")
+
+        if wm.objects:
+            parts.append("\n## Objects in Scene")
+            for o in wm.objects:
+                parts.append(f"- {o.description or o.label or '?'}")
+
+        if wm.scene:
+            parts.append(f"\n## Scene Description\n{wm.scene}")
+
+        return "\n".join(parts)
+
+    def prompt_working_memory(self) -> str:
+        """Render cognitive working memory: summary, topics, and known people.
+
+        Does NOT include perception data (speakers/objects/scene) —
+        use :meth:`prompt_scene` for that.
+
+        Returns an empty string if no working memory data is available.
+        """
+        wm = self.snapshot_working_memory
+        if wm is None:
+            return ""
+
+        parts: list[str] = []
+
+        if wm.conversation_summary:
+            parts.append(f"## Conversation Summary\n{wm.conversation_summary}")
+
+        if wm.topics:
+            parts.append(f"\n## Topics\n{', '.join(wm.topics)}")
+
+        if wm.people:
+            parts.append("\n## People")
+            for p in wm.people:
+                parts.append(f"- {p.name or '?'} [{p.role or '?'}]: {p.context or ''}")
+
+        return "\n".join(parts)
+
+    def prompt_transcript(self) -> str:
+        """Render the conversation transcript from short-term memory.
+
+        Returns an empty string if no transcript data is available.
+        """
+        stm = self.snapshot_short_term_memory
+        if stm is None or not stm.messages:
+            return ""
+
+        parts: list[str] = ["## Transcript"]
+        for msg in stm.messages:
+            speaker = msg.speaker or msg.role or "?"
+            content = msg.content or ""
+            parts.append(f"{speaker}: {content}")
+
+        return "\n".join(parts)
+
+    def prompt_memories(self) -> str:
+        """Render long-term memories: episodic events, preferences, and identity facts.
+
+        Returns an empty string if no long-term memory data is available.
+        """
+        ltm = self.long_term_memory
+        if ltm is None:
+            return ""
+
+        has_any = ltm.episodic or ltm.preference or ltm.identity
+        if not has_any:
+            return ""
+
+        parts: list[str] = ["## Memories"]
+        for mem in (ltm.episodic or []):
+            parts.append(f"- [Episode] {mem}")
+        for mem in (ltm.preference or []):
+            parts.append(f"- [Preference] {mem}")
+        for mem in (ltm.identity or []):
+            parts.append(f"- [Identity] {mem}")
+
+        return "\n".join(parts)
+
+    def prompt_cross_session(self) -> str:
+        """Render prior session context from SESSION_INIT.
+
+        Includes transcript segments and entity observations from recent
+        sessions.  Returns an empty string if no cross-session data exists.
+        """
+        if not self.stm_prior_transcripts and not self.stm_prior_entities:
+            return ""
+
+        parts: list[str] = ["## Prior Session Context"]
+
+        if self.stm_prior_transcripts:
+            parts.append("\n### Recent Transcripts")
+            for t in self.stm_prior_transcripts:
+                speaker = t.speaker or "?"
+                text = t.text or ""
+                parts.append(f"- {speaker}: {text}")
+
+        if self.stm_prior_entities:
+            parts.append("\n### Known Entities")
+            for e in self.stm_prior_entities:
+                name = e.entity_name or "?"
+                modality = e.modality or "unknown"
+                parts.append(f"- {name} ({modality})")
+
+        return "\n".join(parts)
+
+    # ------------------------------------------------------------------
+    # Composed prompt methods
+    # ------------------------------------------------------------------
+
+    def prompt_full(self) -> str:
+        """Build a complete prompt from all available context.
+
+        Composes :meth:`prompt_scene`, :meth:`prompt_working_memory`,
+        :meth:`prompt_memories`, and :meth:`prompt_transcript`.
+
+        Cross-session context is excluded by default — use
+        :meth:`prompt_cross_session` or :meth:`build_messages` to include it.
+
+        Returns ``"(no context available)"`` if all sections are empty.
+        """
+        sections = [
+            self.prompt_scene(),
+            self.prompt_working_memory(),
+            self.prompt_memories(),
+            self.prompt_transcript(),
+        ]
+        sections = [s for s in sections if s]
+        return "\n\n".join(sections) if sections else "(no context available)"
+
+    def build_messages(
+        self,
+        user_question: str = "Respond based on the context above.",
+        *,
+        include_scene: bool = True,
+        include_working_memory: bool = True,
+        include_memories: bool = True,
+        include_transcript: bool = True,
+        include_cross_session: bool = False,
+    ) -> list[dict[str, str]]:
+        """Return an OpenAI-compatible messages list with selectable sections.
+
+        The system message is composed from whichever sections are enabled.
+        Transcript messages are expanded as individual user/assistant turns.
+
+        Args:
+            user_question: Appended as the final user message.
+            include_scene: Include speakers, objects, scene description.
+            include_working_memory: Include summary, topics, people.
+            include_memories: Include long-term memories.
+            include_transcript: Expand STM messages as conversation turns.
+            include_cross_session: Include prior session context.
+        """
+        system_parts: list[str] = []
+        if include_cross_session:
+            s = self.prompt_cross_session()
+            if s:
+                system_parts.append(s)
+        if include_scene:
+            s = self.prompt_scene()
+            if s:
+                system_parts.append(s)
+        if include_working_memory:
+            s = self.prompt_working_memory()
+            if s:
+                system_parts.append(s)
+        if include_memories:
+            s = self.prompt_memories()
+            if s:
+                system_parts.append(s)
+
+        messages: list[dict[str, str]] = []
+        if system_parts:
+            messages.append({"role": "system", "content": "\n\n".join(system_parts)})
+
+        if include_transcript:
+            stm = self.snapshot_short_term_memory
+            if stm and stm.messages:
+                for msg in stm.messages:
+                    role = msg.role or "user"
+                    speaker = msg.speaker or ""
+                    content = msg.content or ""
+                    if role == "user":
+                        messages.append({"role": "user", "content": f"{speaker}: {content}" if speaker else content})
+                    else:
+                        messages.append({"role": "assistant", "content": content})
+
+        messages.append({"role": "user", "content": user_question})
+        return messages
+
+    # ------------------------------------------------------------------
+    # Structured getters
+    # ------------------------------------------------------------------
+
+    def get_scene(self) -> dict[str, Any]:
+        """Return scene perception data as a structured dict.
+
+        Keys: ``scene``, ``speakers``, ``objects``.
+        """
+        wm = self.snapshot_working_memory
+        return {
+            "scene": wm.scene if wm else None,
+            "speakers": [s.model_dump() for s in (wm.speakers or [])] if wm else [],
+            "objects": [o.model_dump() for o in (wm.objects or [])] if wm else [],
+        }
+
+    def get_working_memory(self) -> dict[str, Any]:
+        """Return cognitive working memory as a structured dict.
+
+        Keys: ``summary``, ``topics``, ``people``.
+        """
+        wm = self.snapshot_working_memory
+        return {
+            "summary": wm.conversation_summary if wm else None,
+            "topics": list(wm.topics or []) if wm else [],
+            "people": [p.model_dump() for p in (wm.people or [])] if wm else [],
+        }
+
+    def get_transcript(self) -> list[dict[str, Any]]:
+        """Return the conversation transcript as a list of message dicts."""
+        stm = self.snapshot_short_term_memory
+        if stm and stm.messages:
+            return [m.model_dump() for m in stm.messages]
+        return []
+
+    def get_memories(self) -> dict[str, list[str]]:
+        """Return long-term memories as a structured dict.
+
+        Keys: ``episodic``, ``preference``, ``identity``.
+        """
+        ltm = self.long_term_memory
+        return {
+            "episodic": list(ltm.episodic or []) if ltm else [],
+            "preference": list(ltm.preference or []) if ltm else [],
+            "identity": list(ltm.identity or []) if ltm else [],
+        }
+
+    # ------------------------------------------------------------------
+    # Legacy methods (deprecated)
+    # ------------------------------------------------------------------
+
+    def build_llm_prompt(self) -> str:
+        """.. deprecated:: Use :meth:`prompt_full` instead."""
+        warnings.warn("build_llm_prompt() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
+        return self.prompt_full()
+
+    def build_llm_messages(
+        self,
+        user_question: str = "Respond based on the context above.",
+    ) -> list[dict[str, str]]:
+        """.. deprecated:: Use :meth:`build_messages` instead."""
+        warnings.warn("build_llm_messages() is deprecated, use build_messages() instead", DeprecationWarning, stacklevel=2)
+        return self.build_messages(user_question)
+
+    def build_context_dict(self) -> dict[str, str]:
+        """.. deprecated:: Use :meth:`get_scene`, :meth:`get_working_memory`,
+        :meth:`get_transcript`, :meth:`get_memories` instead.
+
+        Legacy card-based context dict. Kept for backward compatibility.
+        """
+        warnings.warn("build_context_dict() is deprecated, use get_scene()/get_working_memory()/get_transcript()/get_memories() instead", DeprecationWarning, stacklevel=2)
         all_cards = self.cards
         scene_facts = [c for c in all_cards if c.type in self.SCENE_FACT_TYPES]
         all_system = [c for c in all_cards if c.type in self.SYSTEM_PROMPT_TYPES]
         episodes = [c for c in all_cards if c.type in self.EPISODE_TYPES]
 
-        # Only include system_prompt entries that haven't been flushed before
         new_system: list[ContextCard] = []
         for c in all_system:
             key = self._dedup_key(c)
@@ -250,7 +612,6 @@ class ContextAccumulator:
                 new_system.append(c)
                 self._flushed_system_prompt.add(key)
 
-        # Build working memory text from structured fields
         wm_parts: list[str] = []
         if self.working_memory:
             wm = self.working_memory
@@ -274,31 +635,17 @@ class ContextAccumulator:
         }
 
     def build_context_string(self) -> str:
-        """Build a single context string from all sections."""
+        """.. deprecated:: Use :meth:`prompt_full` instead.
+
+        Legacy card-based context string. Kept for backward compatibility.
+        """
+        warnings.warn("build_context_string() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
         ctx = self.build_context_dict()
         sections: list[str] = []
         for key in ("working_memory", "scene_facts", "system_prompt", "episodes", "transcript"):
             if ctx[key]:
                 sections.append(f"{key}:\n{ctx[key]}")
         return "\n\n".join(sections) if sections else "(no context retrieved)"
-
-    def build_llm_messages(
-        self,
-        user_question: str = "Respond based on the context above.",
-    ) -> list[dict[str, str]]:
-        """Return a ``messages`` list suitable for ``openai.chat.completions.create()``
-        or ``anthropic.messages.create()``."""
-        context = self.build_context_string()
-        return [
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant. Use the following retrieved "
-                    "context to inform your response.\n\n" + context
-                ),
-            },
-            {"role": "user", "content": user_question},
-        ]
 
 
 class AsyncRealtimeSession:
@@ -333,6 +680,7 @@ class AsyncRealtimeSession:
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
         auto_listen: bool = True,
+        scene_understanding: Optional[bool] = None,
     ) -> None:
         if websockets is None:
             raise ElicitClientError(
@@ -349,6 +697,7 @@ class AsyncRealtimeSession:
         self._persona_id = persona_id
         self._disabled_learning = disabled_learning
         self._auto_listen = auto_listen
+        self._scene_understanding = scene_understanding
 
         self.context = ContextAccumulator()
         self.session_id = None
@@ -387,6 +736,8 @@ class AsyncRealtimeSession:
             init_msg["project_id"] = self._project_id
         if self._persona_id is not None:
             init_msg["persona_id"] = self._persona_id
+        if self._scene_understanding is not None:
+            init_msg["scene_understanding"] = self._scene_understanding
 
         await self._ws.send(json.dumps(init_msg))
 
@@ -427,6 +778,27 @@ class AsyncRealtimeSession:
             await self._ws.close()
 
     # ------------------------------------------------------------------
+    # Event dispatch
+    # ------------------------------------------------------------------
+
+    def _dispatch_event(self, event: RealtimeSessionEvent) -> None:
+        """Route a parsed event to the appropriate accumulator handler and update session state."""
+        if isinstance(event, ContextSnapshotEvent):
+            self.context.on_context_snapshot(event)
+        elif isinstance(event, ContextUpdateEvent):
+            self.context.on_context_update(event)
+        elif isinstance(event, MemoryUpdateEvent):
+            self.context.on_memory_update(event)
+        elif isinstance(event, ContextStatusEvent):
+            self.context.on_context_status(event)
+        elif isinstance(event, SessionInitEvent):
+            self.context.on_session_init(event)
+        elif isinstance(event, TranscriptEvent):
+            self.context.on_transcript(event)
+        elif isinstance(event, StatusEvent):
+            self.status = "processing" if event.status == "processing" else "rest"
+
+    # ------------------------------------------------------------------
     # Background listener
     # ------------------------------------------------------------------
 
@@ -461,18 +833,7 @@ class AsyncRealtimeSession:
                 print(f"[_listen] unknown event type: {data.get('type')}", file=sys.stderr)
                 continue
 
-            if isinstance(event, ContextUpdateEvent):
-                self.context.on_context_update(event)
-            elif isinstance(event, MemoryUpdateEvent):
-                self.context.on_memory_update(event)
-            elif isinstance(event, ContextStatusEvent):
-                self.context.on_context_status(event)
-            elif isinstance(event, SessionInitEvent):
-                self.context.on_session_init(event)
-            elif isinstance(event, TranscriptEvent):
-                self.context.on_transcript(event)
-            elif isinstance(event, StatusEvent):
-                self.status = "processing" if event.status == "processing" else "rest"
+            self._dispatch_event(event)
 
             if isinstance(event, (SessionEndedEvent, ErrorEvent)):
                 break
@@ -481,13 +842,12 @@ class AsyncRealtimeSession:
     # Flush / Override
     # ------------------------------------------------------------------
 
-    def flush(self) -> dict[str, str]:
-        """Return the current context as a dict and reset all state.
+    def flush(self) -> dict[str, Any]:
+        """Return the current understanding as a dict and reset all state.
 
-        Keys: ``scene_facts``, ``system_prompt``, ``episodes``, ``transcript``.
-        Each value is a plain string (empty string if nothing in that section).
+        Returns the same dict as :meth:`get_understanding`.
         """
-        context = self.context.build_context_dict()
+        context = self.get_understanding()
         self.context.reset()
         return context
 
@@ -561,6 +921,122 @@ class AsyncRealtimeSession:
     def alive(self) -> bool:
         """``True`` if the connection is open and :meth:`close` has not been called."""
         return self._ws is not None and not self._closed
+
+    @property
+    def turn_id(self) -> Optional[int]:
+        """The latest turn_id from any event."""
+        return self.context.turn_id
+
+    @property
+    def working_memory(self) -> Optional[SnapshotWorkingMemory]:
+        """The latest working memory from CONTEXT_SNAPSHOT.
+
+        Returns ``None`` if only legacy events have been received.
+        """
+        return self.context.snapshot_working_memory
+
+    @property
+    def short_term_memory(self) -> Optional[SnapshotShortTermMemory]:
+        """The latest short-term memory from CONTEXT_SNAPSHOT."""
+        return self.context.snapshot_short_term_memory
+
+    @property
+    def long_term_memory(self) -> Optional[LongTermMemory]:
+        """The latest long-term memory from CONTEXT_SNAPSHOT."""
+        return self.context.long_term_memory
+
+    @property
+    def scene(self) -> Optional[str]:
+        """Natural language scene description from the vision pipeline.
+
+        Returns the ``scene`` string from the latest
+        ``CONTEXT_SNAPSHOT`` working memory, or ``None`` when scene
+        understanding is disabled or no snapshot has been received yet.
+        """
+        wm = self.context.snapshot_working_memory
+        return wm.scene if wm is not None else None
+
+    # ------------------------------------------------------------------
+    # Prompt builders (delegate to ContextAccumulator)
+    # ------------------------------------------------------------------
+
+    def prompt_scene(self) -> str:
+        """Everything from camera + voice: speakers, objects, scene description."""
+        return self.context.prompt_scene()
+
+    def prompt_working_memory(self) -> str:
+        """Cognitive state: conversation summary, topics, known people."""
+        return self.context.prompt_working_memory()
+
+    def prompt_transcript(self) -> str:
+        """Conversation transcript from short-term memory."""
+        return self.context.prompt_transcript()
+
+    def prompt_memories(self) -> str:
+        """Long-term memories: episodic, preference, identity."""
+        return self.context.prompt_memories()
+
+    def prompt_cross_session(self) -> str:
+        """Prior session context from SESSION_INIT."""
+        return self.context.prompt_cross_session()
+
+    def prompt_full(self) -> str:
+        """Complete prompt from all sections (scene + WM + memories + transcript)."""
+        return self.context.prompt_full()
+
+    def build_messages(
+        self,
+        user_question: str = "Respond based on the context above.",
+        *,
+        include_scene: bool = True,
+        include_working_memory: bool = True,
+        include_memories: bool = True,
+        include_transcript: bool = True,
+        include_cross_session: bool = False,
+    ) -> list[dict[str, str]]:
+        """OpenAI-compatible messages list with selectable context sections."""
+        return self.context.build_messages(
+            user_question,
+            include_scene=include_scene,
+            include_working_memory=include_working_memory,
+            include_memories=include_memories,
+            include_transcript=include_transcript,
+            include_cross_session=include_cross_session,
+        )
+
+    # ------------------------------------------------------------------
+    # Structured getters (delegate to ContextAccumulator)
+    # ------------------------------------------------------------------
+
+    def get_understanding(self) -> dict[str, Any]:
+        """Return everything the SDK knows right now as a structured dict.
+
+        Combines scene, working memory, transcript, and memories into
+        a single dict. For individual sections, use :meth:`get_scene`,
+        :meth:`get_working_memory`, etc. on ``session.context``.
+        """
+        scene = self.context.get_scene()
+        wm = self.context.get_working_memory()
+        return {
+            **scene,
+            **wm,
+            "transcript": self.context.get_transcript(),
+            "memories": self.context.get_memories(),
+        }
+
+    # ------------------------------------------------------------------
+    # Deprecated methods
+    # ------------------------------------------------------------------
+
+    def render_understanding(self) -> str:
+        """.. deprecated:: Use :meth:`prompt_full` instead."""
+        warnings.warn("render_understanding() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
+        return self.context.prompt_full()
+
+    def render_for_prompt(self) -> str:
+        """.. deprecated:: Use :meth:`prompt_full` instead."""
+        warnings.warn("render_for_prompt() is deprecated, use prompt_full() instead", DeprecationWarning, stacklevel=2)
+        return self.context.prompt_full()
 
     async def send_audio(self, pcm: bytes) -> None:
         """Send a raw PCM audio frame (16-bit mono 16 kHz).
@@ -659,17 +1135,7 @@ class AsyncRealtimeSession:
         if event is None:
             return None
 
-        if isinstance(event, ContextUpdateEvent):
-            self.context.on_context_update(event)
-        elif isinstance(event, MemoryUpdateEvent):
-            self.context.on_memory_update(event)
-        elif isinstance(event, ContextStatusEvent):
-            self.context.on_context_status(event)
-        elif isinstance(event, SessionInitEvent):
-            self.context.on_session_init(event)
-        elif isinstance(event, TranscriptEvent):
-            self.context.on_transcript(event)
-
+        self._dispatch_event(event)
         return event
 
     # ------------------------------------------------------------------
@@ -698,16 +1164,7 @@ class AsyncRealtimeSession:
             if event is None:
                 continue
 
-            if isinstance(event, ContextUpdateEvent):
-                self.context.on_context_update(event)
-            elif isinstance(event, MemoryUpdateEvent):
-                self.context.on_memory_update(event)
-            elif isinstance(event, ContextStatusEvent):
-                self.context.on_context_status(event)
-            elif isinstance(event, SessionInitEvent):
-                self.context.on_session_init(event)
-            elif isinstance(event, TranscriptEvent):
-                self.context.on_transcript(event)
+            self._dispatch_event(event)
 
             if isinstance(event, (SessionEndedEvent, ErrorEvent)):
                 self._iter_done = True
