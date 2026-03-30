@@ -209,6 +209,13 @@ class SnapshotWorkingMemory(BaseModel):
     people: Optional[List[WorkingMemoryPerson]] = None
     """All known people (broader than speakers — includes mentioned people)."""
 
+    scene: Optional[str] = None
+    """Natural language scene description from the vision pipeline.
+
+    Present when scene understanding is enabled, e.g.
+    ``"Person typing on laptop, coffee mug on right side of desk."``
+    """
+
 
 class SnapshotMessage(BaseModel):
     """A single message in the short-term memory transcript (snapshot format)."""

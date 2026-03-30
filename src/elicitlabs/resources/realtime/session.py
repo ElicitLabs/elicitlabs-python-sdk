@@ -550,6 +550,7 @@ class AsyncRealtimeSession:
         persona_id: Optional[str] = None,
         disabled_learning: bool = False,
         auto_listen: bool = True,
+        scene_understanding: Optional[bool] = None,
     ) -> None:
         if websockets is None:
             raise ElicitClientError(
@@ -566,6 +567,7 @@ class AsyncRealtimeSession:
         self._persona_id = persona_id
         self._disabled_learning = disabled_learning
         self._auto_listen = auto_listen
+        self._scene_understanding = scene_understanding
 
         self.context = ContextAccumulator()
         self.session_id = None
@@ -604,6 +606,8 @@ class AsyncRealtimeSession:
             init_msg["project_id"] = self._project_id
         if self._persona_id is not None:
             init_msg["persona_id"] = self._persona_id
+        if self._scene_understanding is not None:
+            init_msg["scene_understanding"] = self._scene_understanding
 
         await self._ws.send(json.dumps(init_msg))
 
@@ -811,6 +815,17 @@ class AsyncRealtimeSession:
     def long_term_memory(self) -> Optional[LongTermMemory]:
         """The latest long-term memory from CONTEXT_SNAPSHOT."""
         return self.context.long_term_memory
+
+    @property
+    def scene(self) -> Optional[str]:
+        """Natural language scene description from the vision pipeline.
+
+        Returns the ``scene`` string from the latest
+        ``CONTEXT_SNAPSHOT`` working memory, or ``None`` when scene
+        understanding is disabled or no snapshot has been received yet.
+        """
+        wm = self.context.snapshot_working_memory
+        return wm.scene if wm is not None else None
 
     def render_for_prompt(self) -> str:
         """Build an LLM-ready prompt string from the latest context.
