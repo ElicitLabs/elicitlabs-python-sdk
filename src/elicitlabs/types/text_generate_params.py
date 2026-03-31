@@ -12,8 +12,14 @@ class TextGenerateParams(TypedDict, total=False):
     user_id: Required[str]
     """The end-user ID"""
 
+    async_mode: bool
+    """Run generation asynchronously. When true, returns a job_id instead of the result."""
+
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
+
+    callback_url: Optional[str]
+    """URL to POST results to when async generation completes. Implies async_mode=true."""
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
@@ -26,6 +32,9 @@ class TextGenerateParams(TypedDict, total=False):
 
     model: str
     """LLM model to use for generation"""
+
+    notification_email: Optional[str]
+    """Email address to notify when the job completes."""
 
     output_schema: Optional[Dict[str, object]]
     """Optional JSON Schema describing the desired output structure.

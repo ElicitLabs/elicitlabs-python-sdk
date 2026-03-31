@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 
 import httpx
 
@@ -18,6 +18,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.async_generation_response import AsyncGenerationResponse
 from ..types.video_generate_response import VideoGenerateResponse
 
 __all__ = ["VideoResource", "AsyncVideoResource"]
@@ -50,12 +51,15 @@ class VideoResource(SyncAPIResource):
         user_id: str,
         advanced_creative: bool | Omit = omit,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -68,7 +72,7 @@ class VideoResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> VideoGenerateResponse:
+    ) -> Union[VideoGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated video generation endpoint using the Universal Schema with flat
         parameters.
@@ -148,12 +152,15 @@ class VideoResource(SyncAPIResource):
                     "user_id": user_id,
                     "advanced_creative": advanced_creative,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
@@ -197,12 +204,15 @@ class AsyncVideoResource(AsyncAPIResource):
         user_id: str,
         advanced_creative: bool | Omit = omit,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -215,7 +225,7 @@ class AsyncVideoResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> VideoGenerateResponse:
+    ) -> Union[VideoGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated video generation endpoint using the Universal Schema with flat
         parameters.
@@ -295,12 +305,15 @@ class AsyncVideoResource(AsyncAPIResource):
                     "user_id": user_id,
                     "advanced_creative": advanced_creative,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
