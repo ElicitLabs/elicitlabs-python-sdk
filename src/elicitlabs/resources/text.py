@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import httpx
 
@@ -18,6 +18,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.async_generation_response import AsyncGenerationResponse
 from ..types.text_generate_response import TextGenerateResponse
 
 __all__ = ["TextResource", "AsyncTextResource"]
@@ -47,11 +48,14 @@ class TextResource(SyncAPIResource):
         self,
         *,
         user_id: str,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         output_schema: Optional[Dict[str, object]] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -65,7 +69,7 @@ class TextResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> TextGenerateResponse:
+    ) -> Union[TextGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated text generation endpoint using the Universal Schema with flat
         parameters.
@@ -133,11 +137,14 @@ class TextResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "user_id": user_id,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "output_schema": output_schema,
                     "persona_id": persona_id,
                     "project_id": project_id,
@@ -179,11 +186,14 @@ class AsyncTextResource(AsyncAPIResource):
         self,
         *,
         user_id: str,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         output_schema: Optional[Dict[str, object]] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -197,7 +207,7 @@ class AsyncTextResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> TextGenerateResponse:
+    ) -> Union[TextGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated text generation endpoint using the Universal Schema with flat
         parameters.
@@ -265,11 +275,14 @@ class AsyncTextResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "user_id": user_id,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "output_schema": output_schema,
                     "persona_id": persona_id,
                     "project_id": project_id,

@@ -15,11 +15,17 @@ class AudioGenerateParams(TypedDict, total=False):
     user_id: Required[str]
     """The end-user ID"""
 
+    async_mode: bool
+    """Run generation asynchronously. When true, returns a job_id instead of the result."""
+
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
 
     audio_type: Literal["speech", "sfx", "music"]
     """Audio type: 'speech', 'sfx', or 'music'"""
+
+    callback_url: Optional[str]
+    """URL to POST results to when async generation completes. Implies async_mode=true."""
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
@@ -39,6 +45,9 @@ class AudioGenerateParams(TypedDict, total=False):
     music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
     'eleven-turbo' (ElevenLabs TTS for speech)
     """
+
+    notification_email: Optional[str]
+    """Email address to notify when the job completes."""
 
     persona_id: Optional[str]
     """The specific system persona/voice to use"""

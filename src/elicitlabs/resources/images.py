@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 from typing_extensions import Literal
 
 import httpx
@@ -19,6 +19,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.async_generation_response import AsyncGenerationResponse
 from ..types.image_generate_response import ImageGenerateResponse
 
 __all__ = ["ImagesResource", "AsyncImagesResource"]
@@ -50,6 +51,9 @@ class ImagesResource(SyncAPIResource):
         text_input: str,
         user_id: str,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
@@ -69,7 +73,7 @@ class ImagesResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> ImageGenerateResponse:
+    ) -> Union[ImageGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated image generation endpoint using the Universal Schema with flat
         parameters.
@@ -146,6 +150,9 @@ class ImagesResource(SyncAPIResource):
                     "text_input": text_input,
                     "user_id": user_id,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
+                    "callback_url": callback_url,
+                    "notification_email": notification_email,
                     "audio_base64": audio_base64,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
@@ -195,6 +202,9 @@ class AsyncImagesResource(AsyncAPIResource):
         text_input: str,
         user_id: str,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
@@ -214,7 +224,7 @@ class AsyncImagesResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> ImageGenerateResponse:
+    ) -> Union[ImageGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated image generation endpoint using the Universal Schema with flat
         parameters.
@@ -291,6 +301,9 @@ class AsyncImagesResource(AsyncAPIResource):
                     "text_input": text_input,
                     "user_id": user_id,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
+                    "callback_url": callback_url,
+                    "notification_email": notification_email,
                     "audio_base64": audio_base64,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,

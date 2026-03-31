@@ -17,3 +17,6 @@ class LinkCreateResponse(BaseModel):
     user_id: str
 
     cloned_persona_id: Optional[str] = None
+
+    job_id: Optional[str] = None
+    """Job ID for tracking async link operations"""

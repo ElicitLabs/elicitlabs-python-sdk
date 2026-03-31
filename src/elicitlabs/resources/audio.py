@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 from typing_extensions import Literal
 
 import httpx
@@ -20,6 +20,7 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.audio_generate_response import AudioGenerateResponse
+from ..types.async_generation_response import AsyncGenerationResponse
 
 __all__ = ["AudioResource", "AsyncAudioResource"]
 
@@ -49,13 +50,16 @@ class AudioResource(SyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         audio_type: Literal["speech", "sfx", "music"] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -70,7 +74,7 @@ class AudioResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> AudioGenerateResponse:
+    ) -> Union[AudioGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated audio generation endpoint using the Universal Schema with flat
         parameters.
@@ -159,13 +163,16 @@ class AudioResource(SyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
                     "audio_type": audio_type,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
@@ -209,13 +216,16 @@ class AsyncAudioResource(AsyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         audio_type: Literal["speech", "sfx", "music"] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -230,7 +240,7 @@ class AsyncAudioResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> AudioGenerateResponse:
+    ) -> Union[AudioGenerateResponse, AsyncGenerationResponse]:
         """
         Dedicated audio generation endpoint using the Universal Schema with flat
         parameters.
@@ -319,13 +329,16 @@ class AsyncAudioResource(AsyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
                     "audio_type": audio_type,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,

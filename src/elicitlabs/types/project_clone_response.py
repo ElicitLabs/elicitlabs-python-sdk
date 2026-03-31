@@ -45,3 +45,6 @@ class ProjectCloneResponse(BaseModel):
 
     source_project_id: str
     """ID of the original project that was cloned"""
+
+    job_id: Optional[str] = None
+    """Job ID for tracking async clone operations"""

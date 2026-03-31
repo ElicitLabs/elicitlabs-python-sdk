@@ -29,3 +29,9 @@ class ProjectCloneParams(TypedDict, total=False):
 
     If not provided, uses the authenticated user.
     """
+
+    callback_url: Optional[str]
+    """Optional callback URL to receive a notification when the clone is complete."""
+
+    notification_email: Optional[str]
+    """Optional email address to receive a notification when the clone is complete."""
