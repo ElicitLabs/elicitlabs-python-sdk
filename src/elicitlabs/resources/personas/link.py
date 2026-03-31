@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import httpx
 
-from ..._types import Body, Query, Headers, NotGiven, not_given
+from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from ..._utils import path_template, maybe_transform, async_maybe_transform
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
@@ -47,6 +49,8 @@ class LinkResource(SyncAPIResource):
         persona_id: str,
         *,
         user_id: str,
+        callback_url: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -65,6 +69,11 @@ class LinkResource(SyncAPIResource):
         Args:
           user_id: The user ID to link
 
+          callback_url: Optional URL the server will POST to when the clone job reaches a terminal
+              state.
+
+          notification_email: Optional email address to notify when the clone job completes.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -77,7 +86,14 @@ class LinkResource(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `persona_id` but received {persona_id!r}")
         return self._post(
             path_template("/v1/personas/{persona_id}/link", persona_id=persona_id),
-            body=maybe_transform({"user_id": user_id}, link_create_params.LinkCreateParams),
+            body=maybe_transform(
+                {
+                    "user_id": user_id,
+                    "callback_url": callback_url,
+                    "notification_email": notification_email,
+                },
+                link_create_params.LinkCreateParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -148,6 +164,8 @@ class AsyncLinkResource(AsyncAPIResource):
         persona_id: str,
         *,
         user_id: str,
+        callback_url: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -166,6 +184,11 @@ class AsyncLinkResource(AsyncAPIResource):
         Args:
           user_id: The user ID to link
 
+          callback_url: Optional URL the server will POST to when the clone job reaches a terminal
+              state.
+
+          notification_email: Optional email address to notify when the clone job completes.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -178,7 +201,14 @@ class AsyncLinkResource(AsyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `persona_id` but received {persona_id!r}")
         return await self._post(
             path_template("/v1/personas/{persona_id}/link", persona_id=persona_id),
-            body=await async_maybe_transform({"user_id": user_id}, link_create_params.LinkCreateParams),
+            body=await async_maybe_transform(
+                {
+                    "user_id": user_id,
+                    "callback_url": callback_url,
+                    "notification_email": notification_email,
+                },
+                link_create_params.LinkCreateParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),

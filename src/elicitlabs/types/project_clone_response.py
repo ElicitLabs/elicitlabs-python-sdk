@@ -37,6 +37,9 @@ class Project(BaseModel):
 class ProjectCloneResponse(BaseModel):
     """Response model for cloning a project"""
 
+    job_id: str
+    """Job ID for tracking the clone operation status via /v1/data/job/status"""
+
     message: str
     """Success message"""
 

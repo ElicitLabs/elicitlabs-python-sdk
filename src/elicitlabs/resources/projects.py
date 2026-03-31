@@ -255,8 +255,10 @@ class ProjectsResource(SyncAPIResource):
         self,
         *,
         project_id: str,
+        callback_url: Optional[str] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         source_user_id: str | Omit = omit,
         target_user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -285,9 +287,14 @@ class ProjectsResource(SyncAPIResource):
         Args:
           project_id: ID of the project to clone
 
+          callback_url: Optional URL the server will POST to when the clone job reaches a terminal
+              state.
+
           description: Description for the cloned project. Defaults to the original's description.
 
           name: Name for the cloned project. Defaults to '{original_name} (Copy)'.
+
+          notification_email: Optional email address to notify when the clone job completes.
 
           source_user_id: User ID of the source project owner. If not provided, uses the authenticated
               user's ID.
@@ -308,8 +315,10 @@ class ProjectsResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "project_id": project_id,
+                    "callback_url": callback_url,
                     "description": description,
                     "name": name,
+                    "notification_email": notification_email,
                     "source_user_id": source_user_id,
                     "target_user_id": target_user_id,
                 },
@@ -543,8 +552,10 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         *,
         project_id: str,
+        callback_url: Optional[str] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         source_user_id: str | Omit = omit,
         target_user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -573,9 +584,14 @@ class AsyncProjectsResource(AsyncAPIResource):
         Args:
           project_id: ID of the project to clone
 
+          callback_url: Optional URL the server will POST to when the clone job reaches a terminal
+              state.
+
           description: Description for the cloned project. Defaults to the original's description.
 
           name: Name for the cloned project. Defaults to '{original_name} (Copy)'.
+
+          notification_email: Optional email address to notify when the clone job completes.
 
           source_user_id: User ID of the source project owner. If not provided, uses the authenticated
               user's ID.
@@ -596,8 +612,10 @@ class AsyncProjectsResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "project_id": project_id,
+                    "callback_url": callback_url,
                     "description": description,
                     "name": name,
+                    "notification_email": notification_email,
                     "source_user_id": source_user_id,
                     "target_user_id": target_user_id,
                 },

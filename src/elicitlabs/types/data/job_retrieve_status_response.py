@@ -1,6 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import Optional
+from typing import Dict, Optional
 
 from ..._models import BaseModel
 
@@ -18,3 +18,12 @@ class JobRetrieveStatusResponse(BaseModel):
 
     completion: Optional[int] = None
     """Completion percentage (0-100)"""
+
+    error_details: Optional[str] = None
+    """Error details (available when status is 'error')"""
+
+    job_type: Optional[str] = None
+    """Type of job (e.g. 'ingest', 'clone_project', 'generation_image')"""
+
+    result: Optional[Dict[str, object]] = None
+    """Job result data (available when status is 'done')"""

@@ -50,11 +50,14 @@ class ImagesResource(SyncAPIResource):
         text_input: str,
         user_id: str,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
@@ -105,7 +108,11 @@ class ImagesResource(SyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -114,6 +121,8 @@ class ImagesResource(SyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: Image generation model ID
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -146,11 +155,14 @@ class ImagesResource(SyncAPIResource):
                     "text_input": text_input,
                     "user_id": user_id,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "resolution": resolution,
@@ -195,11 +207,14 @@ class AsyncImagesResource(AsyncAPIResource):
         text_input: str,
         user_id: str,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
@@ -250,7 +265,11 @@ class AsyncImagesResource(AsyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -259,6 +278,8 @@ class AsyncImagesResource(AsyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: Image generation model ID
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -291,11 +312,14 @@ class AsyncImagesResource(AsyncAPIResource):
                     "text_input": text_input,
                     "user_id": user_id,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "resolution": resolution,

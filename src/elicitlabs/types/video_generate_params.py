@@ -25,8 +25,14 @@ class VideoGenerateParams(TypedDict, total=False):
     aspect_ratio: str
     """Aspect ratio for the generated video: '16:9' or '9:16'."""
 
+    async_mode: bool
+    """If true, return a job_id immediately and process in the background"""
+
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
+
+    callback_url: Optional[str]
+    """Optional URL the server will POST to when generation completes."""
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
@@ -42,6 +48,9 @@ class VideoGenerateParams(TypedDict, total=False):
 
     model: str
     """Video generation model ID"""
+
+    notification_email: Optional[str]
+    """Optional email address to notify when generation completes."""
 
     persona_id: Optional[str]
     """The specific system persona/voice to use"""

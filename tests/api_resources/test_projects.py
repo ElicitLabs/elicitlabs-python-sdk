@@ -219,8 +219,10 @@ class TestProjects:
     def test_method_clone_with_all_params(self, client: ElicitClient) -> None:
         project = client.projects.clone(
             project_id="project_id",
+            callback_url="callback_url",
             description="description",
             name="x",
+            notification_email="dev@stainless.com",
             source_user_id="source_user_id",
             target_user_id="target_user_id",
         )
@@ -454,8 +456,10 @@ class TestAsyncProjects:
     async def test_method_clone_with_all_params(self, async_client: AsyncElicitClient) -> None:
         project = await async_client.projects.clone(
             project_id="project_id",
+            callback_url="callback_url",
             description="description",
             name="x",
+            notification_email="dev@stainless.com",
             source_user_id="source_user_id",
             target_user_id="target_user_id",
         )

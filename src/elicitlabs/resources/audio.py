@@ -49,13 +49,16 @@ class AudioResource(SyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         audio_type: Literal["speech", "sfx", "music"] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -112,9 +115,13 @@ class AudioResource(SyncAPIResource):
 
           user_id: The end-user ID
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
 
           audio_type: Audio type: 'speech', 'sfx', or 'music'
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -127,6 +134,8 @@ class AudioResource(SyncAPIResource):
           model: Audio generation model: 'lyria-2' (Google Lyria 2 on Vertex AI, default for
               music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
               'eleven-turbo' (ElevenLabs TTS for speech)
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -159,13 +168,16 @@ class AudioResource(SyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
                     "audio_type": audio_type,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
@@ -209,13 +221,16 @@ class AsyncAudioResource(AsyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         audio_type: Literal["speech", "sfx", "music"] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -272,9 +287,13 @@ class AsyncAudioResource(AsyncAPIResource):
 
           user_id: The end-user ID
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
 
           audio_type: Audio type: 'speech', 'sfx', or 'music'
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -287,6 +306,8 @@ class AsyncAudioResource(AsyncAPIResource):
           model: Audio generation model: 'lyria-2' (Google Lyria 2 on Vertex AI, default for
               music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
               'eleven-turbo' (ElevenLabs TTS for speech)
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -319,13 +340,16 @@ class AsyncAudioResource(AsyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
                     "audio_type": audio_type,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,

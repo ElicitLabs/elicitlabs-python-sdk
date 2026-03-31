@@ -50,12 +50,15 @@ class VideoResource(SyncAPIResource):
         user_id: str,
         advanced_creative: bool | Omit = omit,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -108,7 +111,11 @@ class VideoResource(SyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated video: '16:9' or '9:16'.
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -119,6 +126,8 @@ class VideoResource(SyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: Video generation model ID
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -148,12 +157,15 @@ class VideoResource(SyncAPIResource):
                     "user_id": user_id,
                     "advanced_creative": advanced_creative,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
@@ -197,12 +209,15 @@ class AsyncVideoResource(AsyncAPIResource):
         user_id: str,
         advanced_creative: bool | Omit = omit,
         aspect_ratio: str | Omit = omit,
+        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         duration: Optional[float] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         model: str | Omit = omit,
+        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -255,7 +270,11 @@ class AsyncVideoResource(AsyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated video: '16:9' or '9:16'.
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -266,6 +285,8 @@ class AsyncVideoResource(AsyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: Video generation model ID
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -295,12 +316,15 @@ class AsyncVideoResource(AsyncAPIResource):
                     "user_id": user_id,
                     "advanced_creative": advanced_creative,
                     "aspect_ratio": aspect_ratio,
+                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "duration": duration,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "model": model,
+                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "seed": seed,
