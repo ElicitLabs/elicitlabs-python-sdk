@@ -112,7 +112,11 @@ class VideoResource(SyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated video: '16:9' or '9:16'.
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -123,6 +127,8 @@ class VideoResource(SyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: Video generation model ID
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -265,7 +271,11 @@ class AsyncVideoResource(AsyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated video: '16:9' or '9:16'.
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -276,6 +286,8 @@ class AsyncVideoResource(AsyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: Video generation model ID
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 

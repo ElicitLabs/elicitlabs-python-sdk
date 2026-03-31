@@ -28,6 +28,17 @@ class TestLink:
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
+    def test_method_create_with_all_params(self, client: ElicitClient) -> None:
+        link = client.personas.link.create(
+            persona_id="persona_id",
+            user_id="user_id",
+            callback_url="callback_url",
+            notification_email="dev@stainless.com",
+        )
+        assert_matches_type(LinkCreateResponse, link, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
     def test_raw_response_create(self, client: ElicitClient) -> None:
         response = client.personas.link.with_raw_response.create(
             persona_id="persona_id",
@@ -127,6 +138,17 @@ class TestAsyncLink:
         link = await async_client.personas.link.create(
             persona_id="persona_id",
             user_id="user_id",
+        )
+        assert_matches_type(LinkCreateResponse, link, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_create_with_all_params(self, async_client: AsyncElicitClient) -> None:
+        link = await async_client.personas.link.create(
+            persona_id="persona_id",
+            user_id="user_id",
+            callback_url="callback_url",
+            notification_email="dev@stainless.com",
         )
         assert_matches_type(LinkCreateResponse, link, path=["response"])
 

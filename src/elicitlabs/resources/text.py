@@ -98,7 +98,11 @@ class TextResource(SyncAPIResource):
         Args:
           user_id: The end-user ID
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -107,6 +111,8 @@ class TextResource(SyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: LLM model to use for generation
+
+          notification_email: Optional email address to notify when generation completes.
 
           output_schema: Optional JSON Schema describing the desired output structure. When provided, the
               LLM is forced to return a JSON object matching this schema instead of free-form
@@ -236,7 +242,11 @@ class AsyncTextResource(AsyncAPIResource):
         Args:
           user_id: The end-user ID
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -245,6 +255,8 @@ class AsyncTextResource(AsyncAPIResource):
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           model: LLM model to use for generation
+
+          notification_email: Optional email address to notify when generation completes.
 
           output_schema: Optional JSON Schema describing the desired output structure. When provided, the
               LLM is forced to return a JSON object matching this schema instead of free-form

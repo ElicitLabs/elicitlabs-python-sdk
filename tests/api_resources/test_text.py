@@ -30,11 +30,14 @@ class TestText:
     def test_method_generate_with_all_params(self, client: ElicitClient) -> None:
         text = client.text.generate(
             user_id="user_123",
+            async_mode=True,
             audio_base64="audio_base64",
+            callback_url="callback_url",
             disabled_learning=True,
             image_base64="image_base64",
             max_reasoning_iterations=1,
             model="gpt-4.1-mini",
+            notification_email="notification_email",
             output_schema={"foo": "bar"},
             persona_id="persona_id",
             project_id="proj_ABC",
@@ -90,11 +93,14 @@ class TestAsyncText:
     async def test_method_generate_with_all_params(self, async_client: AsyncElicitClient) -> None:
         text = await async_client.text.generate(
             user_id="user_123",
+            async_mode=True,
             audio_base64="audio_base64",
+            callback_url="callback_url",
             disabled_learning=True,
             image_base64="image_base64",
             max_reasoning_iterations=1,
             model="gpt-4.1-mini",
+            notification_email="notification_email",
             output_schema={"foo": "bar"},
             persona_id="persona_id",
             project_id="proj_ABC",

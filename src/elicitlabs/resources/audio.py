@@ -116,9 +116,13 @@ class AudioResource(SyncAPIResource):
 
           user_id: The end-user ID
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
 
           audio_type: Audio type: 'speech', 'sfx', or 'music'
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -131,6 +135,8 @@ class AudioResource(SyncAPIResource):
           model: Audio generation model: 'lyria-2' (Google Lyria 2 on Vertex AI, default for
               music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
               'eleven-turbo' (ElevenLabs TTS for speech)
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
@@ -282,9 +288,13 @@ class AsyncAudioResource(AsyncAPIResource):
 
           user_id: The end-user ID
 
+          async_mode: If true, return a job_id immediately and process in the background
+
           audio_base64: Base64 encoded reference audio for context
 
           audio_type: Audio type: 'speech', 'sfx', or 'music'
+
+          callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -297,6 +307,8 @@ class AsyncAudioResource(AsyncAPIResource):
           model: Audio generation model: 'lyria-2' (Google Lyria 2 on Vertex AI, default for
               music — 30s 48kHz WAV), 'audiocraft' (MusicGen/AudioGen on Cloud Run), or
               'eleven-turbo' (ElevenLabs TTS for speech)
+
+          notification_email: Optional email address to notify when generation completes.
 
           persona_id: The specific system persona/voice to use
 
