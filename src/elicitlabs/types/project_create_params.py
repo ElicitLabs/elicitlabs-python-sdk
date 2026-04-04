@@ -23,6 +23,12 @@ class ProjectCreateParams(TypedDict, total=False):
     documentation/business content.
     """
 
+    use_hierarchical: bool
+    """
+    When True (default), creative_design projects use the hierarchical ingestion
+    pipeline. Set to False to skip hierarchical and go directly to creative ingest.
+    """
+
     user_id: Optional[str]
     """User ID to associate the project with.
 

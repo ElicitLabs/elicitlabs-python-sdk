@@ -38,6 +38,7 @@ class TestProjects:
             name="My Research Project",
             description="A project for organizing research notes and findings",
             project_type="general",
+            use_hierarchical=True,
             user_id="456e7890-e89b-12d3-a456-426614174001",
         )
         assert_matches_type(ProjectCreateResponse, project, path=["response"])
@@ -275,6 +276,7 @@ class TestAsyncProjects:
             name="My Research Project",
             description="A project for organizing research notes and findings",
             project_type="general",
+            use_hierarchical=True,
             user_id="456e7890-e89b-12d3-a456-426614174001",
         )
         assert_matches_type(ProjectCreateResponse, project, path=["response"])

@@ -33,6 +33,12 @@ class Project(BaseModel):
     When set, skips LLM classification.
     """
 
+    use_hierarchical: Optional[bool] = None
+    """When True, creative_design projects use hierarchical ingestion.
+
+    When False, uses creative ingest directly.
+    """
+
 
 class ProjectCreateResponse(BaseModel):
     """Response model for creating a project"""

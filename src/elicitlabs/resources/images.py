@@ -56,6 +56,7 @@ class ImagesResource(SyncAPIResource):
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
+        mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new"]] | Omit = omit,
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -94,7 +95,7 @@ class ImagesResource(SyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3.1-pro
+            - model (str, optional): Model ID (default: gemini-3.1-flash). Available models: gemini-3.1-flash, gemini-3-flash, gemini-3.1-pro, gpt-image-1, gpt-image-1.5, flux-2-max, flux-2-pro, flux-2-klein-9b, flux-2-schnell, flux-pro-1.1, flux-pro-1.1-ultra, flux-kontext-pro, imagen-4-fast, imagen-4-ultra
             - aspect_ratio (str, optional): Aspect ratio, e.g. "1:1", "16:9", "9:16" (default: 1:1).
             - resolution (str, optional): Resolution tier: "1K", "2K", or "4K" (default: 4K).
             - seed (int, optional): Random seed for reproducibility
@@ -119,6 +120,14 @@ class ImagesResource(SyncAPIResource):
           image_base64: Base64 encoded reference image for context
 
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
+
+          mode: Generation mode controlling speed vs quality tradeoff and how reference images
+              are used. None or 'default': Standard pipeline with memory retrieval and
+              context. 'fast': Skip memory retrieval entirely, prompt goes straight to model.
+              Fastest. 'faithful': Exact visual reproduction of reference images (entity
+              features, colors, proportions). 'style_transfer': Creative adaptation — captures
+              entity identity but with creative latitude. 'create_new': Full creative freedom,
+              references only inform art style/aesthetic.
 
           model: Image generation model ID
 
@@ -161,6 +170,7 @@ class ImagesResource(SyncAPIResource):
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
+                    "mode": mode,
                     "model": model,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -213,6 +223,7 @@ class AsyncImagesResource(AsyncAPIResource):
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
+        mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new"]] | Omit = omit,
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -251,7 +262,7 @@ class AsyncImagesResource(AsyncAPIResource):
             - audio_base64 (str, optional): Base64 encoded reference audio for context
 
             **Image Params (Flat):**
-            - model (str, optional): Model ID (default: gemini-3.1-flash). Available image models: gemini-3.1-flash, gemini-3-flash, gemini-3.1-pro
+            - model (str, optional): Model ID (default: gemini-3.1-flash). Available models: gemini-3.1-flash, gemini-3-flash, gemini-3.1-pro, gpt-image-1, gpt-image-1.5, flux-2-max, flux-2-pro, flux-2-klein-9b, flux-2-schnell, flux-pro-1.1, flux-pro-1.1-ultra, flux-kontext-pro, imagen-4-fast, imagen-4-ultra
             - aspect_ratio (str, optional): Aspect ratio, e.g. "1:1", "16:9", "9:16" (default: 1:1).
             - resolution (str, optional): Resolution tier: "1K", "2K", or "4K" (default: 4K).
             - seed (int, optional): Random seed for reproducibility
@@ -276,6 +287,14 @@ class AsyncImagesResource(AsyncAPIResource):
           image_base64: Base64 encoded reference image for context
 
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
+
+          mode: Generation mode controlling speed vs quality tradeoff and how reference images
+              are used. None or 'default': Standard pipeline with memory retrieval and
+              context. 'fast': Skip memory retrieval entirely, prompt goes straight to model.
+              Fastest. 'faithful': Exact visual reproduction of reference images (entity
+              features, colors, proportions). 'style_transfer': Creative adaptation — captures
+              entity identity but with creative latitude. 'create_new': Full creative freedom,
+              references only inform art style/aesthetic.
 
           model: Image generation model ID
 
@@ -318,6 +337,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
+                    "mode": mode,
                     "model": model,
                     "notification_email": notification_email,
                     "persona_id": persona_id,

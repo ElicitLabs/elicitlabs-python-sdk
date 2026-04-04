@@ -36,6 +36,17 @@ class ImageGenerateParams(TypedDict, total=False):
     max_reasoning_iterations: int
     """Max reasoning steps if reasoning is enabled"""
 
+    mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new"]]
+    """
+    Generation mode controlling speed vs quality tradeoff and how reference images
+    are used. None or 'default': Standard pipeline with memory retrieval and
+    context. 'fast': Skip memory retrieval entirely, prompt goes straight to model.
+    Fastest. 'faithful': Exact visual reproduction of reference images (entity
+    features, colors, proportions). 'style_transfer': Creative adaptation — captures
+    entity identity but with creative latitude. 'create_new': Full creative freedom,
+    references only inform art style/aesthetic.
+    """
+
     model: str
     """Image generation model ID"""
 
