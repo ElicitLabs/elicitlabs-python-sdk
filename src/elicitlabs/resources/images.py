@@ -55,8 +55,9 @@ class ImagesResource(SyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
-        mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new"]] | Omit = omit,
+        mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new", "edit"]] | Omit = omit,
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -64,6 +65,7 @@ class ImagesResource(SyncAPIResource):
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
+        source_generation_id: Optional[str] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
@@ -119,6 +121,10 @@ class ImagesResource(SyncAPIResource):
 
           image_base64: Base64 encoded reference image for context
 
+          mask_base64: Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).
+              Transparent pixels = edit region, opaque pixels = keep. Silently ignored by
+              Flux/Imagen/Gemini providers.
+
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           mode: Generation mode controlling speed vs quality tradeoff and how reference images
@@ -127,7 +133,9 @@ class ImagesResource(SyncAPIResource):
               Fastest. 'faithful': Exact visual reproduction of reference images (entity
               features, colors, proportions). 'style_transfer': Creative adaptation — captures
               entity identity but with creative latitude. 'create_new': Full creative freedom,
-              references only inform art style/aesthetic.
+              references only inform art style/aesthetic. 'edit': Edit a prior generation
+              referenced by source_generation_id; text_input is the feedback / change
+              instruction. Skips memory retrieval — the source image IS the context.
 
           model: Image generation model ID
 
@@ -142,6 +150,10 @@ class ImagesResource(SyncAPIResource):
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
+
+          source_generation_id: ID of a previously generated image (row in upl.generations) to edit. Required
+              when mode='edit'. The server fetches the source from GCS — no upload needed.
+              Must belong to the requesting user.
 
           temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
@@ -169,6 +181,7 @@ class ImagesResource(SyncAPIResource):
                     "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
+                    "mask_base64": mask_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "mode": mode,
                     "model": model,
@@ -178,6 +191,7 @@ class ImagesResource(SyncAPIResource):
                     "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
+                    "source_generation_id": source_generation_id,
                     "temperature": temperature,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
@@ -222,8 +236,9 @@ class AsyncImagesResource(AsyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
-        mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new"]] | Omit = omit,
+        mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new", "edit"]] | Omit = omit,
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -231,6 +246,7 @@ class AsyncImagesResource(AsyncAPIResource):
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
+        source_generation_id: Optional[str] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
@@ -286,6 +302,10 @@ class AsyncImagesResource(AsyncAPIResource):
 
           image_base64: Base64 encoded reference image for context
 
+          mask_base64: Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).
+              Transparent pixels = edit region, opaque pixels = keep. Silently ignored by
+              Flux/Imagen/Gemini providers.
+
           max_reasoning_iterations: Max reasoning steps if reasoning is enabled
 
           mode: Generation mode controlling speed vs quality tradeoff and how reference images
@@ -294,7 +314,9 @@ class AsyncImagesResource(AsyncAPIResource):
               Fastest. 'faithful': Exact visual reproduction of reference images (entity
               features, colors, proportions). 'style_transfer': Creative adaptation — captures
               entity identity but with creative latitude. 'create_new': Full creative freedom,
-              references only inform art style/aesthetic.
+              references only inform art style/aesthetic. 'edit': Edit a prior generation
+              referenced by source_generation_id; text_input is the feedback / change
+              instruction. Skips memory retrieval — the source image IS the context.
 
           model: Image generation model ID
 
@@ -309,6 +331,10 @@ class AsyncImagesResource(AsyncAPIResource):
           seed: Random seed for reproducibility
 
           session_id: Session ID for conversation context
+
+          source_generation_id: ID of a previously generated image (row in upl.generations) to edit. Required
+              when mode='edit'. The server fetches the source from GCS — no upload needed.
+              Must belong to the requesting user.
 
           temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
@@ -336,6 +362,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
                     "image_base64": image_base64,
+                    "mask_base64": mask_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "mode": mode,
                     "model": model,
@@ -345,6 +372,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "resolution": resolution,
                     "seed": seed,
                     "session_id": session_id,
+                    "source_generation_id": source_generation_id,
                     "temperature": temperature,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,

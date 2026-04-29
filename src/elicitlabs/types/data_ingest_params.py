@@ -34,6 +34,13 @@ class DataIngestParams(TypedDict, total=False):
     If omitted, the category is auto-detected from the uploaded file bytes.
     """
 
+    crawl_options: Optional[Dict[str, object]]
+    """Only used when content_type='website'.
+
+    Optional knobs for the discovery + LLM filter step: max_sub_pages (default 50),
+    include_subdomains, search, include_paths, exclude_paths, map_limit.
+    """
+
     filename: Optional[str]
     """Filename of the uploaded file"""
 

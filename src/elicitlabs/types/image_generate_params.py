@@ -33,10 +33,17 @@ class ImageGenerateParams(TypedDict, total=False):
     image_base64: Optional[str]
     """Base64 encoded reference image for context"""
 
+    mask_base64: Optional[str]
+    """Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).
+
+    Transparent pixels = edit region, opaque pixels = keep. Silently ignored by
+    Flux/Imagen/Gemini providers.
+    """
+
     max_reasoning_iterations: int
     """Max reasoning steps if reasoning is enabled"""
 
-    mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new"]]
+    mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new", "edit"]]
     """
     Generation mode controlling speed vs quality tradeoff and how reference images
     are used. None or 'default': Standard pipeline with memory retrieval and
@@ -44,7 +51,9 @@ class ImageGenerateParams(TypedDict, total=False):
     Fastest. 'faithful': Exact visual reproduction of reference images (entity
     features, colors, proportions). 'style_transfer': Creative adaptation — captures
     entity identity but with creative latitude. 'create_new': Full creative freedom,
-    references only inform art style/aesthetic.
+    references only inform art style/aesthetic. 'edit': Edit a prior generation
+    referenced by source_generation_id; text_input is the feedback / change
+    instruction. Skips memory retrieval — the source image IS the context.
     """
 
     model: str
@@ -67,6 +76,13 @@ class ImageGenerateParams(TypedDict, total=False):
 
     session_id: Optional[str]
     """Session ID for conversation context"""
+
+    source_generation_id: Optional[str]
+    """ID of a previously generated image (row in upl.generations) to edit.
+
+    Required when mode='edit'. The server fetches the source from GCS — no upload
+    needed. Must belong to the requesting user.
+    """
 
     temperature: Optional[float]
     """Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic."""

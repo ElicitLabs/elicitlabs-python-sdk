@@ -230,6 +230,7 @@ class DataResource(SyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
+        crawl_options: Optional[Dict[str, object]] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -303,6 +304,10 @@ class DataResource(SyncAPIResource):
           content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
               If omitted, the category is auto-detected from the uploaded file bytes.
 
+          crawl_options: Only used when content_type='website'. Optional knobs for the discovery + LLM
+              filter step: max_sub_pages (default 50), include_subdomains, search,
+              include_paths, exclude_paths, map_limit.
+
           filename: Filename of the uploaded file
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
@@ -335,6 +340,7 @@ class DataResource(SyncAPIResource):
                     "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
+                    "crawl_options": crawl_options,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -548,6 +554,7 @@ class AsyncDataResource(AsyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
+        crawl_options: Optional[Dict[str, object]] | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -621,6 +628,10 @@ class AsyncDataResource(AsyncAPIResource):
           content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
               If omitted, the category is auto-detected from the uploaded file bytes.
 
+          crawl_options: Only used when content_type='website'. Optional knobs for the discovery + LLM
+              filter step: max_sub_pages (default 50), include_subdomains, search,
+              include_paths, exclude_paths, map_limit.
+
           filename: Filename of the uploaded file
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
@@ -653,6 +664,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
+                    "crawl_options": crawl_options,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,

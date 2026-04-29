@@ -10,6 +10,12 @@ __all__ = ["ImageGenerateResponse"]
 class ImageGenerateResponse(BaseModel):
     """Response model for image generation"""
 
+    generation_id: Optional[str] = None
+    """ID of the persisted upl.generations row for this output.
+
+    Pass this back as source_generation_id with mode='edit' to refine it.
+    """
+
     image_base64: Optional[str] = None
     """Base64 encoded image.
 
