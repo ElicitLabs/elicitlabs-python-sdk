@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import Optional
 from typing_extensions import Literal, Required, TypedDict
 
+from .._types import SequenceNotStr
+
 __all__ = ["ImageGenerateParams"]
 
 
@@ -29,6 +31,32 @@ class ImageGenerateParams(TypedDict, total=False):
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
+
+    font_reference_image_base64: Optional[SequenceNotStr[str]]
+    """
+    List of base64-encoded PNG/JPG images showing the desired font (e.g., a
+    typography specimen). Honored only when mode='edit'.
+    """
+
+    font_reference_image_url: Optional[SequenceNotStr[str]]
+    """List of HTTPS or gs:// URLs to images showing the desired font.
+
+    Server downloads them. Honored only when mode='edit'.
+    """
+
+    font_reference_ttf_base64: Optional[SequenceNotStr[str]]
+    """
+    List of base64-encoded TTF/OTF font file bytes (drag-and-drop support — no
+    upload endpoint required). The server decodes, renders a typography sample, and
+    passes the rendered image as a reference. Honored only when mode='edit'.
+    """
+
+    font_reference_ttf_url: Optional[SequenceNotStr[str]]
+    """List of HTTPS or gs:// URLs to TTF/OTF font files.
+
+    The server renders a typography sample in each font and passes the rendered
+    image as a reference. Honored only when mode='edit'.
+    """
 
     image_base64: Optional[str]
     """Base64 encoded reference image for context"""

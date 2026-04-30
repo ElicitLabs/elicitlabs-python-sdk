@@ -8,7 +8,7 @@ from typing_extensions import Literal
 import httpx
 
 from ..types import image_generate_params
-from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -54,6 +54,10 @@ class ImagesResource(SyncAPIResource):
         audio_base64: Optional[str] | Omit = omit,
         callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
+        font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
+        font_reference_image_url: Optional[SequenceNotStr[str]] | Omit = omit,
+        font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
+        font_reference_ttf_url: Optional[SequenceNotStr[str]] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
@@ -118,6 +122,20 @@ class ImagesResource(SyncAPIResource):
           callback_url: Optional URL the server will POST to when generation completes.
 
           disabled_learning: If true, this request is ignored by long-term memory
+
+          font_reference_image_base64: List of base64-encoded PNG/JPG images showing the desired font (e.g., a
+              typography specimen). Honored only when mode='edit'.
+
+          font_reference_image_url: List of HTTPS or gs:// URLs to images showing the desired font. Server downloads
+              them. Honored only when mode='edit'.
+
+          font_reference_ttf_base64: List of base64-encoded TTF/OTF font file bytes (drag-and-drop support — no
+              upload endpoint required). The server decodes, renders a typography sample, and
+              passes the rendered image as a reference. Honored only when mode='edit'.
+
+          font_reference_ttf_url: List of HTTPS or gs:// URLs to TTF/OTF font files. The server renders a
+              typography sample in each font and passes the rendered image as a reference.
+              Honored only when mode='edit'.
 
           image_base64: Base64 encoded reference image for context
 
@@ -180,6 +198,10 @@ class ImagesResource(SyncAPIResource):
                     "audio_base64": audio_base64,
                     "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
+                    "font_reference_image_base64": font_reference_image_base64,
+                    "font_reference_image_url": font_reference_image_url,
+                    "font_reference_ttf_base64": font_reference_ttf_base64,
+                    "font_reference_ttf_url": font_reference_ttf_url,
                     "image_base64": image_base64,
                     "mask_base64": mask_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
@@ -235,6 +257,10 @@ class AsyncImagesResource(AsyncAPIResource):
         audio_base64: Optional[str] | Omit = omit,
         callback_url: Optional[str] | Omit = omit,
         disabled_learning: bool | Omit = omit,
+        font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
+        font_reference_image_url: Optional[SequenceNotStr[str]] | Omit = omit,
+        font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
+        font_reference_ttf_url: Optional[SequenceNotStr[str]] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
         mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
@@ -300,6 +326,20 @@ class AsyncImagesResource(AsyncAPIResource):
 
           disabled_learning: If true, this request is ignored by long-term memory
 
+          font_reference_image_base64: List of base64-encoded PNG/JPG images showing the desired font (e.g., a
+              typography specimen). Honored only when mode='edit'.
+
+          font_reference_image_url: List of HTTPS or gs:// URLs to images showing the desired font. Server downloads
+              them. Honored only when mode='edit'.
+
+          font_reference_ttf_base64: List of base64-encoded TTF/OTF font file bytes (drag-and-drop support — no
+              upload endpoint required). The server decodes, renders a typography sample, and
+              passes the rendered image as a reference. Honored only when mode='edit'.
+
+          font_reference_ttf_url: List of HTTPS or gs:// URLs to TTF/OTF font files. The server renders a
+              typography sample in each font and passes the rendered image as a reference.
+              Honored only when mode='edit'.
+
           image_base64: Base64 encoded reference image for context
 
           mask_base64: Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).
@@ -361,6 +401,10 @@ class AsyncImagesResource(AsyncAPIResource):
                     "audio_base64": audio_base64,
                     "callback_url": callback_url,
                     "disabled_learning": disabled_learning,
+                    "font_reference_image_base64": font_reference_image_base64,
+                    "font_reference_image_url": font_reference_image_url,
+                    "font_reference_ttf_base64": font_reference_ttf_base64,
+                    "font_reference_ttf_url": font_reference_ttf_url,
                     "image_base64": image_base64,
                     "mask_base64": mask_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
