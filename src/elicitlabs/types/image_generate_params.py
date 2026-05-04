@@ -93,6 +93,20 @@ class ImageGenerateParams(TypedDict, total=False):
     persona_id: Optional[str]
     """The specific system persona/voice to use"""
 
+    pinned_entity_ids: Optional[SequenceNotStr[str]]
+    """OBJECTS entity node IDs to anchor flat memory retrieval.
+
+    When set, memory retrieval focuses on episodes/memories connected to these
+    specific entities instead of fully autonomous semantic search.
+    """
+
+    pinned_folder_ids: Optional[SequenceNotStr[str]]
+    """HierarchicalFolder node IDs to anchor hierarchical retrieval.
+
+    When set, the retrieval pipeline targets these folders directly instead of using
+    LLM path selection.
+    """
+
     project_id: Optional[str]
     """The project ID"""
 

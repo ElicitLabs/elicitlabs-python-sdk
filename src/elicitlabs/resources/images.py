@@ -65,6 +65,8 @@ class ImagesResource(SyncAPIResource):
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
+        pinned_entity_ids: Optional[SequenceNotStr[str]] | Omit = omit,
+        pinned_folder_ids: Optional[SequenceNotStr[str]] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -161,6 +163,14 @@ class ImagesResource(SyncAPIResource):
 
           persona_id: The specific system persona/voice to use
 
+          pinned_entity_ids: OBJECTS entity node IDs to anchor flat memory retrieval. When set, memory
+              retrieval focuses on episodes/memories connected to these specific entities
+              instead of fully autonomous semantic search.
+
+          pinned_folder_ids: HierarchicalFolder node IDs to anchor hierarchical retrieval. When set, the
+              retrieval pipeline targets these folders directly instead of using LLM path
+              selection.
+
           project_id: The project ID
 
           resolution: Resolution tier for the generated image: '1K', '2K', or '4K'.
@@ -209,6 +219,8 @@ class ImagesResource(SyncAPIResource):
                     "model": model,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
+                    "pinned_entity_ids": pinned_entity_ids,
+                    "pinned_folder_ids": pinned_folder_ids,
                     "project_id": project_id,
                     "resolution": resolution,
                     "seed": seed,
@@ -268,6 +280,8 @@ class AsyncImagesResource(AsyncAPIResource):
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
+        pinned_entity_ids: Optional[SequenceNotStr[str]] | Omit = omit,
+        pinned_folder_ids: Optional[SequenceNotStr[str]] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         resolution: Literal["1K", "2K", "4K"] | Omit = omit,
         seed: Optional[int] | Omit = omit,
@@ -364,6 +378,14 @@ class AsyncImagesResource(AsyncAPIResource):
 
           persona_id: The specific system persona/voice to use
 
+          pinned_entity_ids: OBJECTS entity node IDs to anchor flat memory retrieval. When set, memory
+              retrieval focuses on episodes/memories connected to these specific entities
+              instead of fully autonomous semantic search.
+
+          pinned_folder_ids: HierarchicalFolder node IDs to anchor hierarchical retrieval. When set, the
+              retrieval pipeline targets these folders directly instead of using LLM path
+              selection.
+
           project_id: The project ID
 
           resolution: Resolution tier for the generated image: '1K', '2K', or '4K'.
@@ -412,6 +434,8 @@ class AsyncImagesResource(AsyncAPIResource):
                     "model": model,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
+                    "pinned_entity_ids": pinned_entity_ids,
+                    "pinned_folder_ids": pinned_folder_ids,
                     "project_id": project_id,
                     "resolution": resolution,
                     "seed": seed,
