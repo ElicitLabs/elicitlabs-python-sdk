@@ -29,6 +29,15 @@ class ImageGenerateParams(TypedDict, total=False):
     callback_url: Optional[str]
     """Optional URL the server will POST to when generation completes."""
 
+    debug: bool
+    """
+    If true, capture a self-contained HTML trace of every pipeline step (retrieval
+    LLM calls, synthesis, prompt assembly, image LLM, post-gen text fix, edit-text
+    refinement loop) to data/temp/<ts>\\__pipeline_trace.html. Also activates
+    automatically when the server is started with the `DEBUG` environment variable
+    set to a truthy value (true/1/yes).
+    """
+
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
 
@@ -71,17 +80,20 @@ class ImageGenerateParams(TypedDict, total=False):
     max_reasoning_iterations: int
     """Max reasoning steps if reasoning is enabled"""
 
-    mode: Optional[Literal["fast", "default", "faithful", "style_transfer", "create_new", "edit"]]
-    """
-    Generation mode controlling speed vs quality tradeoff and how reference images
-    are used. None or 'default': Standard pipeline with memory retrieval and
-    context. 'fast': Skip memory retrieval entirely, prompt goes straight to model.
-    Fastest. 'faithful': Exact visual reproduction of reference images (entity
-    features, colors, proportions). 'style_transfer': Creative adaptation — captures
-    entity identity but with creative latitude. 'create_new': Full creative freedom,
-    references only inform art style/aesthetic. 'edit': Edit a prior generation
-    referenced by source_generation_id; text_input is the feedback / change
-    instruction. Skips memory retrieval — the source image IS the context.
+    mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit"]]
+    """Generation mode controlling how reference assets are used.
+
+    None or 'default': Standard pipeline — synthesis LLM picks consistency vs
+    exploration based on the prompt. 'consistency': Reproduce stored entities/assets
+    faithfully — match their canonical look and the project's documented details.
+    'exploration': Creative freedom — generate new content / new compositions where
+    references guide aesthetic and style only, not exact appearance. The post-gen
+    text fix is skipped in this mode (the model's own text rendering is trusted).
+    'fast': Skip hierarchical retrieval, single-call block selector. 'edit': Edit a
+    prior generation referenced by source_generation_id; text_input is the change
+    instruction. Skips memory retrieval — the source image IS the context. Legacy
+    values 'faithful', 'style_transfer', 'create_new' are auto-coerced
+    ('faithful'→'consistency', the other two→'exploration').
     """
 
     model: str
