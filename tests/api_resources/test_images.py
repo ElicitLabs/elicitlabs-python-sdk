@@ -38,6 +38,7 @@ class TestImages:
             callback_url="callback_url",
             debug=True,
             disabled_learning=True,
+            fan_out_group_id="fan_out_group_id",
             font_reference_image_base64=["string"],
             font_reference_image_url=["string"],
             font_reference_ttf_base64=["string"],
@@ -57,6 +58,7 @@ class TestImages:
             session_id="session_id",
             source_generation_id="source_generation_id",
             temperature=0,
+            text_strategy="overlay",
             use_reasoning=False,
             video_base64="video_base64",
         )
@@ -117,6 +119,7 @@ class TestAsyncImages:
             callback_url="callback_url",
             debug=True,
             disabled_learning=True,
+            fan_out_group_id="fan_out_group_id",
             font_reference_image_base64=["string"],
             font_reference_image_url=["string"],
             font_reference_ttf_base64=["string"],
@@ -136,6 +139,7 @@ class TestAsyncImages:
             session_id="session_id",
             source_generation_id="source_generation_id",
             temperature=0,
+            text_strategy="overlay",
             use_reasoning=False,
             video_base64="video_base64",
         )

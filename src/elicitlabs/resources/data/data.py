@@ -231,6 +231,7 @@ class DataResource(SyncAPIResource):
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
         crawl_options: Optional[Dict[str, object]] | Omit = omit,
+        enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -308,6 +309,13 @@ class DataResource(SyncAPIResource):
               filter step: max_sub_pages (default 50), include_subdomains, search,
               include_paths, exclude_paths, map_limit.
 
+          enable_planner: Opt-in: when true, the ingester pauses after content prep and asks the user
+              clarifying questions about ambiguous intent (e.g. 'is this a successful ad?',
+              'should we retain product references?'). The job transitions to
+              status='awaiting_planner_input' with planner_questions in the status response;
+              the user submits answers via POST /v1/data/ingest/{job_id}/answer-planner. The
+              planner can self-skip when the content is unambiguous.
+
           filename: Filename of the uploaded file
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
@@ -341,6 +349,7 @@ class DataResource(SyncAPIResource):
                     "content_description": content_description,
                     "content_type": content_type,
                     "crawl_options": crawl_options,
+                    "enable_planner": enable_planner,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -555,6 +564,7 @@ class AsyncDataResource(AsyncAPIResource):
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
         crawl_options: Optional[Dict[str, object]] | Omit = omit,
+        enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -632,6 +642,13 @@ class AsyncDataResource(AsyncAPIResource):
               filter step: max_sub_pages (default 50), include_subdomains, search,
               include_paths, exclude_paths, map_limit.
 
+          enable_planner: Opt-in: when true, the ingester pauses after content prep and asks the user
+              clarifying questions about ambiguous intent (e.g. 'is this a successful ad?',
+              'should we retain product references?'). The job transitions to
+              status='awaiting_planner_input' with planner_questions in the status response;
+              the user submits answers via POST /v1/data/ingest/{job_id}/answer-planner. The
+              planner can self-skip when the content is unambiguous.
+
           filename: Filename of the uploaded file
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
@@ -665,6 +682,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "content_description": content_description,
                     "content_type": content_type,
                     "crawl_options": crawl_options,
+                    "enable_planner": enable_planner,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,

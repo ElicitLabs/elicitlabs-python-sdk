@@ -41,6 +41,14 @@ class ImageGenerateParams(TypedDict, total=False):
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
 
+    fan_out_group_id: Optional[str]
+    """
+    Frontend-generated UUID shared across the 3 parallel generations the playground
+    fires per fan-out (one per text_strategy). Persisted on every generation row so
+    the client can re-group siblings after page refresh. Send the SAME value on all
+    3 of the calls in one comparison; omit (null) for non-fan-out generations.
+    """
+
     font_reference_image_base64: Optional[SequenceNotStr[str]]
     """
     List of base64-encoded PNG/JPG images showing the desired font (e.g., a
@@ -140,6 +148,19 @@ class ImageGenerateParams(TypedDict, total=False):
 
     temperature: Optional[float]
     """Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic."""
+
+    text_strategy: Optional[Literal["overlay", "single_gemini", "baked"]]
+    """Typography strategy for mode='consistency'.
+
+    'overlay' (default): HTML text-overlay rendered by Playwright and
+    alpha-composited on top of Gemini's no-text render, with a Claude refinement
+    loop. Best typography fidelity. 'single_gemini': one Gemini call generates the
+    full image (text included) using the consistency-flavored prompt — fast and
+    cheap, but Gemini may hallucinate fonts. 'baked': Claude synthesizes the
+    typography reference, then Gemini paints that text into the final pixels in one
+    call — best balance of typography fidelity and scene integration. Ignored when
+    mode is not 'consistency'.
+    """
 
     use_reasoning: bool
     """Enable Chain-of-Thought/Reasoning steps before generation"""

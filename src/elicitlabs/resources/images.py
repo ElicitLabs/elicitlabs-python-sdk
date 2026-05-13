@@ -55,6 +55,7 @@ class ImagesResource(SyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         debug: bool | Omit = omit,
         disabled_learning: bool | Omit = omit,
+        fan_out_group_id: Optional[str] | Omit = omit,
         font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_image_url: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -74,6 +75,7 @@ class ImagesResource(SyncAPIResource):
         session_id: Optional[str] | Omit = omit,
         source_generation_id: Optional[str] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
+        text_strategy: Optional[Literal["overlay", "single_gemini", "baked"]] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -131,6 +133,11 @@ class ImagesResource(SyncAPIResource):
               set to a truthy value (true/1/yes).
 
           disabled_learning: If true, this request is ignored by long-term memory
+
+          fan_out_group_id: Frontend-generated UUID shared across the 3 parallel generations the playground
+              fires per fan-out (one per text_strategy). Persisted on every generation row so
+              the client can re-group siblings after page refresh. Send the SAME value on all
+              3 of the calls in one comparison; omit (null) for non-fan-out generations.
 
           font_reference_image_base64: List of base64-encoded PNG/JPG images showing the desired font (e.g., a
               typography specimen). Honored only when mode='edit'.
@@ -196,6 +203,15 @@ class ImagesResource(SyncAPIResource):
 
           temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
+          text_strategy: Typography strategy for mode='consistency'. 'overlay' (default): HTML
+              text-overlay rendered by Playwright and alpha-composited on top of Gemini's
+              no-text render, with a Claude refinement loop. Best typography fidelity.
+              'single_gemini': one Gemini call generates the full image (text included) using
+              the consistency-flavored prompt — fast and cheap, but Gemini may hallucinate
+              fonts. 'baked': Claude synthesizes the typography reference, then Gemini paints
+              that text into the final pixels in one call — best balance of typography
+              fidelity and scene integration. Ignored when mode is not 'consistency'.
+
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
           video_base64: Base64 encoded reference video for context
@@ -220,6 +236,7 @@ class ImagesResource(SyncAPIResource):
                     "callback_url": callback_url,
                     "debug": debug,
                     "disabled_learning": disabled_learning,
+                    "fan_out_group_id": fan_out_group_id,
                     "font_reference_image_base64": font_reference_image_base64,
                     "font_reference_image_url": font_reference_image_url,
                     "font_reference_ttf_base64": font_reference_ttf_base64,
@@ -239,6 +256,7 @@ class ImagesResource(SyncAPIResource):
                     "session_id": session_id,
                     "source_generation_id": source_generation_id,
                     "temperature": temperature,
+                    "text_strategy": text_strategy,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
@@ -282,6 +300,7 @@ class AsyncImagesResource(AsyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         debug: bool | Omit = omit,
         disabled_learning: bool | Omit = omit,
+        fan_out_group_id: Optional[str] | Omit = omit,
         font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_image_url: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -301,6 +320,7 @@ class AsyncImagesResource(AsyncAPIResource):
         session_id: Optional[str] | Omit = omit,
         source_generation_id: Optional[str] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
+        text_strategy: Optional[Literal["overlay", "single_gemini", "baked"]] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -358,6 +378,11 @@ class AsyncImagesResource(AsyncAPIResource):
               set to a truthy value (true/1/yes).
 
           disabled_learning: If true, this request is ignored by long-term memory
+
+          fan_out_group_id: Frontend-generated UUID shared across the 3 parallel generations the playground
+              fires per fan-out (one per text_strategy). Persisted on every generation row so
+              the client can re-group siblings after page refresh. Send the SAME value on all
+              3 of the calls in one comparison; omit (null) for non-fan-out generations.
 
           font_reference_image_base64: List of base64-encoded PNG/JPG images showing the desired font (e.g., a
               typography specimen). Honored only when mode='edit'.
@@ -423,6 +448,15 @@ class AsyncImagesResource(AsyncAPIResource):
 
           temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
+          text_strategy: Typography strategy for mode='consistency'. 'overlay' (default): HTML
+              text-overlay rendered by Playwright and alpha-composited on top of Gemini's
+              no-text render, with a Claude refinement loop. Best typography fidelity.
+              'single_gemini': one Gemini call generates the full image (text included) using
+              the consistency-flavored prompt — fast and cheap, but Gemini may hallucinate
+              fonts. 'baked': Claude synthesizes the typography reference, then Gemini paints
+              that text into the final pixels in one call — best balance of typography
+              fidelity and scene integration. Ignored when mode is not 'consistency'.
+
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
           video_base64: Base64 encoded reference video for context
@@ -447,6 +481,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "callback_url": callback_url,
                     "debug": debug,
                     "disabled_learning": disabled_learning,
+                    "fan_out_group_id": fan_out_group_id,
                     "font_reference_image_base64": font_reference_image_base64,
                     "font_reference_image_url": font_reference_image_url,
                     "font_reference_ttf_base64": font_reference_ttf_base64,
@@ -466,6 +501,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "session_id": session_id,
                     "source_generation_id": source_generation_id,
                     "temperature": temperature,
+                    "text_strategy": text_strategy,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
