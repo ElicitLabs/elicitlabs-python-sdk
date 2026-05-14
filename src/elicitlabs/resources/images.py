@@ -75,7 +75,7 @@ class ImagesResource(SyncAPIResource):
         session_id: Optional[str] | Omit = omit,
         source_generation_id: Optional[str] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
-        text_strategy: Optional[Literal["overlay", "single_gemini", "baked"]] | Omit = omit,
+        text_strategy: Optional[Literal["IG_1", "IG_2", "IG_3"]] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -203,14 +203,16 @@ class ImagesResource(SyncAPIResource):
 
           temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
-          text_strategy: Typography strategy for mode='consistency'. 'overlay' (default): HTML
-              text-overlay rendered by Playwright and alpha-composited on top of Gemini's
-              no-text render, with a Claude refinement loop. Best typography fidelity.
-              'single_gemini': one Gemini call generates the full image (text included) using
-              the consistency-flavored prompt — fast and cheap, but Gemini may hallucinate
-              fonts. 'baked': Claude synthesizes the typography reference, then Gemini paints
-              that text into the final pixels in one call — best balance of typography
-              fidelity and scene integration. Ignored when mode is not 'consistency'.
+          text_strategy: Typography strategy for mode='consistency'. 'IG_1' (default — PIL overlay path,
+              formerly 'overlay'): HTML text-overlay rendered by Playwright and
+              alpha-composited on top of Gemini's no-text render, with a Claude refinement
+              loop. Best typography fidelity. 'IG_2' (text-baked path, formerly 'baked'):
+              Claude synthesizes the typography reference, then Gemini paints that text into
+              the final pixels in one call — best balance of typography fidelity and scene
+              integration. 'IG_3' (single-Gemini path, formerly 'single_gemini'): one Gemini
+              call generates the full image (text included) using the consistency-flavored
+              prompt — fast and cheap, but Gemini may hallucinate fonts. Ignored when mode is
+              not 'consistency'.
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -320,7 +322,7 @@ class AsyncImagesResource(AsyncAPIResource):
         session_id: Optional[str] | Omit = omit,
         source_generation_id: Optional[str] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
-        text_strategy: Optional[Literal["overlay", "single_gemini", "baked"]] | Omit = omit,
+        text_strategy: Optional[Literal["IG_1", "IG_2", "IG_3"]] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -448,14 +450,16 @@ class AsyncImagesResource(AsyncAPIResource):
 
           temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
-          text_strategy: Typography strategy for mode='consistency'. 'overlay' (default): HTML
-              text-overlay rendered by Playwright and alpha-composited on top of Gemini's
-              no-text render, with a Claude refinement loop. Best typography fidelity.
-              'single_gemini': one Gemini call generates the full image (text included) using
-              the consistency-flavored prompt — fast and cheap, but Gemini may hallucinate
-              fonts. 'baked': Claude synthesizes the typography reference, then Gemini paints
-              that text into the final pixels in one call — best balance of typography
-              fidelity and scene integration. Ignored when mode is not 'consistency'.
+          text_strategy: Typography strategy for mode='consistency'. 'IG_1' (default — PIL overlay path,
+              formerly 'overlay'): HTML text-overlay rendered by Playwright and
+              alpha-composited on top of Gemini's no-text render, with a Claude refinement
+              loop. Best typography fidelity. 'IG_2' (text-baked path, formerly 'baked'):
+              Claude synthesizes the typography reference, then Gemini paints that text into
+              the final pixels in one call — best balance of typography fidelity and scene
+              integration. 'IG_3' (single-Gemini path, formerly 'single_gemini'): one Gemini
+              call generates the full image (text included) using the consistency-flavored
+              prompt — fast and cheap, but Gemini may hallucinate fonts. Ignored when mode is
+              not 'consistency'.
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 

@@ -149,17 +149,18 @@ class ImageGenerateParams(TypedDict, total=False):
     temperature: Optional[float]
     """Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic."""
 
-    text_strategy: Optional[Literal["overlay", "single_gemini", "baked"]]
+    text_strategy: Optional[Literal["IG_1", "IG_2", "IG_3"]]
     """Typography strategy for mode='consistency'.
 
-    'overlay' (default): HTML text-overlay rendered by Playwright and
-    alpha-composited on top of Gemini's no-text render, with a Claude refinement
-    loop. Best typography fidelity. 'single_gemini': one Gemini call generates the
-    full image (text included) using the consistency-flavored prompt — fast and
-    cheap, but Gemini may hallucinate fonts. 'baked': Claude synthesizes the
-    typography reference, then Gemini paints that text into the final pixels in one
-    call — best balance of typography fidelity and scene integration. Ignored when
-    mode is not 'consistency'.
+    'IG_1' (default — PIL overlay path, formerly 'overlay'): HTML text-overlay
+    rendered by Playwright and alpha-composited on top of Gemini's no-text render,
+    with a Claude refinement loop. Best typography fidelity. 'IG_2' (text-baked
+    path, formerly 'baked'): Claude synthesizes the typography reference, then
+    Gemini paints that text into the final pixels in one call — best balance of
+    typography fidelity and scene integration. 'IG_3' (single-Gemini path, formerly
+    'single_gemini'): one Gemini call generates the full image (text included) using
+    the consistency-flavored prompt — fast and cheap, but Gemini may hallucinate
+    fonts. Ignored when mode is not 'consistency'.
     """
 
     use_reasoning: bool
