@@ -17,6 +17,12 @@ class ImageGenerateParams(TypedDict, total=False):
     user_id: Required[str]
     """The end-user ID"""
 
+    ad_id: Optional[str]
+    """Relayout mode only: the reference ad's ObjectNode node_id to recreate.
+
+    Either this OR `auto_select_ad` must be set.
+    """
+
     aspect_ratio: str
     """Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'."""
 
@@ -25,6 +31,12 @@ class ImageGenerateParams(TypedDict, total=False):
 
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
+
+    auto_select_ad: bool
+    """
+    Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
+    analyzed ad from the project.
+    """
 
     callback_url: Optional[str]
     """Optional URL the server will POST to when generation completes."""
@@ -40,14 +52,6 @@ class ImageGenerateParams(TypedDict, total=False):
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
-
-    fan_out_group_id: Optional[str]
-    """
-    Frontend-generated UUID shared across the 3 parallel generations the playground
-    fires per fan-out (one per text_strategy). Persisted on every generation row so
-    the client can re-group siblings after page refresh. Send the SAME value on all
-    3 of the calls in one comparison; omit (null) for non-fan-out generations.
-    """
 
     font_reference_image_base64: Optional[SequenceNotStr[str]]
     """
@@ -88,7 +92,7 @@ class ImageGenerateParams(TypedDict, total=False):
     max_reasoning_iterations: int
     """Max reasoning steps if reasoning is enabled"""
 
-    mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit"]]
+    mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]]
     """Generation mode controlling how reference assets are used.
 
     None or 'default': Standard pipeline — synthesis LLM picks consistency vs
@@ -99,9 +103,14 @@ class ImageGenerateParams(TypedDict, total=False):
     text fix is skipped in this mode (the model's own text rendering is trusted).
     'fast': Skip hierarchical retrieval, single-call block selector. 'edit': Edit a
     prior generation referenced by source_generation_id; text_input is the change
-    instruction. Skips memory retrieval — the source image IS the context. Legacy
-    values 'faithful', 'style_transfer', 'create_new' are auto-coerced
-    ('faithful'→'consistency', the other two→'exploration').
+    instruction. Skips memory retrieval — the source image IS the context.
+    'relayout': Recreate a successful-example ad through the full wireframer →
+    typesetter → synthesizer → refiner pipeline using the LayoutAnalysis ingested
+    for the chosen ad. Provide `ad_id` or set `auto_select_ad=true` to let a VLM
+    pick the best ad from the project. Per-stage progress lands in
+    `metadata.relayout_steps` for FE polling. Legacy values 'faithful',
+    'style_transfer', 'create_new' are auto-coerced ('faithful'→'consistency', the
+    other two→'exploration').
     """
 
     model: str
@@ -146,22 +155,14 @@ class ImageGenerateParams(TypedDict, total=False):
     needed. Must belong to the requesting user.
     """
 
+    target_aspect_ratios: Optional[SequenceNotStr[str]]
+    """Relayout mode only: comma-separable list of target aspect ratios (e.g.
+
+    ['1:1', '9:16']). Defaults to ['1:1'] when omitted.
+    """
+
     temperature: Optional[float]
     """Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic."""
-
-    text_strategy: Optional[Literal["IG_1", "IG_2", "IG_3"]]
-    """Typography strategy for mode='consistency'.
-
-    'IG_1' (default — PIL overlay path, formerly 'overlay'): HTML text-overlay
-    rendered by Playwright and alpha-composited on top of Gemini's no-text render,
-    with a Claude refinement loop. Best typography fidelity. 'IG_2' (text-baked
-    path, formerly 'baked'): Claude synthesizes the typography reference, then
-    Gemini paints that text into the final pixels in one call — best balance of
-    typography fidelity and scene integration. 'IG_3' (single-Gemini path, formerly
-    'single_gemini'): one Gemini call generates the full image (text included) using
-    the consistency-flavored prompt — fast and cheap, but Gemini may hallucinate
-    fonts. Ignored when mode is not 'consistency'.
-    """
 
     use_reasoning: bool
     """Enable Chain-of-Thought/Reasoning steps before generation"""

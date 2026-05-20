@@ -49,13 +49,14 @@ class ImagesResource(SyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        ad_id: Optional[str] | Omit = omit,
         aspect_ratio: str | Omit = omit,
         async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        auto_select_ad: bool | Omit = omit,
         callback_url: Optional[str] | Omit = omit,
         debug: bool | Omit = omit,
         disabled_learning: bool | Omit = omit,
-        fan_out_group_id: Optional[str] | Omit = omit,
         font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_image_url: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -63,7 +64,7 @@ class ImagesResource(SyncAPIResource):
         image_base64: Optional[str] | Omit = omit,
         mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
-        mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit"]] | Omit = omit,
+        mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -74,8 +75,8 @@ class ImagesResource(SyncAPIResource):
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         source_generation_id: Optional[str] | Omit = omit,
+        target_aspect_ratios: Optional[SequenceNotStr[str]] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
-        text_strategy: Optional[Literal["IG_1", "IG_2", "IG_3"]] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -118,11 +119,17 @@ class ImagesResource(SyncAPIResource):
 
           user_id: The end-user ID
 
+          ad_id: Relayout mode only: the reference ad's ObjectNode node_id to recreate. Either
+              this OR `auto_select_ad` must be set.
+
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
           async_mode: If true, return a job_id immediately and process in the background
 
           audio_base64: Base64 encoded reference audio for context
+
+          auto_select_ad: Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
+              analyzed ad from the project.
 
           callback_url: Optional URL the server will POST to when generation completes.
 
@@ -133,11 +140,6 @@ class ImagesResource(SyncAPIResource):
               set to a truthy value (true/1/yes).
 
           disabled_learning: If true, this request is ignored by long-term memory
-
-          fan_out_group_id: Frontend-generated UUID shared across the 3 parallel generations the playground
-              fires per fan-out (one per text_strategy). Persisted on every generation row so
-              the client can re-group siblings after page refresh. Send the SAME value on all
-              3 of the calls in one comparison; omit (null) for non-fan-out generations.
 
           font_reference_image_base64: List of base64-encoded PNG/JPG images showing the desired font (e.g., a
               typography specimen). Honored only when mode='edit'.
@@ -171,9 +173,14 @@ class ImagesResource(SyncAPIResource):
               in this mode (the model's own text rendering is trusted). 'fast': Skip
               hierarchical retrieval, single-call block selector. 'edit': Edit a prior
               generation referenced by source_generation_id; text_input is the change
-              instruction. Skips memory retrieval — the source image IS the context. Legacy
-              values 'faithful', 'style_transfer', 'create_new' are auto-coerced
-              ('faithful'→'consistency', the other two→'exploration').
+              instruction. Skips memory retrieval — the source image IS the context.
+              'relayout': Recreate a successful-example ad through the full wireframer →
+              typesetter → synthesizer → refiner pipeline using the LayoutAnalysis ingested
+              for the chosen ad. Provide `ad_id` or set `auto_select_ad=true` to let a VLM
+              pick the best ad from the project. Per-stage progress lands in
+              `metadata.relayout_steps` for FE polling. Legacy values 'faithful',
+              'style_transfer', 'create_new' are auto-coerced ('faithful'→'consistency', the
+              other two→'exploration').
 
           model: Image generation model ID
 
@@ -201,18 +208,10 @@ class ImagesResource(SyncAPIResource):
               when mode='edit'. The server fetches the source from GCS — no upload needed.
               Must belong to the requesting user.
 
-          temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
+          target_aspect_ratios: Relayout mode only: comma-separable list of target aspect ratios (e.g. ['1:1',
+              '9:16']). Defaults to ['1:1'] when omitted.
 
-          text_strategy: Typography strategy for mode='consistency'. 'IG_1' (default — PIL overlay path,
-              formerly 'overlay'): HTML text-overlay rendered by Playwright and
-              alpha-composited on top of Gemini's no-text render, with a Claude refinement
-              loop. Best typography fidelity. 'IG_2' (text-baked path, formerly 'baked'):
-              Claude synthesizes the typography reference, then Gemini paints that text into
-              the final pixels in one call — best balance of typography fidelity and scene
-              integration. 'IG_3' (single-Gemini path, formerly 'single_gemini'): one Gemini
-              call generates the full image (text included) using the consistency-flavored
-              prompt — fast and cheap, but Gemini may hallucinate fonts. Ignored when mode is
-              not 'consistency'.
+          temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -232,13 +231,14 @@ class ImagesResource(SyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "ad_id": ad_id,
                     "aspect_ratio": aspect_ratio,
                     "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "auto_select_ad": auto_select_ad,
                     "callback_url": callback_url,
                     "debug": debug,
                     "disabled_learning": disabled_learning,
-                    "fan_out_group_id": fan_out_group_id,
                     "font_reference_image_base64": font_reference_image_base64,
                     "font_reference_image_url": font_reference_image_url,
                     "font_reference_ttf_base64": font_reference_ttf_base64,
@@ -257,8 +257,8 @@ class ImagesResource(SyncAPIResource):
                     "seed": seed,
                     "session_id": session_id,
                     "source_generation_id": source_generation_id,
+                    "target_aspect_ratios": target_aspect_ratios,
                     "temperature": temperature,
-                    "text_strategy": text_strategy,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
@@ -296,13 +296,14 @@ class AsyncImagesResource(AsyncAPIResource):
         *,
         text_input: str,
         user_id: str,
+        ad_id: Optional[str] | Omit = omit,
         aspect_ratio: str | Omit = omit,
         async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
+        auto_select_ad: bool | Omit = omit,
         callback_url: Optional[str] | Omit = omit,
         debug: bool | Omit = omit,
         disabled_learning: bool | Omit = omit,
-        fan_out_group_id: Optional[str] | Omit = omit,
         font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_image_url: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -310,7 +311,7 @@ class AsyncImagesResource(AsyncAPIResource):
         image_base64: Optional[str] | Omit = omit,
         mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
-        mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit"]] | Omit = omit,
+        mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
         model: str | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -321,8 +322,8 @@ class AsyncImagesResource(AsyncAPIResource):
         seed: Optional[int] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
         source_generation_id: Optional[str] | Omit = omit,
+        target_aspect_ratios: Optional[SequenceNotStr[str]] | Omit = omit,
         temperature: Optional[float] | Omit = omit,
-        text_strategy: Optional[Literal["IG_1", "IG_2", "IG_3"]] | Omit = omit,
         use_reasoning: bool | Omit = omit,
         video_base64: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -365,11 +366,17 @@ class AsyncImagesResource(AsyncAPIResource):
 
           user_id: The end-user ID
 
+          ad_id: Relayout mode only: the reference ad's ObjectNode node_id to recreate. Either
+              this OR `auto_select_ad` must be set.
+
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
           async_mode: If true, return a job_id immediately and process in the background
 
           audio_base64: Base64 encoded reference audio for context
+
+          auto_select_ad: Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
+              analyzed ad from the project.
 
           callback_url: Optional URL the server will POST to when generation completes.
 
@@ -380,11 +387,6 @@ class AsyncImagesResource(AsyncAPIResource):
               set to a truthy value (true/1/yes).
 
           disabled_learning: If true, this request is ignored by long-term memory
-
-          fan_out_group_id: Frontend-generated UUID shared across the 3 parallel generations the playground
-              fires per fan-out (one per text_strategy). Persisted on every generation row so
-              the client can re-group siblings after page refresh. Send the SAME value on all
-              3 of the calls in one comparison; omit (null) for non-fan-out generations.
 
           font_reference_image_base64: List of base64-encoded PNG/JPG images showing the desired font (e.g., a
               typography specimen). Honored only when mode='edit'.
@@ -418,9 +420,14 @@ class AsyncImagesResource(AsyncAPIResource):
               in this mode (the model's own text rendering is trusted). 'fast': Skip
               hierarchical retrieval, single-call block selector. 'edit': Edit a prior
               generation referenced by source_generation_id; text_input is the change
-              instruction. Skips memory retrieval — the source image IS the context. Legacy
-              values 'faithful', 'style_transfer', 'create_new' are auto-coerced
-              ('faithful'→'consistency', the other two→'exploration').
+              instruction. Skips memory retrieval — the source image IS the context.
+              'relayout': Recreate a successful-example ad through the full wireframer →
+              typesetter → synthesizer → refiner pipeline using the LayoutAnalysis ingested
+              for the chosen ad. Provide `ad_id` or set `auto_select_ad=true` to let a VLM
+              pick the best ad from the project. Per-stage progress lands in
+              `metadata.relayout_steps` for FE polling. Legacy values 'faithful',
+              'style_transfer', 'create_new' are auto-coerced ('faithful'→'consistency', the
+              other two→'exploration').
 
           model: Image generation model ID
 
@@ -448,18 +455,10 @@ class AsyncImagesResource(AsyncAPIResource):
               when mode='edit'. The server fetches the source from GCS — no upload needed.
               Must belong to the requesting user.
 
-          temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
+          target_aspect_ratios: Relayout mode only: comma-separable list of target aspect ratios (e.g. ['1:1',
+              '9:16']). Defaults to ['1:1'] when omitted.
 
-          text_strategy: Typography strategy for mode='consistency'. 'IG_1' (default — PIL overlay path,
-              formerly 'overlay'): HTML text-overlay rendered by Playwright and
-              alpha-composited on top of Gemini's no-text render, with a Claude refinement
-              loop. Best typography fidelity. 'IG_2' (text-baked path, formerly 'baked'):
-              Claude synthesizes the typography reference, then Gemini paints that text into
-              the final pixels in one call — best balance of typography fidelity and scene
-              integration. 'IG_3' (single-Gemini path, formerly 'single_gemini'): one Gemini
-              call generates the full image (text included) using the consistency-flavored
-              prompt — fast and cheap, but Gemini may hallucinate fonts. Ignored when mode is
-              not 'consistency'.
+          temperature: Temperature for retrieval LLM calls (0.0-2.0). Lower = more deterministic.
 
           use_reasoning: Enable Chain-of-Thought/Reasoning steps before generation
 
@@ -479,13 +478,14 @@ class AsyncImagesResource(AsyncAPIResource):
                 {
                     "text_input": text_input,
                     "user_id": user_id,
+                    "ad_id": ad_id,
                     "aspect_ratio": aspect_ratio,
                     "async_mode": async_mode,
                     "audio_base64": audio_base64,
+                    "auto_select_ad": auto_select_ad,
                     "callback_url": callback_url,
                     "debug": debug,
                     "disabled_learning": disabled_learning,
-                    "fan_out_group_id": fan_out_group_id,
                     "font_reference_image_base64": font_reference_image_base64,
                     "font_reference_image_url": font_reference_image_url,
                     "font_reference_ttf_base64": font_reference_ttf_base64,
@@ -504,8 +504,8 @@ class AsyncImagesResource(AsyncAPIResource):
                     "seed": seed,
                     "session_id": session_id,
                     "source_generation_id": source_generation_id,
+                    "target_aspect_ratios": target_aspect_ratios,
                     "temperature": temperature,
-                    "text_strategy": text_strategy,
                     "use_reasoning": use_reasoning,
                     "video_base64": video_base64,
                 },
