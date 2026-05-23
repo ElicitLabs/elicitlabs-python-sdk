@@ -156,6 +156,7 @@ class TestData:
             persona_id="persona_id",
             project_id="project_id",
             session_id="session_id",
+            target_ad_id="target_ad_id",
             timestamp="2024-01-01T12:00:00Z",
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])
@@ -329,6 +330,7 @@ class TestAsyncData:
             persona_id="persona_id",
             project_id="project_id",
             session_id="session_id",
+            target_ad_id="target_ad_id",
             timestamp="2024-01-01T12:00:00Z",
         )
         assert_matches_type(DataIngestResponse, data, path=["response"])

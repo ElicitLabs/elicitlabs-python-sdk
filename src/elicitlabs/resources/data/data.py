@@ -237,6 +237,7 @@ class DataResource(SyncAPIResource):
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
+        target_ad_id: Optional[str] | Omit = omit,
         timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -329,6 +330,13 @@ class DataResource(SyncAPIResource):
           session_id: Session ID for grouping related ingested content and enabling session-based
               retrieval
 
+          target_ad_id: When set, the ingest is interpreted as a free-form correction targeting an
+              existing analyzed ad's LayoutAnalysis. `payload` must be a string (markdown /
+              JSON / HTML / prose — any format). Claude reconciles the corrections against the
+              ad's current four artifact JSONs (typography, sections, claude_labels,
+              layout_metrics) with the user taking priority on every field they mention.
+              Per-ad scope only — no fan-out to other ads in the project.
+
           timestamp: ISO-8601 timestamp to preserve original data moment
 
           extra_headers: Send extra headers
@@ -355,6 +363,7 @@ class DataResource(SyncAPIResource):
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
+                    "target_ad_id": target_ad_id,
                     "timestamp": timestamp,
                 },
                 data_ingest_params.DataIngestParams,
@@ -570,6 +579,7 @@ class AsyncDataResource(AsyncAPIResource):
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
         session_id: Optional[str] | Omit = omit,
+        target_ad_id: Optional[str] | Omit = omit,
         timestamp: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -662,6 +672,13 @@ class AsyncDataResource(AsyncAPIResource):
           session_id: Session ID for grouping related ingested content and enabling session-based
               retrieval
 
+          target_ad_id: When set, the ingest is interpreted as a free-form correction targeting an
+              existing analyzed ad's LayoutAnalysis. `payload` must be a string (markdown /
+              JSON / HTML / prose — any format). Claude reconciles the corrections against the
+              ad's current four artifact JSONs (typography, sections, claude_labels,
+              layout_metrics) with the user taking priority on every field they mention.
+              Per-ad scope only — no fan-out to other ads in the project.
+
           timestamp: ISO-8601 timestamp to preserve original data moment
 
           extra_headers: Send extra headers
@@ -688,6 +705,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "persona_id": persona_id,
                     "project_id": project_id,
                     "session_id": session_id,
+                    "target_ad_id": target_ad_id,
                     "timestamp": timestamp,
                 },
                 data_ingest_params.DataIngestParams,
