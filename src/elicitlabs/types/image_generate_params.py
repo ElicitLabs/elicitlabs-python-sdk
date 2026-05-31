@@ -26,9 +26,6 @@ class ImageGenerateParams(TypedDict, total=False):
     aspect_ratio: str
     """Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'."""
 
-    async_mode: bool
-    """If true, return a job_id immediately and process in the background"""
-
     audio_base64: Optional[str]
     """Base64 encoded reference audio for context"""
 
@@ -37,9 +34,6 @@ class ImageGenerateParams(TypedDict, total=False):
     Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
     analyzed ad from the project.
     """
-
-    callback_url: Optional[str]
-    """Optional URL the server will POST to when generation completes."""
 
     debug: bool
     """
@@ -115,9 +109,6 @@ class ImageGenerateParams(TypedDict, total=False):
 
     model: str
     """Image generation model ID"""
-
-    notification_email: Optional[str]
-    """Optional email address to notify when generation completes."""
 
     persona_id: Optional[str]
     """The specific system persona/voice to use"""

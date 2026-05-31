@@ -51,10 +51,8 @@ class ImagesResource(SyncAPIResource):
         user_id: str,
         ad_id: Optional[str] | Omit = omit,
         aspect_ratio: str | Omit = omit,
-        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         auto_select_ad: bool | Omit = omit,
-        callback_url: Optional[str] | Omit = omit,
         debug: bool | Omit = omit,
         disabled_learning: bool | Omit = omit,
         font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -66,7 +64,6 @@ class ImagesResource(SyncAPIResource):
         max_reasoning_iterations: int | Omit = omit,
         mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
         model: str | Omit = omit,
-        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         pinned_entity_ids: Optional[SequenceNotStr[str]] | Omit = omit,
         pinned_folder_ids: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -124,14 +121,10 @@ class ImagesResource(SyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
-          async_mode: If true, return a job_id immediately and process in the background
-
           audio_base64: Base64 encoded reference audio for context
 
           auto_select_ad: Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
               analyzed ad from the project.
-
-          callback_url: Optional URL the server will POST to when generation completes.
 
           debug: If true, capture a self-contained HTML trace of every pipeline step (retrieval
               LLM calls, synthesis, prompt assembly, image LLM, post-gen text fix, edit-text
@@ -184,8 +177,6 @@ class ImagesResource(SyncAPIResource):
 
           model: Image generation model ID
 
-          notification_email: Optional email address to notify when generation completes.
-
           persona_id: The specific system persona/voice to use
 
           pinned_entity_ids: OBJECTS entity node IDs to anchor flat memory retrieval. When set, memory
@@ -233,10 +224,8 @@ class ImagesResource(SyncAPIResource):
                     "user_id": user_id,
                     "ad_id": ad_id,
                     "aspect_ratio": aspect_ratio,
-                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
                     "auto_select_ad": auto_select_ad,
-                    "callback_url": callback_url,
                     "debug": debug,
                     "disabled_learning": disabled_learning,
                     "font_reference_image_base64": font_reference_image_base64,
@@ -248,7 +237,6 @@ class ImagesResource(SyncAPIResource):
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "mode": mode,
                     "model": model,
-                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "pinned_entity_ids": pinned_entity_ids,
                     "pinned_folder_ids": pinned_folder_ids,
@@ -298,10 +286,8 @@ class AsyncImagesResource(AsyncAPIResource):
         user_id: str,
         ad_id: Optional[str] | Omit = omit,
         aspect_ratio: str | Omit = omit,
-        async_mode: bool | Omit = omit,
         audio_base64: Optional[str] | Omit = omit,
         auto_select_ad: bool | Omit = omit,
-        callback_url: Optional[str] | Omit = omit,
         debug: bool | Omit = omit,
         disabled_learning: bool | Omit = omit,
         font_reference_image_base64: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -313,7 +299,6 @@ class AsyncImagesResource(AsyncAPIResource):
         max_reasoning_iterations: int | Omit = omit,
         mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
         model: str | Omit = omit,
-        notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         pinned_entity_ids: Optional[SequenceNotStr[str]] | Omit = omit,
         pinned_folder_ids: Optional[SequenceNotStr[str]] | Omit = omit,
@@ -371,14 +356,10 @@ class AsyncImagesResource(AsyncAPIResource):
 
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
-          async_mode: If true, return a job_id immediately and process in the background
-
           audio_base64: Base64 encoded reference audio for context
 
           auto_select_ad: Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
               analyzed ad from the project.
-
-          callback_url: Optional URL the server will POST to when generation completes.
 
           debug: If true, capture a self-contained HTML trace of every pipeline step (retrieval
               LLM calls, synthesis, prompt assembly, image LLM, post-gen text fix, edit-text
@@ -431,8 +412,6 @@ class AsyncImagesResource(AsyncAPIResource):
 
           model: Image generation model ID
 
-          notification_email: Optional email address to notify when generation completes.
-
           persona_id: The specific system persona/voice to use
 
           pinned_entity_ids: OBJECTS entity node IDs to anchor flat memory retrieval. When set, memory
@@ -480,10 +459,8 @@ class AsyncImagesResource(AsyncAPIResource):
                     "user_id": user_id,
                     "ad_id": ad_id,
                     "aspect_ratio": aspect_ratio,
-                    "async_mode": async_mode,
                     "audio_base64": audio_base64,
                     "auto_select_ad": auto_select_ad,
-                    "callback_url": callback_url,
                     "debug": debug,
                     "disabled_learning": disabled_learning,
                     "font_reference_image_base64": font_reference_image_base64,
@@ -495,7 +472,6 @@ class AsyncImagesResource(AsyncAPIResource):
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "mode": mode,
                     "model": model,
-                    "notification_email": notification_email,
                     "persona_id": persona_id,
                     "pinned_entity_ids": pinned_entity_ids,
                     "pinned_folder_ids": pinned_folder_ids,

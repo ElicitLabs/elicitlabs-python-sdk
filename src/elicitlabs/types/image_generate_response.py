@@ -8,34 +8,16 @@ __all__ = ["ImageGenerateResponse"]
 
 
 class ImageGenerateResponse(BaseModel):
-    """Response model for image generation"""
+    """Returned when an image generation job has been enqueued."""
 
-    generation_id: Optional[str] = None
-    """ID of the persisted upl.generations row for this output.
+    generation_id: str
+    """Persisted upl.generations row ID for this image"""
 
-    Pass this back as source_generation_id with mode='edit' to refine it.
-    """
+    job_id: str
+    """Job ID for /v1/data/job/status polling"""
 
-    image_base64: Optional[str] = None
-    """Base64 encoded image.
+    message: Optional[str] = None
+    """Polling guidance for the caller"""
 
-    Present when the payload is under ~30 MB. May be absent for very large outputs.
-    """
-
-    image_format: Optional[str] = None
-    """Image format, e.g. png, jpeg, webp"""
-
-    image_url: Optional[str] = None
-    """Signed GCS URL to download the image (expires after 24 h).
-
-    Always present when the upload succeeds.
-    """
-
-    output_type: Optional[str] = None
-    """
-    Delivery method: 'both' (base64 + url), 'url' (url only, base64 omitted due to
-    size), or 'base64' (GCS upload failed).
-    """
-
-    success: Optional[bool] = None
-    """Whether the request succeeded"""
+    status: Optional[str] = None
+    """Initial queued status"""
