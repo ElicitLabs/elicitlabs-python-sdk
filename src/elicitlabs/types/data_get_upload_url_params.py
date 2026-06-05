@@ -24,6 +24,13 @@ class DataGetUploadURLParams(TypedDict, total=False):
     If omitted, the category is auto-detected after the file is uploaded.
     """
 
+    enable_planner: bool
+    """Deprecated and ignored.
+
+    Ingest-time planner questions are disabled; caption/ad analysis now happens in
+    the caption-generation flow.
+    """
+
     filename: Optional[str]
     """Filename of the file to upload"""
 

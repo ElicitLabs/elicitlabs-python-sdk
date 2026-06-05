@@ -66,6 +66,7 @@ class DataResource(SyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
+        enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -99,6 +100,9 @@ class DataResource(SyncAPIResource):
 
           content_type: Content category (auto-detected from file bytes if omitted)
 
+          enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
+              analysis now happens in the caption-generation flow.
+
           notification_email: Optional email address to notify when the job reaches a terminal state.
 
           extra_headers: Send extra headers
@@ -119,6 +123,7 @@ class DataResource(SyncAPIResource):
                     "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
+                    "enable_planner": enable_planner,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -141,6 +146,7 @@ class DataResource(SyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
+        enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -179,6 +185,9 @@ class DataResource(SyncAPIResource):
           content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
               If omitted, the category is auto-detected after the file is uploaded.
 
+          enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
+              analysis now happens in the caption-generation flow.
+
           filename: Filename of the file to upload
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
@@ -207,6 +216,7 @@ class DataResource(SyncAPIResource):
                     "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
+                    "enable_planner": enable_planner,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -310,12 +320,8 @@ class DataResource(SyncAPIResource):
               filter step: max_sub_pages (default 50), include_subdomains, search,
               include_paths, exclude_paths, map_limit.
 
-          enable_planner: Opt-in: when true, the ingester pauses after content prep and asks the user
-              clarifying questions about ambiguous intent (e.g. 'is this a successful ad?',
-              'should we retain product references?'). The job transitions to
-              status='awaiting_planner_input' with planner_questions in the status response;
-              the user submits answers via POST /v1/data/ingest/{job_id}/answer-planner. The
-              planner can self-skip when the content is unambiguous.
+          enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
+              analysis now happens in the caption-generation flow.
 
           filename: Filename of the uploaded file
 
@@ -408,6 +414,7 @@ class AsyncDataResource(AsyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
+        enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -441,6 +448,9 @@ class AsyncDataResource(AsyncAPIResource):
 
           content_type: Content category (auto-detected from file bytes if omitted)
 
+          enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
+              analysis now happens in the caption-generation flow.
+
           notification_email: Optional email address to notify when the job reaches a terminal state.
 
           extra_headers: Send extra headers
@@ -461,6 +471,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
+                    "enable_planner": enable_planner,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -483,6 +494,7 @@ class AsyncDataResource(AsyncAPIResource):
         callback_url: Optional[str] | Omit = omit,
         content_description: Optional[str] | Omit = omit,
         content_type: Optional[str] | Omit = omit,
+        enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
@@ -521,6 +533,9 @@ class AsyncDataResource(AsyncAPIResource):
           content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
               If omitted, the category is auto-detected after the file is uploaded.
 
+          enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
+              analysis now happens in the caption-generation flow.
+
           filename: Filename of the file to upload
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
@@ -549,6 +564,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "callback_url": callback_url,
                     "content_description": content_description,
                     "content_type": content_type,
+                    "enable_planner": enable_planner,
                     "filename": filename,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
@@ -652,12 +668,8 @@ class AsyncDataResource(AsyncAPIResource):
               filter step: max_sub_pages (default 50), include_subdomains, search,
               include_paths, exclude_paths, map_limit.
 
-          enable_planner: Opt-in: when true, the ingester pauses after content prep and asks the user
-              clarifying questions about ambiguous intent (e.g. 'is this a successful ad?',
-              'should we retain product references?'). The job transitions to
-              status='awaiting_planner_input' with planner_questions in the status response;
-              the user submits answers via POST /v1/data/ingest/{job_id}/answer-planner. The
-              planner can self-skip when the content is unambiguous.
+          enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
+              analysis now happens in the caption-generation flow.
 
           filename: Filename of the uploaded file
 

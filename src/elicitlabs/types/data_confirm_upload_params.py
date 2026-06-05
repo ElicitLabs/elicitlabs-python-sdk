@@ -26,6 +26,13 @@ class DataConfirmUploadParams(TypedDict, total=False):
     content_type: Optional[str]
     """Content category (auto-detected from file bytes if omitted)"""
 
+    enable_planner: bool
+    """Deprecated and ignored.
+
+    Ingest-time planner questions are disabled; caption/ad analysis now happens in
+    the caption-generation flow.
+    """
+
     filename: Optional[str]
 
     notification_email: Optional[str]
