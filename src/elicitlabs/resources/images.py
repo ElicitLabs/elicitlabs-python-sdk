@@ -60,6 +60,7 @@ class ImagesResource(SyncAPIResource):
         font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_ttf_url: Optional[SequenceNotStr[str]] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        make_editable: Optional[bool] | Omit = omit,
         mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
@@ -126,11 +127,7 @@ class ImagesResource(SyncAPIResource):
           auto_select_ad: Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
               analyzed ad from the project.
 
-          debug: If true, capture a self-contained HTML trace of every pipeline step (retrieval
-              LLM calls, synthesis, prompt assembly, image LLM, post-gen text fix, edit-text
-              refinement loop) to data/temp/<ts>\\__pipeline_trace.html. Also activates
-              automatically when the server is started with the `DEBUG` environment variable
-              set to a truthy value (true/1/yes).
+          debug: Deprecated no-op. Generation pipeline HTML tracing has been removed.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -149,6 +146,10 @@ class ImagesResource(SyncAPIResource):
               Honored only when mode='edit'.
 
           image_base64: Base64 encoded reference image for context
+
+          make_editable: When true, the response includes `gemini_base_url` — the raw Gemini recreation
+              before any text overlay is composited. Applies to relayout and consistency
+              modes. When false or omitted, only the final output is returned.
 
           mask_base64: Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).
               Transparent pixels = edit region, opaque pixels = keep. Silently ignored by
@@ -233,6 +234,7 @@ class ImagesResource(SyncAPIResource):
                     "font_reference_ttf_base64": font_reference_ttf_base64,
                     "font_reference_ttf_url": font_reference_ttf_url,
                     "image_base64": image_base64,
+                    "make_editable": make_editable,
                     "mask_base64": mask_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "mode": mode,
@@ -295,6 +297,7 @@ class AsyncImagesResource(AsyncAPIResource):
         font_reference_ttf_base64: Optional[SequenceNotStr[str]] | Omit = omit,
         font_reference_ttf_url: Optional[SequenceNotStr[str]] | Omit = omit,
         image_base64: Optional[str] | Omit = omit,
+        make_editable: Optional[bool] | Omit = omit,
         mask_base64: Optional[str] | Omit = omit,
         max_reasoning_iterations: int | Omit = omit,
         mode: Optional[Literal["fast", "default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
@@ -361,11 +364,7 @@ class AsyncImagesResource(AsyncAPIResource):
           auto_select_ad: Relayout mode only: when true and `ad_id` is null, a VLM judge picks the best
               analyzed ad from the project.
 
-          debug: If true, capture a self-contained HTML trace of every pipeline step (retrieval
-              LLM calls, synthesis, prompt assembly, image LLM, post-gen text fix, edit-text
-              refinement loop) to data/temp/<ts>\\__pipeline_trace.html. Also activates
-              automatically when the server is started with the `DEBUG` environment variable
-              set to a truthy value (true/1/yes).
+          debug: Deprecated no-op. Generation pipeline HTML tracing has been removed.
 
           disabled_learning: If true, this request is ignored by long-term memory
 
@@ -384,6 +383,10 @@ class AsyncImagesResource(AsyncAPIResource):
               Honored only when mode='edit'.
 
           image_base64: Base64 encoded reference image for context
+
+          make_editable: When true, the response includes `gemini_base_url` — the raw Gemini recreation
+              before any text overlay is composited. Applies to relayout and consistency
+              modes. When false or omitted, only the final output is returned.
 
           mask_base64: Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).
               Transparent pixels = edit region, opaque pixels = keep. Silently ignored by
@@ -468,6 +471,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "font_reference_ttf_base64": font_reference_ttf_base64,
                     "font_reference_ttf_url": font_reference_ttf_url,
                     "image_base64": image_base64,
+                    "make_editable": make_editable,
                     "mask_base64": mask_base64,
                     "max_reasoning_iterations": max_reasoning_iterations,
                     "mode": mode,

@@ -35,19 +35,13 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import auth, chat, data, text, audio, modal, users, video, health, images, personas, projects
-    from .resources.chat import ChatResource, AsyncChatResource
-    from .resources.text import TextResource, AsyncTextResource
-    from .resources.audio import AudioResource, AsyncAudioResource
-    from .resources.modal import ModalResource, AsyncModalResource
+    from .resources import auth, data, users, health, images, projects
     from .resources.users import UsersResource, AsyncUsersResource
-    from .resources.video import VideoResource, AsyncVideoResource
     from .resources.health import HealthResource, AsyncHealthResource
     from .resources.images import ImagesResource, AsyncImagesResource
     from .resources.projects import ProjectsResource, AsyncProjectsResource
     from .resources.auth.auth import AuthResource, AsyncAuthResource
     from .resources.data.data import DataResource, AsyncDataResource
-    from .resources.personas.personas import PersonasResource, AsyncPersonasResource
 
 __all__ = [
     "Timeout",
@@ -126,12 +120,6 @@ class ElicitClient(SyncAPIClient):
         )
 
     @cached_property
-    def modal(self) -> ModalResource:
-        from .resources.modal import ModalResource
-
-        return ModalResource(self)
-
-    @cached_property
     def users(self) -> UsersResource:
         from .resources.users import UsersResource
 
@@ -156,46 +144,16 @@ class ElicitClient(SyncAPIClient):
         return AuthResource(self)
 
     @cached_property
-    def personas(self) -> PersonasResource:
-        from .resources.personas import PersonasResource
-
-        return PersonasResource(self)
-
-    @cached_property
     def projects(self) -> ProjectsResource:
         from .resources.projects import ProjectsResource
 
         return ProjectsResource(self)
 
     @cached_property
-    def chat(self) -> ChatResource:
-        from .resources.chat import ChatResource
-
-        return ChatResource(self)
-
-    @cached_property
-    def text(self) -> TextResource:
-        from .resources.text import TextResource
-
-        return TextResource(self)
-
-    @cached_property
     def images(self) -> ImagesResource:
         from .resources.images import ImagesResource
 
         return ImagesResource(self)
-
-    @cached_property
-    def audio(self) -> AudioResource:
-        from .resources.audio import AudioResource
-
-        return AudioResource(self)
-
-    @cached_property
-    def video(self) -> VideoResource:
-        from .resources.video import VideoResource
-
-        return VideoResource(self)
 
     @cached_property
     def with_raw_response(self) -> ElicitClientWithRawResponse:
@@ -375,12 +333,6 @@ class AsyncElicitClient(AsyncAPIClient):
         )
 
     @cached_property
-    def modal(self) -> AsyncModalResource:
-        from .resources.modal import AsyncModalResource
-
-        return AsyncModalResource(self)
-
-    @cached_property
     def users(self) -> AsyncUsersResource:
         from .resources.users import AsyncUsersResource
 
@@ -405,46 +357,16 @@ class AsyncElicitClient(AsyncAPIClient):
         return AsyncAuthResource(self)
 
     @cached_property
-    def personas(self) -> AsyncPersonasResource:
-        from .resources.personas import AsyncPersonasResource
-
-        return AsyncPersonasResource(self)
-
-    @cached_property
     def projects(self) -> AsyncProjectsResource:
         from .resources.projects import AsyncProjectsResource
 
         return AsyncProjectsResource(self)
 
     @cached_property
-    def chat(self) -> AsyncChatResource:
-        from .resources.chat import AsyncChatResource
-
-        return AsyncChatResource(self)
-
-    @cached_property
-    def text(self) -> AsyncTextResource:
-        from .resources.text import AsyncTextResource
-
-        return AsyncTextResource(self)
-
-    @cached_property
     def images(self) -> AsyncImagesResource:
         from .resources.images import AsyncImagesResource
 
         return AsyncImagesResource(self)
-
-    @cached_property
-    def audio(self) -> AsyncAudioResource:
-        from .resources.audio import AsyncAudioResource
-
-        return AsyncAudioResource(self)
-
-    @cached_property
-    def video(self) -> AsyncVideoResource:
-        from .resources.video import AsyncVideoResource
-
-        return AsyncVideoResource(self)
 
     @cached_property
     def with_raw_response(self) -> AsyncElicitClientWithRawResponse:
@@ -566,12 +488,6 @@ class ElicitClientWithRawResponse:
         self._client = client
 
     @cached_property
-    def modal(self) -> modal.ModalResourceWithRawResponse:
-        from .resources.modal import ModalResourceWithRawResponse
-
-        return ModalResourceWithRawResponse(self._client.modal)
-
-    @cached_property
     def users(self) -> users.UsersResourceWithRawResponse:
         from .resources.users import UsersResourceWithRawResponse
 
@@ -596,28 +512,10 @@ class ElicitClientWithRawResponse:
         return AuthResourceWithRawResponse(self._client.auth)
 
     @cached_property
-    def personas(self) -> personas.PersonasResourceWithRawResponse:
-        from .resources.personas import PersonasResourceWithRawResponse
-
-        return PersonasResourceWithRawResponse(self._client.personas)
-
-    @cached_property
     def projects(self) -> projects.ProjectsResourceWithRawResponse:
         from .resources.projects import ProjectsResourceWithRawResponse
 
         return ProjectsResourceWithRawResponse(self._client.projects)
-
-    @cached_property
-    def chat(self) -> chat.ChatResourceWithRawResponse:
-        from .resources.chat import ChatResourceWithRawResponse
-
-        return ChatResourceWithRawResponse(self._client.chat)
-
-    @cached_property
-    def text(self) -> text.TextResourceWithRawResponse:
-        from .resources.text import TextResourceWithRawResponse
-
-        return TextResourceWithRawResponse(self._client.text)
 
     @cached_property
     def images(self) -> images.ImagesResourceWithRawResponse:
@@ -625,30 +523,12 @@ class ElicitClientWithRawResponse:
 
         return ImagesResourceWithRawResponse(self._client.images)
 
-    @cached_property
-    def audio(self) -> audio.AudioResourceWithRawResponse:
-        from .resources.audio import AudioResourceWithRawResponse
-
-        return AudioResourceWithRawResponse(self._client.audio)
-
-    @cached_property
-    def video(self) -> video.VideoResourceWithRawResponse:
-        from .resources.video import VideoResourceWithRawResponse
-
-        return VideoResourceWithRawResponse(self._client.video)
-
 
 class AsyncElicitClientWithRawResponse:
     _client: AsyncElicitClient
 
     def __init__(self, client: AsyncElicitClient) -> None:
         self._client = client
-
-    @cached_property
-    def modal(self) -> modal.AsyncModalResourceWithRawResponse:
-        from .resources.modal import AsyncModalResourceWithRawResponse
-
-        return AsyncModalResourceWithRawResponse(self._client.modal)
 
     @cached_property
     def users(self) -> users.AsyncUsersResourceWithRawResponse:
@@ -675,28 +555,10 @@ class AsyncElicitClientWithRawResponse:
         return AsyncAuthResourceWithRawResponse(self._client.auth)
 
     @cached_property
-    def personas(self) -> personas.AsyncPersonasResourceWithRawResponse:
-        from .resources.personas import AsyncPersonasResourceWithRawResponse
-
-        return AsyncPersonasResourceWithRawResponse(self._client.personas)
-
-    @cached_property
     def projects(self) -> projects.AsyncProjectsResourceWithRawResponse:
         from .resources.projects import AsyncProjectsResourceWithRawResponse
 
         return AsyncProjectsResourceWithRawResponse(self._client.projects)
-
-    @cached_property
-    def chat(self) -> chat.AsyncChatResourceWithRawResponse:
-        from .resources.chat import AsyncChatResourceWithRawResponse
-
-        return AsyncChatResourceWithRawResponse(self._client.chat)
-
-    @cached_property
-    def text(self) -> text.AsyncTextResourceWithRawResponse:
-        from .resources.text import AsyncTextResourceWithRawResponse
-
-        return AsyncTextResourceWithRawResponse(self._client.text)
 
     @cached_property
     def images(self) -> images.AsyncImagesResourceWithRawResponse:
@@ -704,30 +566,12 @@ class AsyncElicitClientWithRawResponse:
 
         return AsyncImagesResourceWithRawResponse(self._client.images)
 
-    @cached_property
-    def audio(self) -> audio.AsyncAudioResourceWithRawResponse:
-        from .resources.audio import AsyncAudioResourceWithRawResponse
-
-        return AsyncAudioResourceWithRawResponse(self._client.audio)
-
-    @cached_property
-    def video(self) -> video.AsyncVideoResourceWithRawResponse:
-        from .resources.video import AsyncVideoResourceWithRawResponse
-
-        return AsyncVideoResourceWithRawResponse(self._client.video)
-
 
 class ElicitClientWithStreamedResponse:
     _client: ElicitClient
 
     def __init__(self, client: ElicitClient) -> None:
         self._client = client
-
-    @cached_property
-    def modal(self) -> modal.ModalResourceWithStreamingResponse:
-        from .resources.modal import ModalResourceWithStreamingResponse
-
-        return ModalResourceWithStreamingResponse(self._client.modal)
 
     @cached_property
     def users(self) -> users.UsersResourceWithStreamingResponse:
@@ -754,28 +598,10 @@ class ElicitClientWithStreamedResponse:
         return AuthResourceWithStreamingResponse(self._client.auth)
 
     @cached_property
-    def personas(self) -> personas.PersonasResourceWithStreamingResponse:
-        from .resources.personas import PersonasResourceWithStreamingResponse
-
-        return PersonasResourceWithStreamingResponse(self._client.personas)
-
-    @cached_property
     def projects(self) -> projects.ProjectsResourceWithStreamingResponse:
         from .resources.projects import ProjectsResourceWithStreamingResponse
 
         return ProjectsResourceWithStreamingResponse(self._client.projects)
-
-    @cached_property
-    def chat(self) -> chat.ChatResourceWithStreamingResponse:
-        from .resources.chat import ChatResourceWithStreamingResponse
-
-        return ChatResourceWithStreamingResponse(self._client.chat)
-
-    @cached_property
-    def text(self) -> text.TextResourceWithStreamingResponse:
-        from .resources.text import TextResourceWithStreamingResponse
-
-        return TextResourceWithStreamingResponse(self._client.text)
 
     @cached_property
     def images(self) -> images.ImagesResourceWithStreamingResponse:
@@ -783,30 +609,12 @@ class ElicitClientWithStreamedResponse:
 
         return ImagesResourceWithStreamingResponse(self._client.images)
 
-    @cached_property
-    def audio(self) -> audio.AudioResourceWithStreamingResponse:
-        from .resources.audio import AudioResourceWithStreamingResponse
-
-        return AudioResourceWithStreamingResponse(self._client.audio)
-
-    @cached_property
-    def video(self) -> video.VideoResourceWithStreamingResponse:
-        from .resources.video import VideoResourceWithStreamingResponse
-
-        return VideoResourceWithStreamingResponse(self._client.video)
-
 
 class AsyncElicitClientWithStreamedResponse:
     _client: AsyncElicitClient
 
     def __init__(self, client: AsyncElicitClient) -> None:
         self._client = client
-
-    @cached_property
-    def modal(self) -> modal.AsyncModalResourceWithStreamingResponse:
-        from .resources.modal import AsyncModalResourceWithStreamingResponse
-
-        return AsyncModalResourceWithStreamingResponse(self._client.modal)
 
     @cached_property
     def users(self) -> users.AsyncUsersResourceWithStreamingResponse:
@@ -833,46 +641,16 @@ class AsyncElicitClientWithStreamedResponse:
         return AsyncAuthResourceWithStreamingResponse(self._client.auth)
 
     @cached_property
-    def personas(self) -> personas.AsyncPersonasResourceWithStreamingResponse:
-        from .resources.personas import AsyncPersonasResourceWithStreamingResponse
-
-        return AsyncPersonasResourceWithStreamingResponse(self._client.personas)
-
-    @cached_property
     def projects(self) -> projects.AsyncProjectsResourceWithStreamingResponse:
         from .resources.projects import AsyncProjectsResourceWithStreamingResponse
 
         return AsyncProjectsResourceWithStreamingResponse(self._client.projects)
 
     @cached_property
-    def chat(self) -> chat.AsyncChatResourceWithStreamingResponse:
-        from .resources.chat import AsyncChatResourceWithStreamingResponse
-
-        return AsyncChatResourceWithStreamingResponse(self._client.chat)
-
-    @cached_property
-    def text(self) -> text.AsyncTextResourceWithStreamingResponse:
-        from .resources.text import AsyncTextResourceWithStreamingResponse
-
-        return AsyncTextResourceWithStreamingResponse(self._client.text)
-
-    @cached_property
     def images(self) -> images.AsyncImagesResourceWithStreamingResponse:
         from .resources.images import AsyncImagesResourceWithStreamingResponse
 
         return AsyncImagesResourceWithStreamingResponse(self._client.images)
-
-    @cached_property
-    def audio(self) -> audio.AsyncAudioResourceWithStreamingResponse:
-        from .resources.audio import AsyncAudioResourceWithStreamingResponse
-
-        return AsyncAudioResourceWithStreamingResponse(self._client.audio)
-
-    @cached_property
-    def video(self) -> video.AsyncVideoResourceWithStreamingResponse:
-        from .resources.video import AsyncVideoResourceWithStreamingResponse
-
-        return AsyncVideoResourceWithStreamingResponse(self._client.video)
 
 
 Client = ElicitClient

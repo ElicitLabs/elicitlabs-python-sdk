@@ -887,36 +887,20 @@ class TestElicitClient:
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, client: ElicitClient) -> None:
-        respx_mock.post("/v1/chat/completions").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/users").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.chat.with_streaming_response.create_completion(
-                messages=[
-                    {
-                        "content": "string",
-                        "role": "role",
-                    }
-                ],
-                user_id="user_id",
-            ).__enter__()
+            client.users.with_streaming_response.create_or_get(email="user@example.com", name="John Doe").__enter__()
 
         assert _get_open_connections(client) == 0
 
     @mock.patch("elicitlabs._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: ElicitClient) -> None:
-        respx_mock.post("/v1/chat/completions").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/users").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.chat.with_streaming_response.create_completion(
-                messages=[
-                    {
-                        "content": "string",
-                        "role": "role",
-                    }
-                ],
-                user_id="user_id",
-            ).__enter__()
+            client.users.with_streaming_response.create_or_get(email="user@example.com", name="John Doe").__enter__()
         assert _get_open_connections(client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -943,17 +927,9 @@ class TestElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = client.chat.with_raw_response.create_completion(
-            messages=[
-                {
-                    "content": "string",
-                    "role": "role",
-                }
-            ],
-            user_id="user_id",
-        )
+        response = client.users.with_raw_response.create_or_get(email="user@example.com", name="John Doe")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -975,17 +951,10 @@ class TestElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = client.chat.with_raw_response.create_completion(
-            messages=[
-                {
-                    "content": "string",
-                    "role": "role",
-                }
-            ],
-            user_id="user_id",
-            extra_headers={"x-stainless-retry-count": Omit()},
+        response = client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -1007,17 +976,10 @@ class TestElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = client.chat.with_raw_response.create_completion(
-            messages=[
-                {
-                    "content": "string",
-                    "role": "role",
-                }
-            ],
-            user_id="user_id",
-            extra_headers={"x-stainless-retry-count": "42"},
+        response = client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
@@ -1865,17 +1827,11 @@ class TestAsyncElicitClient:
     async def test_retrying_timeout_errors_doesnt_leak(
         self, respx_mock: MockRouter, async_client: AsyncElicitClient
     ) -> None:
-        respx_mock.post("/v1/chat/completions").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/v1/users").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.chat.with_streaming_response.create_completion(
-                messages=[
-                    {
-                        "content": "string",
-                        "role": "role",
-                    }
-                ],
-                user_id="user_id",
+            await async_client.users.with_streaming_response.create_or_get(
+                email="user@example.com", name="John Doe"
             ).__aenter__()
 
         assert _get_open_connections(async_client) == 0
@@ -1885,17 +1841,11 @@ class TestAsyncElicitClient:
     async def test_retrying_status_errors_doesnt_leak(
         self, respx_mock: MockRouter, async_client: AsyncElicitClient
     ) -> None:
-        respx_mock.post("/v1/chat/completions").mock(return_value=httpx.Response(500))
+        respx_mock.post("/v1/users").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.chat.with_streaming_response.create_completion(
-                messages=[
-                    {
-                        "content": "string",
-                        "role": "role",
-                    }
-                ],
-                user_id="user_id",
+            await async_client.users.with_streaming_response.create_or_get(
+                email="user@example.com", name="John Doe"
             ).__aenter__()
         assert _get_open_connections(async_client) == 0
 
@@ -1923,17 +1873,9 @@ class TestAsyncElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = await client.chat.with_raw_response.create_completion(
-            messages=[
-                {
-                    "content": "string",
-                    "role": "role",
-                }
-            ],
-            user_id="user_id",
-        )
+        response = await client.users.with_raw_response.create_or_get(email="user@example.com", name="John Doe")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1955,17 +1897,10 @@ class TestAsyncElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = await client.chat.with_raw_response.create_completion(
-            messages=[
-                {
-                    "content": "string",
-                    "role": "role",
-                }
-            ],
-            user_id="user_id",
-            extra_headers={"x-stainless-retry-count": Omit()},
+        response = await client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -1987,17 +1922,10 @@ class TestAsyncElicitClient:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/chat/completions").mock(side_effect=retry_handler)
+        respx_mock.post("/v1/users").mock(side_effect=retry_handler)
 
-        response = await client.chat.with_raw_response.create_completion(
-            messages=[
-                {
-                    "content": "string",
-                    "role": "role",
-                }
-            ],
-            user_id="user_id",
-            extra_headers={"x-stainless-retry-count": "42"},
+        response = await client.users.with_raw_response.create_or_get(
+            email="user@example.com", name="John Doe", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"

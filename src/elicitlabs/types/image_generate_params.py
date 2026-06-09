@@ -36,13 +36,7 @@ class ImageGenerateParams(TypedDict, total=False):
     """
 
     debug: bool
-    """
-    If true, capture a self-contained HTML trace of every pipeline step (retrieval
-    LLM calls, synthesis, prompt assembly, image LLM, post-gen text fix, edit-text
-    refinement loop) to data/temp/<ts>\\__pipeline_trace.html. Also activates
-    automatically when the server is started with the `DEBUG` environment variable
-    set to a truthy value (true/1/yes).
-    """
+    """Deprecated no-op. Generation pipeline HTML tracing has been removed."""
 
     disabled_learning: bool
     """If true, this request is ignored by long-term memory"""
@@ -75,6 +69,13 @@ class ImageGenerateParams(TypedDict, total=False):
 
     image_base64: Optional[str]
     """Base64 encoded reference image for context"""
+
+    make_editable: Optional[bool]
+    """
+    When true, the response includes `gemini_base_url` — the raw Gemini recreation
+    before any text overlay is composited. Applies to relayout and consistency
+    modes. When false or omitted, only the final output is returned.
+    """
 
     mask_base64: Optional[str]
     """Optional base64 PNG mask for inpainting (only honored on gpt-image-\\** models).

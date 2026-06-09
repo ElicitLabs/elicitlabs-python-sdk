@@ -182,8 +182,9 @@ class DataResource(SyncAPIResource):
 
           content_description: Optional description of the content being ingested
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
-              If omitted, the category is auto-detected after the file is uploaded.
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
+              or 'website'. If omitted, the category is auto-detected after the file is
+              uploaded.
 
           enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
               analysis now happens in the caption-generation flow.
@@ -259,18 +260,15 @@ class DataResource(SyncAPIResource):
         """
         Ingest data for asynchronous processing
 
-            Accepts various content types (text, messages, files) and processes them to extract information
-            and integrate it into the user's memory system. Returns a job_id for tracking status.
+            Accepts creative project content and processes it through the hierarchical
+            memory pipeline. Returns a job_id for tracking status.
 
             **Entity Resolution:**
             - user_id (str, required): Always required - the main user identifier
-            - persona_id (str, optional): If provided, data is ingested to this persona instead of user
-            - project_id (str, optional): If provided, data is ingested to this project (inherits from user)
-
-            Priority: persona_id > project_id > user_id
+            - project_id (str, required): Must refer to a creative_design project with use_hierarchical=true
 
             **Request Parameters:**
-            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
+            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "file", "font", "website"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
             - session_id (str, optional): Groups related content for session-based retrieval
@@ -313,8 +311,9 @@ class DataResource(SyncAPIResource):
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
-              If omitted, the category is auto-detected from the uploaded file bytes.
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
+              or 'website'. If omitted, the category is auto-detected from the uploaded file
+              bytes.
 
           crawl_options: Only used when content_type='website'. Optional knobs for the discovery + LLM
               filter step: max_sub_pages (default 50), include_subdomains, search,
@@ -530,8 +529,9 @@ class AsyncDataResource(AsyncAPIResource):
 
           content_description: Optional description of the content being ingested
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
-              If omitted, the category is auto-detected after the file is uploaded.
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
+              or 'website'. If omitted, the category is auto-detected after the file is
+              uploaded.
 
           enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
               analysis now happens in the caption-generation flow.
@@ -607,18 +607,15 @@ class AsyncDataResource(AsyncAPIResource):
         """
         Ingest data for asynchronous processing
 
-            Accepts various content types (text, messages, files) and processes them to extract information
-            and integrate it into the user's memory system. Returns a job_id for tracking status.
+            Accepts creative project content and processes it through the hierarchical
+            memory pipeline. Returns a job_id for tracking status.
 
             **Entity Resolution:**
             - user_id (str, required): Always required - the main user identifier
-            - persona_id (str, optional): If provided, data is ingested to this persona instead of user
-            - project_id (str, optional): If provided, data is ingested to this project (inherits from user)
-
-            Priority: persona_id > project_id > user_id
+            - project_id (str, required): Must refer to a creative_design project with use_hierarchical=true
 
             **Request Parameters:**
-            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "audio", "file"
+            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "file", "font", "website"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
             - session_id (str, optional): Groups related content for session-based retrieval
@@ -661,8 +658,9 @@ class AsyncDataResource(AsyncAPIResource):
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
-              If omitted, the category is auto-detected from the uploaded file bytes.
+          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
+              or 'website'. If omitted, the category is auto-detected from the uploaded file
+              bytes.
 
           crawl_options: Only used when content_type='website'. Optional knobs for the discovery + LLM
               filter step: max_sub_pages (default 50), include_subdomains, search,

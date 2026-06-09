@@ -8,14 +8,6 @@ from .auth import (
     AuthResourceWithStreamingResponse,
     AsyncAuthResourceWithStreamingResponse,
 )
-from .chat import (
-    ChatResource,
-    AsyncChatResource,
-    ChatResourceWithRawResponse,
-    AsyncChatResourceWithRawResponse,
-    ChatResourceWithStreamingResponse,
-    AsyncChatResourceWithStreamingResponse,
-)
 from .data import (
     DataResource,
     AsyncDataResource,
@@ -24,30 +16,6 @@ from .data import (
     DataResourceWithStreamingResponse,
     AsyncDataResourceWithStreamingResponse,
 )
-from .text import (
-    TextResource,
-    AsyncTextResource,
-    TextResourceWithRawResponse,
-    AsyncTextResourceWithRawResponse,
-    TextResourceWithStreamingResponse,
-    AsyncTextResourceWithStreamingResponse,
-)
-from .audio import (
-    AudioResource,
-    AsyncAudioResource,
-    AudioResourceWithRawResponse,
-    AsyncAudioResourceWithRawResponse,
-    AudioResourceWithStreamingResponse,
-    AsyncAudioResourceWithStreamingResponse,
-)
-from .modal import (
-    ModalResource,
-    AsyncModalResource,
-    ModalResourceWithRawResponse,
-    AsyncModalResourceWithRawResponse,
-    ModalResourceWithStreamingResponse,
-    AsyncModalResourceWithStreamingResponse,
-)
 from .users import (
     UsersResource,
     AsyncUsersResource,
@@ -55,14 +23,6 @@ from .users import (
     AsyncUsersResourceWithRawResponse,
     UsersResourceWithStreamingResponse,
     AsyncUsersResourceWithStreamingResponse,
-)
-from .video import (
-    VideoResource,
-    AsyncVideoResource,
-    VideoResourceWithRawResponse,
-    AsyncVideoResourceWithRawResponse,
-    VideoResourceWithStreamingResponse,
-    AsyncVideoResourceWithStreamingResponse,
 )
 from .health import (
     HealthResource,
@@ -80,14 +40,6 @@ from .images import (
     ImagesResourceWithStreamingResponse,
     AsyncImagesResourceWithStreamingResponse,
 )
-from .personas import (
-    PersonasResource,
-    AsyncPersonasResource,
-    PersonasResourceWithRawResponse,
-    AsyncPersonasResourceWithRawResponse,
-    PersonasResourceWithStreamingResponse,
-    AsyncPersonasResourceWithStreamingResponse,
-)
 from .projects import (
     ProjectsResource,
     AsyncProjectsResource,
@@ -98,12 +50,6 @@ from .projects import (
 )
 
 __all__ = [
-    "ModalResource",
-    "AsyncModalResource",
-    "ModalResourceWithRawResponse",
-    "AsyncModalResourceWithRawResponse",
-    "ModalResourceWithStreamingResponse",
-    "AsyncModalResourceWithStreamingResponse",
     "UsersResource",
     "AsyncUsersResource",
     "UsersResourceWithRawResponse",
@@ -128,46 +74,16 @@ __all__ = [
     "AsyncAuthResourceWithRawResponse",
     "AuthResourceWithStreamingResponse",
     "AsyncAuthResourceWithStreamingResponse",
-    "PersonasResource",
-    "AsyncPersonasResource",
-    "PersonasResourceWithRawResponse",
-    "AsyncPersonasResourceWithRawResponse",
-    "PersonasResourceWithStreamingResponse",
-    "AsyncPersonasResourceWithStreamingResponse",
     "ProjectsResource",
     "AsyncProjectsResource",
     "ProjectsResourceWithRawResponse",
     "AsyncProjectsResourceWithRawResponse",
     "ProjectsResourceWithStreamingResponse",
     "AsyncProjectsResourceWithStreamingResponse",
-    "ChatResource",
-    "AsyncChatResource",
-    "ChatResourceWithRawResponse",
-    "AsyncChatResourceWithRawResponse",
-    "ChatResourceWithStreamingResponse",
-    "AsyncChatResourceWithStreamingResponse",
-    "TextResource",
-    "AsyncTextResource",
-    "TextResourceWithRawResponse",
-    "AsyncTextResourceWithRawResponse",
-    "TextResourceWithStreamingResponse",
-    "AsyncTextResourceWithStreamingResponse",
     "ImagesResource",
     "AsyncImagesResource",
     "ImagesResourceWithRawResponse",
     "AsyncImagesResourceWithRawResponse",
     "ImagesResourceWithStreamingResponse",
     "AsyncImagesResourceWithStreamingResponse",
-    "AudioResource",
-    "AsyncAudioResource",
-    "AudioResourceWithRawResponse",
-    "AsyncAudioResourceWithRawResponse",
-    "AudioResourceWithStreamingResponse",
-    "AsyncAudioResourceWithStreamingResponse",
-    "VideoResource",
-    "AsyncVideoResource",
-    "VideoResourceWithRawResponse",
-    "AsyncVideoResourceWithRawResponse",
-    "VideoResourceWithStreamingResponse",
-    "AsyncVideoResourceWithStreamingResponse",
 ]

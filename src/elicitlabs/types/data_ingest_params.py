@@ -29,9 +29,10 @@ class DataIngestParams(TypedDict, total=False):
     """
 
     content_type: Optional[str]
-    """Content category: 'text', 'image', 'video', 'pdf', 'audio', 'messages', 'file'.
-
-    If omitted, the category is auto-detected from the uploaded file bytes.
+    """
+    Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
+    or 'website'. If omitted, the category is auto-detected from the uploaded file
+    bytes.
     """
 
     crawl_options: Optional[Dict[str, object]]
