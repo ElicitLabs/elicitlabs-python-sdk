@@ -18,7 +18,7 @@ class ImageGenerateParams(TypedDict, total=False):
     """The end-user ID"""
 
     ad_id: Optional[str]
-    """Relayout mode only: the reference ad's ObjectNode node_id to recreate.
+    """Relayout mode only: the reference ad asset's node_id to recreate.
 
     Either this OR `auto_select_ad` must be set.
     """

@@ -20,9 +20,9 @@ class DataGetUploadURLParams(TypedDict, total=False):
 
     content_type: Optional[str]
     """
-    Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
-    or 'website'. If omitted, the category is auto-detected after the file is
-    uploaded.
+    Content category: 'text', 'html', 'image', 'video', 'pdf', 'messages', 'file',
+    'font', or 'website'. If omitted, the category is auto-detected after the file
+    is uploaded.
     """
 
     enable_planner: bool

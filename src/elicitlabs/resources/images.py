@@ -117,8 +117,8 @@ class ImagesResource(SyncAPIResource):
 
           user_id: The end-user ID
 
-          ad_id: Relayout mode only: the reference ad's ObjectNode node_id to recreate. Either
-              this OR `auto_select_ad` must be set.
+          ad_id: Relayout mode only: the reference ad asset's node_id to recreate. Either this OR
+              `auto_select_ad` must be set.
 
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 
@@ -354,8 +354,8 @@ class AsyncImagesResource(AsyncAPIResource):
 
           user_id: The end-user ID
 
-          ad_id: Relayout mode only: the reference ad's ObjectNode node_id to recreate. Either
-              this OR `auto_select_ad` must be set.
+          ad_id: Relayout mode only: the reference ad asset's node_id to recreate. Either this OR
+              `auto_select_ad` must be set.
 
           aspect_ratio: Aspect ratio for the generated image, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
 

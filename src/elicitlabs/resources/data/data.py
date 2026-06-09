@@ -182,9 +182,9 @@ class DataResource(SyncAPIResource):
 
           content_description: Optional description of the content being ingested
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
-              or 'website'. If omitted, the category is auto-detected after the file is
-              uploaded.
+          content_type: Content category: 'text', 'html', 'image', 'video', 'pdf', 'messages', 'file',
+              'font', or 'website'. If omitted, the category is auto-detected after the file
+              is uploaded.
 
           enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
               analysis now happens in the caption-generation flow.
@@ -244,6 +244,7 @@ class DataResource(SyncAPIResource):
         crawl_options: Optional[Dict[str, object]] | Omit = omit,
         enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
+        html_options: Optional[Dict[str, object]] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -268,7 +269,7 @@ class DataResource(SyncAPIResource):
             - project_id (str, required): Must refer to a creative_design project with use_hierarchical=true
 
             **Request Parameters:**
-            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "file", "font", "website"
+            - content_type (str, required): One of: "text", "html", "messages", "pdf", "word", "image", "video", "file", "font", "website"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
             - session_id (str, optional): Groups related content for session-based retrieval
@@ -311,9 +312,9 @@ class DataResource(SyncAPIResource):
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
-              or 'website'. If omitted, the category is auto-detected from the uploaded file
-              bytes.
+          content_type: Content category: 'text', 'html', 'image', 'video', 'pdf', 'messages', 'file',
+              'font', or 'website'. If omitted, the category is auto-detected from the
+              uploaded file bytes.
 
           crawl_options: Only used when content_type='website'. Optional knobs for the discovery + LLM
               filter step: max_sub_pages (default 50), include_subdomains, search,
@@ -323,6 +324,9 @@ class DataResource(SyncAPIResource):
               analysis now happens in the caption-generation flow.
 
           filename: Filename of the uploaded file
+
+          html_options: Only used when content_type='html'. Optional render knobs: viewport_width,
+              viewport_height, timeout_ms, omit_background.
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
 
@@ -364,6 +368,7 @@ class DataResource(SyncAPIResource):
                     "crawl_options": crawl_options,
                     "enable_planner": enable_planner,
                     "filename": filename,
+                    "html_options": html_options,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
@@ -529,9 +534,9 @@ class AsyncDataResource(AsyncAPIResource):
 
           content_description: Optional description of the content being ingested
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
-              or 'website'. If omitted, the category is auto-detected after the file is
-              uploaded.
+          content_type: Content category: 'text', 'html', 'image', 'video', 'pdf', 'messages', 'file',
+              'font', or 'website'. If omitted, the category is auto-detected after the file
+              is uploaded.
 
           enable_planner: Deprecated and ignored. Ingest-time planner questions are disabled; caption/ad
               analysis now happens in the caption-generation flow.
@@ -591,6 +596,7 @@ class AsyncDataResource(AsyncAPIResource):
         crawl_options: Optional[Dict[str, object]] | Omit = omit,
         enable_planner: bool | Omit = omit,
         filename: Optional[str] | Omit = omit,
+        html_options: Optional[Dict[str, object]] | Omit = omit,
         notification_email: Optional[str] | Omit = omit,
         persona_id: Optional[str] | Omit = omit,
         project_id: Optional[str] | Omit = omit,
@@ -615,7 +621,7 @@ class AsyncDataResource(AsyncAPIResource):
             - project_id (str, required): Must refer to a creative_design project with use_hierarchical=true
 
             **Request Parameters:**
-            - content_type (str, required): One of: "text", "messages", "pdf", "word", "image", "video", "file", "font", "website"
+            - content_type (str, required): One of: "text", "html", "messages", "pdf", "word", "image", "video", "file", "font", "website"
             - payload (str|dict|list, required): Content data (text string, message list, or base64 for files)
             - content_description (str, optional): Description of the content being ingested (e.g., 'Logo design concepts', 'Meeting notes')
             - session_id (str, optional): Groups related content for session-based retrieval
@@ -658,9 +664,9 @@ class AsyncDataResource(AsyncAPIResource):
           content_description: Optional description of the content being ingested (e.g., 'Logo design
               concepts', 'Meeting notes')
 
-          content_type: Content category: 'text', 'image', 'video', 'pdf', 'messages', 'file', 'font',
-              or 'website'. If omitted, the category is auto-detected from the uploaded file
-              bytes.
+          content_type: Content category: 'text', 'html', 'image', 'video', 'pdf', 'messages', 'file',
+              'font', or 'website'. If omitted, the category is auto-detected from the
+              uploaded file bytes.
 
           crawl_options: Only used when content_type='website'. Optional knobs for the discovery + LLM
               filter step: max_sub_pages (default 50), include_subdomains, search,
@@ -670,6 +676,9 @@ class AsyncDataResource(AsyncAPIResource):
               analysis now happens in the caption-generation flow.
 
           filename: Filename of the uploaded file
+
+          html_options: Only used when content_type='html'. Optional render knobs: viewport_width,
+              viewport_height, timeout_ms, omit_background.
 
           notification_email: Optional email address to notify when the job reaches a terminal state.
 
@@ -711,6 +720,7 @@ class AsyncDataResource(AsyncAPIResource):
                     "crawl_options": crawl_options,
                     "enable_planner": enable_planner,
                     "filename": filename,
+                    "html_options": html_options,
                     "notification_email": notification_email,
                     "persona_id": persona_id,
                     "project_id": project_id,
