@@ -10,4 +10,3 @@ __all__ = ["KeyCreateParams"]
 
 class KeyCreateParams(TypedDict, total=False):
     label: Optional[str]
-    """Optional label for the API key"""

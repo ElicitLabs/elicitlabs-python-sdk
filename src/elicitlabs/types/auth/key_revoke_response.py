@@ -9,7 +9,5 @@ __all__ = ["KeyRevokeResponse"]
 
 class KeyRevokeResponse(BaseModel):
     message: str
-    """Confirmation message"""
 
     success: Optional[bool] = None
-    """Indicates successful revocation"""

@@ -35,13 +35,12 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import auth, data, users, health, images, projects
+    from .resources import auth, users, health, images, projects
     from .resources.users import UsersResource, AsyncUsersResource
     from .resources.health import HealthResource, AsyncHealthResource
     from .resources.images import ImagesResource, AsyncImagesResource
     from .resources.projects import ProjectsResource, AsyncProjectsResource
     from .resources.auth.auth import AuthResource, AsyncAuthResource
-    from .resources.data.data import DataResource, AsyncDataResource
 
 __all__ = [
     "Timeout",
@@ -124,12 +123,6 @@ class ElicitClient(SyncAPIClient):
         from .resources.users import UsersResource
 
         return UsersResource(self)
-
-    @cached_property
-    def data(self) -> DataResource:
-        from .resources.data import DataResource
-
-        return DataResource(self)
 
     @cached_property
     def health(self) -> HealthResource:
@@ -339,12 +332,6 @@ class AsyncElicitClient(AsyncAPIClient):
         return AsyncUsersResource(self)
 
     @cached_property
-    def data(self) -> AsyncDataResource:
-        from .resources.data import AsyncDataResource
-
-        return AsyncDataResource(self)
-
-    @cached_property
     def health(self) -> AsyncHealthResource:
         from .resources.health import AsyncHealthResource
 
@@ -494,12 +481,6 @@ class ElicitClientWithRawResponse:
         return UsersResourceWithRawResponse(self._client.users)
 
     @cached_property
-    def data(self) -> data.DataResourceWithRawResponse:
-        from .resources.data import DataResourceWithRawResponse
-
-        return DataResourceWithRawResponse(self._client.data)
-
-    @cached_property
     def health(self) -> health.HealthResourceWithRawResponse:
         from .resources.health import HealthResourceWithRawResponse
 
@@ -535,12 +516,6 @@ class AsyncElicitClientWithRawResponse:
         from .resources.users import AsyncUsersResourceWithRawResponse
 
         return AsyncUsersResourceWithRawResponse(self._client.users)
-
-    @cached_property
-    def data(self) -> data.AsyncDataResourceWithRawResponse:
-        from .resources.data import AsyncDataResourceWithRawResponse
-
-        return AsyncDataResourceWithRawResponse(self._client.data)
 
     @cached_property
     def health(self) -> health.AsyncHealthResourceWithRawResponse:
@@ -580,12 +555,6 @@ class ElicitClientWithStreamedResponse:
         return UsersResourceWithStreamingResponse(self._client.users)
 
     @cached_property
-    def data(self) -> data.DataResourceWithStreamingResponse:
-        from .resources.data import DataResourceWithStreamingResponse
-
-        return DataResourceWithStreamingResponse(self._client.data)
-
-    @cached_property
     def health(self) -> health.HealthResourceWithStreamingResponse:
         from .resources.health import HealthResourceWithStreamingResponse
 
@@ -621,12 +590,6 @@ class AsyncElicitClientWithStreamedResponse:
         from .resources.users import AsyncUsersResourceWithStreamingResponse
 
         return AsyncUsersResourceWithStreamingResponse(self._client.users)
-
-    @cached_property
-    def data(self) -> data.AsyncDataResourceWithStreamingResponse:
-        from .resources.data import AsyncDataResourceWithStreamingResponse
-
-        return AsyncDataResourceWithStreamingResponse(self._client.data)
 
     @cached_property
     def health(self) -> health.AsyncHealthResourceWithStreamingResponse:

@@ -57,19 +57,9 @@ class KeysResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> KeyCreateResponse:
         """
-        Create a new API key for the authenticated user.
-
-            This endpoint:
-            - Validates the current API key authentication
-            - Creates a new API key for the same user/organization
-            - Returns the new API key (only shown once)
-            - Supports optional labeling for key management
-
-            **Authentication**: Requires valid API key in Authorization header
+        Create a new API key
 
         Args:
-          label: Optional label for the API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -97,16 +87,7 @@ class KeysResource(SyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> KeyListResponse:
-        """
-        Retrieve all API keys for the authenticated user.
-
-            This endpoint:
-            - Validates the current API key authentication
-            - Returns list of all API keys for the user (without the actual key values)
-            - Includes metadata like creation time and last usage
-
-            **Authentication**: Requires valid API key in Authorization header
-        """
+        """List the authenticated user's API keys"""
         return self._get(
             "/v1/auth/keys",
             options=make_request_options(
@@ -127,14 +108,7 @@ class KeysResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> KeyRevokeResponse:
         """
-        Revoke (delete) an API key for the authenticated user.
-
-            This endpoint:
-            - Validates the current API key authentication
-            - Revokes the specified API key (if it belongs to the user)
-            - Returns confirmation of revocation
-
-            **Authentication**: Requires valid API key in Authorization header
+        Revoke an API key
 
         Args:
           extra_headers: Send extra headers
@@ -188,19 +162,9 @@ class AsyncKeysResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> KeyCreateResponse:
         """
-        Create a new API key for the authenticated user.
-
-            This endpoint:
-            - Validates the current API key authentication
-            - Creates a new API key for the same user/organization
-            - Returns the new API key (only shown once)
-            - Supports optional labeling for key management
-
-            **Authentication**: Requires valid API key in Authorization header
+        Create a new API key
 
         Args:
-          label: Optional label for the API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -228,16 +192,7 @@ class AsyncKeysResource(AsyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> KeyListResponse:
-        """
-        Retrieve all API keys for the authenticated user.
-
-            This endpoint:
-            - Validates the current API key authentication
-            - Returns list of all API keys for the user (without the actual key values)
-            - Includes metadata like creation time and last usage
-
-            **Authentication**: Requires valid API key in Authorization header
-        """
+        """List the authenticated user's API keys"""
         return await self._get(
             "/v1/auth/keys",
             options=make_request_options(
@@ -258,14 +213,7 @@ class AsyncKeysResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> KeyRevokeResponse:
         """
-        Revoke (delete) an API key for the authenticated user.
-
-            This endpoint:
-            - Validates the current API key authentication
-            - Revokes the specified API key (if it belongs to the user)
-            - Returns confirmation of revocation
-
-            **Authentication**: Requires valid API key in Authorization header
+        Revoke an API key
 
         Args:
           extra_headers: Send extra headers

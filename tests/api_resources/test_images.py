@@ -21,8 +21,8 @@ class TestImages:
     @parametrize
     def test_method_generate(self, client: ElicitClient) -> None:
         image = client.images.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
+            text_input="text_input",
+            user_id="user_id",
         )
         assert_matches_type(ImageGenerateResponse, image, path=["response"])
 
@@ -30,36 +30,20 @@ class TestImages:
     @parametrize
     def test_method_generate_with_all_params(self, client: ElicitClient) -> None:
         image = client.images.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
-            ad_id="ad_id",
-            aspect_ratio="1:1",
-            audio_base64="audio_base64",
-            auto_select_ad=True,
-            debug=True,
-            disabled_learning=True,
-            font_reference_image_base64=["string"],
-            font_reference_image_url=["string"],
-            font_reference_ttf_base64=["string"],
-            font_reference_ttf_url=["string"],
-            image_base64="image_base64",
+            text_input="text_input",
+            user_id="user_id",
+            aspect_ratio="aspect_ratio",
+            edit={"source_generation_id": "source_generation_id"},
             make_editable=True,
-            mask_base64="mask_base64",
-            max_reasoning_iterations=1,
-            mode="fast",
-            model="gemini-3.1-flash",
-            persona_id="persona_id",
-            pinned_entity_ids=["string"],
-            pinned_folder_ids=["string"],
-            project_id="proj_ABC",
-            resolution="2K",
-            seed=12345,
-            session_id="session_id",
-            source_generation_id="source_generation_id",
-            target_aspect_ratios=["string"],
-            temperature=0,
-            use_reasoning=False,
-            video_base64="video_base64",
+            mode="default",
+            model="model",
+            project_id="project_id",
+            relayout={
+                "ad_id": "ad_id",
+                "target_aspect_ratios": ["string"],
+            },
+            resolution="1K",
+            seed=0,
         )
         assert_matches_type(ImageGenerateResponse, image, path=["response"])
 
@@ -67,8 +51,8 @@ class TestImages:
     @parametrize
     def test_raw_response_generate(self, client: ElicitClient) -> None:
         response = client.images.with_raw_response.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
+            text_input="text_input",
+            user_id="user_id",
         )
 
         assert response.is_closed is True
@@ -80,8 +64,8 @@ class TestImages:
     @parametrize
     def test_streaming_response_generate(self, client: ElicitClient) -> None:
         with client.images.with_streaming_response.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
+            text_input="text_input",
+            user_id="user_id",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -101,8 +85,8 @@ class TestAsyncImages:
     @parametrize
     async def test_method_generate(self, async_client: AsyncElicitClient) -> None:
         image = await async_client.images.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
+            text_input="text_input",
+            user_id="user_id",
         )
         assert_matches_type(ImageGenerateResponse, image, path=["response"])
 
@@ -110,36 +94,20 @@ class TestAsyncImages:
     @parametrize
     async def test_method_generate_with_all_params(self, async_client: AsyncElicitClient) -> None:
         image = await async_client.images.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
-            ad_id="ad_id",
-            aspect_ratio="1:1",
-            audio_base64="audio_base64",
-            auto_select_ad=True,
-            debug=True,
-            disabled_learning=True,
-            font_reference_image_base64=["string"],
-            font_reference_image_url=["string"],
-            font_reference_ttf_base64=["string"],
-            font_reference_ttf_url=["string"],
-            image_base64="image_base64",
+            text_input="text_input",
+            user_id="user_id",
+            aspect_ratio="aspect_ratio",
+            edit={"source_generation_id": "source_generation_id"},
             make_editable=True,
-            mask_base64="mask_base64",
-            max_reasoning_iterations=1,
-            mode="fast",
-            model="gemini-3.1-flash",
-            persona_id="persona_id",
-            pinned_entity_ids=["string"],
-            pinned_folder_ids=["string"],
-            project_id="proj_ABC",
-            resolution="2K",
-            seed=12345,
-            session_id="session_id",
-            source_generation_id="source_generation_id",
-            target_aspect_ratios=["string"],
-            temperature=0,
-            use_reasoning=False,
-            video_base64="video_base64",
+            mode="default",
+            model="model",
+            project_id="project_id",
+            relayout={
+                "ad_id": "ad_id",
+                "target_aspect_ratios": ["string"],
+            },
+            resolution="1K",
+            seed=0,
         )
         assert_matches_type(ImageGenerateResponse, image, path=["response"])
 
@@ -147,8 +115,8 @@ class TestAsyncImages:
     @parametrize
     async def test_raw_response_generate(self, async_client: AsyncElicitClient) -> None:
         response = await async_client.images.with_raw_response.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
+            text_input="text_input",
+            user_id="user_id",
         )
 
         assert response.is_closed is True
@@ -160,8 +128,8 @@ class TestAsyncImages:
     @parametrize
     async def test_streaming_response_generate(self, async_client: AsyncElicitClient) -> None:
         async with async_client.images.with_streaming_response.generate(
-            text_input="A golden retriever in a space suit",
-            user_id="user_123",
+            text_input="text_input",
+            user_id="user_id",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"

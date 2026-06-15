@@ -7,13 +7,7 @@ from typing_extensions import Literal
 
 import httpx
 
-from ..types import (
-    project_list_params,
-    project_clone_params,
-    project_create_params,
-    project_delete_params,
-    project_retrieve_params,
-)
+from ..types import project_list_params, project_create_params, project_delete_params, project_retrieve_params
 from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import path_template, maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -26,7 +20,6 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.project_list_response import ProjectListResponse
-from ..types.project_clone_response import ProjectCloneResponse
 from ..types.project_create_response import ProjectCreateResponse
 from ..types.project_delete_response import ProjectDeleteResponse
 from ..types.project_retrieve_response import ProjectRetrieveResponse
@@ -256,85 +249,6 @@ class ProjectsResource(SyncAPIResource):
             cast_to=ProjectDeleteResponse,
         )
 
-    def clone(
-        self,
-        *,
-        project_id: str,
-        callback_url: Optional[str] | Omit = omit,
-        description: Optional[str] | Omit = omit,
-        name: Optional[str] | Omit = omit,
-        notification_email: Optional[str] | Omit = omit,
-        source_user_id: str | Omit = omit,
-        target_user_id: Optional[str] | Omit = omit,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> ProjectCloneResponse:
-        """
-        Deep-clone a project, including all its Neo4j memory graph data and referenced
-        GCS assets, into a new independent project.
-
-            This endpoint:
-            - Creates a new project in PostgreSQL with the source project's metadata
-            - Copies all GCS files (images, objects) under a new project path
-            - Deep-copies all Neo4j nodes (episodes, entities, preferences, identity,
-              hierarchical data, multimodal nodes) with new UUIDs
-            - Rewrites GCS URLs in ImageNode/ObjectNode to point at the copied files
-            - Recreates all inter-node relationships
-
-            The clone is fully independent — changes to one project do not affect the other.
-
-            **Authentication**: Requires valid API key or JWT token
-
-        Args:
-          project_id: ID of the project to clone
-
-          callback_url: Optional URL the server will POST to when the clone job reaches a terminal
-              state.
-
-          description: Description for the cloned project. Defaults to the original's description.
-
-          name: Name for the cloned project. Defaults to '{original_name} (Copy)'.
-
-          notification_email: Optional email address to notify when the clone job completes.
-
-          source_user_id: User ID of the source project owner. If not provided, uses the authenticated
-              user's ID.
-
-          target_user_id: Target user ID to own the cloned project. If not provided, uses the
-              authenticated user.
-
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        return self._post(
-            "/v1/projects/clone",
-            body=maybe_transform(
-                {
-                    "project_id": project_id,
-                    "callback_url": callback_url,
-                    "description": description,
-                    "name": name,
-                    "notification_email": notification_email,
-                    "source_user_id": source_user_id,
-                    "target_user_id": target_user_id,
-                },
-                project_clone_params.ProjectCloneParams,
-            ),
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=ProjectCloneResponse,
-        )
-
 
 class AsyncProjectsResource(AsyncAPIResource):
     @cached_property
@@ -558,85 +472,6 @@ class AsyncProjectsResource(AsyncAPIResource):
             cast_to=ProjectDeleteResponse,
         )
 
-    async def clone(
-        self,
-        *,
-        project_id: str,
-        callback_url: Optional[str] | Omit = omit,
-        description: Optional[str] | Omit = omit,
-        name: Optional[str] | Omit = omit,
-        notification_email: Optional[str] | Omit = omit,
-        source_user_id: str | Omit = omit,
-        target_user_id: Optional[str] | Omit = omit,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> ProjectCloneResponse:
-        """
-        Deep-clone a project, including all its Neo4j memory graph data and referenced
-        GCS assets, into a new independent project.
-
-            This endpoint:
-            - Creates a new project in PostgreSQL with the source project's metadata
-            - Copies all GCS files (images, objects) under a new project path
-            - Deep-copies all Neo4j nodes (episodes, entities, preferences, identity,
-              hierarchical data, multimodal nodes) with new UUIDs
-            - Rewrites GCS URLs in ImageNode/ObjectNode to point at the copied files
-            - Recreates all inter-node relationships
-
-            The clone is fully independent — changes to one project do not affect the other.
-
-            **Authentication**: Requires valid API key or JWT token
-
-        Args:
-          project_id: ID of the project to clone
-
-          callback_url: Optional URL the server will POST to when the clone job reaches a terminal
-              state.
-
-          description: Description for the cloned project. Defaults to the original's description.
-
-          name: Name for the cloned project. Defaults to '{original_name} (Copy)'.
-
-          notification_email: Optional email address to notify when the clone job completes.
-
-          source_user_id: User ID of the source project owner. If not provided, uses the authenticated
-              user's ID.
-
-          target_user_id: Target user ID to own the cloned project. If not provided, uses the
-              authenticated user.
-
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        return await self._post(
-            "/v1/projects/clone",
-            body=await async_maybe_transform(
-                {
-                    "project_id": project_id,
-                    "callback_url": callback_url,
-                    "description": description,
-                    "name": name,
-                    "notification_email": notification_email,
-                    "source_user_id": source_user_id,
-                    "target_user_id": target_user_id,
-                },
-                project_clone_params.ProjectCloneParams,
-            ),
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=ProjectCloneResponse,
-        )
-
 
 class ProjectsResourceWithRawResponse:
     def __init__(self, projects: ProjectsResource) -> None:
@@ -653,9 +488,6 @@ class ProjectsResourceWithRawResponse:
         )
         self.delete = to_raw_response_wrapper(
             projects.delete,
-        )
-        self.clone = to_raw_response_wrapper(
-            projects.clone,
         )
 
 
@@ -675,9 +507,6 @@ class AsyncProjectsResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             projects.delete,
         )
-        self.clone = async_to_raw_response_wrapper(
-            projects.clone,
-        )
 
 
 class ProjectsResourceWithStreamingResponse:
@@ -696,9 +525,6 @@ class ProjectsResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             projects.delete,
         )
-        self.clone = to_streamed_response_wrapper(
-            projects.clone,
-        )
 
 
 class AsyncProjectsResourceWithStreamingResponse:
@@ -716,7 +542,4 @@ class AsyncProjectsResourceWithStreamingResponse:
         )
         self.delete = async_to_streamed_response_wrapper(
             projects.delete,
-        )
-        self.clone = async_to_streamed_response_wrapper(
-            projects.clone,
         )

@@ -8,14 +8,6 @@ from .auth import (
     AuthResourceWithStreamingResponse,
     AsyncAuthResourceWithStreamingResponse,
 )
-from .data import (
-    DataResource,
-    AsyncDataResource,
-    DataResourceWithRawResponse,
-    AsyncDataResourceWithRawResponse,
-    DataResourceWithStreamingResponse,
-    AsyncDataResourceWithStreamingResponse,
-)
 from .users import (
     UsersResource,
     AsyncUsersResource,
@@ -56,12 +48,6 @@ __all__ = [
     "AsyncUsersResourceWithRawResponse",
     "UsersResourceWithStreamingResponse",
     "AsyncUsersResourceWithStreamingResponse",
-    "DataResource",
-    "AsyncDataResource",
-    "DataResourceWithRawResponse",
-    "AsyncDataResourceWithRawResponse",
-    "DataResourceWithStreamingResponse",
-    "AsyncDataResourceWithStreamingResponse",
     "HealthResource",
     "AsyncHealthResource",
     "HealthResourceWithRawResponse",

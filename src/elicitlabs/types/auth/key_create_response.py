@@ -9,22 +9,15 @@ __all__ = ["KeyCreateResponse"]
 
 class KeyCreateResponse(BaseModel):
     id: str
-    """Unique identifier for the API key"""
 
     api_key: str
-    """The actual API key (only shown once)"""
 
     created_at: str
-    """Creation timestamp"""
-
-    org_id: str
-    """Organization ID"""
-
-    user_id: str
-    """User ID"""
 
     label: Optional[str] = None
-    """Label for the API key"""
+
+    org_id: str
+
+    user_id: str
 
     success: Optional[bool] = None
-    """Indicates successful creation"""
