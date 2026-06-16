@@ -1,4 +1,4 @@
 configured_endpoints: 10
-openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/elicit-labs/elicit-labs-f7dde4fb3bd7cd9dd092e2df56b5a8283cf9b19761a13f469753252ca21ff302.yml
-openapi_spec_hash: cee2883fc3c2b2f3ec7a8c1d0355178d
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/elicit-labs/elicit-labs-203e3c57bc73ddb32421673c5ed5160a40783c2610248c4bbd1869a0c7879aee.yml
+openapi_spec_hash: 7790ac43012e0e7f27df856d259a1b19
 config_hash: 059d7f43431328a500dad0e8fece6bad
