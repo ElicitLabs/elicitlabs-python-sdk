@@ -50,6 +50,7 @@ class ImagesResource(SyncAPIResource):
         text_input: str,
         user_id: str,
         aspect_ratio: str | Omit = omit,
+        consistency: Optional[image_generate_params.Consistency] | Omit = omit,
         edit: Optional[image_generate_params.Edit] | Omit = omit,
         make_editable: Optional[bool] | Omit = omit,
         mode: Optional[Literal["default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
@@ -78,6 +79,8 @@ class ImagesResource(SyncAPIResource):
           user_id: The end-user ID
 
           aspect_ratio: Aspect ratio, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
+
+          consistency: Optional explicit visual references for consistency generation.
 
           edit: Options accepted only when `mode='edit'`.
 
@@ -116,6 +119,7 @@ class ImagesResource(SyncAPIResource):
                     "text_input": text_input,
                     "user_id": user_id,
                     "aspect_ratio": aspect_ratio,
+                    "consistency": consistency,
                     "edit": edit,
                     "make_editable": make_editable,
                     "mode": mode,
@@ -160,6 +164,7 @@ class AsyncImagesResource(AsyncAPIResource):
         text_input: str,
         user_id: str,
         aspect_ratio: str | Omit = omit,
+        consistency: Optional[image_generate_params.Consistency] | Omit = omit,
         edit: Optional[image_generate_params.Edit] | Omit = omit,
         make_editable: Optional[bool] | Omit = omit,
         mode: Optional[Literal["default", "consistency", "exploration", "edit", "relayout"]] | Omit = omit,
@@ -188,6 +193,8 @@ class AsyncImagesResource(AsyncAPIResource):
           user_id: The end-user ID
 
           aspect_ratio: Aspect ratio, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'.
+
+          consistency: Optional explicit visual references for consistency generation.
 
           edit: Options accepted only when `mode='edit'`.
 
@@ -226,6 +233,7 @@ class AsyncImagesResource(AsyncAPIResource):
                     "text_input": text_input,
                     "user_id": user_id,
                     "aspect_ratio": aspect_ratio,
+                    "consistency": consistency,
                     "edit": edit,
                     "make_editable": make_editable,
                     "mode": mode,

@@ -33,6 +33,10 @@ class TestImages:
             text_input="text_input",
             user_id="user_id",
             aspect_ratio="aspect_ratio",
+            consistency={
+                "reference_ad_ids": ["string"],
+                "reference_generation_ids": ["string"],
+            },
             edit={"source_generation_id": "source_generation_id"},
             make_editable=True,
             mode="default",
@@ -40,6 +44,9 @@ class TestImages:
             project_id="project_id",
             relayout={
                 "ad_id": "ad_id",
+                "copy_overrides": {"foo": "string"},
+                "locale": "locale",
+                "reuse_base_generation_id": "reuse_base_generation_id",
                 "target_aspect_ratios": ["string"],
             },
             resolution="1K",
@@ -97,6 +104,10 @@ class TestAsyncImages:
             text_input="text_input",
             user_id="user_id",
             aspect_ratio="aspect_ratio",
+            consistency={
+                "reference_ad_ids": ["string"],
+                "reference_generation_ids": ["string"],
+            },
             edit={"source_generation_id": "source_generation_id"},
             make_editable=True,
             mode="default",
@@ -104,6 +115,9 @@ class TestAsyncImages:
             project_id="project_id",
             relayout={
                 "ad_id": "ad_id",
+                "copy_overrides": {"foo": "string"},
+                "locale": "locale",
+                "reuse_base_generation_id": "reuse_base_generation_id",
                 "target_aspect_ratios": ["string"],
             },
             resolution="1K",

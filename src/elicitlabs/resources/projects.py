@@ -51,6 +51,8 @@ class ProjectsResource(SyncAPIResource):
         self,
         *,
         name: str,
+        campaign_id: Optional[str] | Omit = omit,
+        default_brand_id: Optional[str] | Omit = omit,
         description: Optional[str] | Omit = omit,
         project_type: Literal["creative_design", "general"] | Omit = omit,
         use_hierarchical: bool | Omit = omit,
@@ -75,6 +77,10 @@ class ProjectsResource(SyncAPIResource):
 
         Args:
           name: Project name
+
+          campaign_id: Optional: campaign this project belongs to (drives co-branded rule fan-out).
+
+          default_brand_id: Optional: brand used by ingest when an upload omits brand_ids.
 
           description: Optional project description
 
@@ -101,6 +107,8 @@ class ProjectsResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "name": name,
+                    "campaign_id": campaign_id,
+                    "default_brand_id": default_brand_id,
                     "description": description,
                     "project_type": project_type,
                     "use_hierarchical": use_hierarchical,
@@ -274,6 +282,8 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         *,
         name: str,
+        campaign_id: Optional[str] | Omit = omit,
+        default_brand_id: Optional[str] | Omit = omit,
         description: Optional[str] | Omit = omit,
         project_type: Literal["creative_design", "general"] | Omit = omit,
         use_hierarchical: bool | Omit = omit,
@@ -298,6 +308,10 @@ class AsyncProjectsResource(AsyncAPIResource):
 
         Args:
           name: Project name
+
+          campaign_id: Optional: campaign this project belongs to (drives co-branded rule fan-out).
+
+          default_brand_id: Optional: brand used by ingest when an upload omits brand_ids.
 
           description: Optional project description
 
@@ -324,6 +338,8 @@ class AsyncProjectsResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "name": name,
+                    "campaign_id": campaign_id,
+                    "default_brand_id": default_brand_id,
                     "description": description,
                     "project_type": project_type,
                     "use_hierarchical": use_hierarchical,

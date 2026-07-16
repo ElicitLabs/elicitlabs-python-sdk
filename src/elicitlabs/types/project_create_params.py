@@ -12,6 +12,12 @@ class ProjectCreateParams(TypedDict, total=False):
     name: Required[str]
     """Project name"""
 
+    campaign_id: Optional[str]
+    """Optional: campaign this project belongs to (drives co-branded rule fan-out)."""
+
+    default_brand_id: Optional[str]
+    """Optional: brand used by ingest when an upload omits brand_ids."""
+
     description: Optional[str]
     """Optional project description"""
 

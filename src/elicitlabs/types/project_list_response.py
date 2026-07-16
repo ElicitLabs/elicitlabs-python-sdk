@@ -2,6 +2,7 @@
 
 from typing import List, Optional
 from datetime import datetime
+from typing_extensions import Literal
 
 from .._models import BaseModel
 
@@ -26,6 +27,15 @@ class Project(BaseModel):
     user_id: str
 
     user_name: Optional[str] = None
+
+    campaign_id: Optional[str] = None
+    """Optional: project belongs to this campaign. Drives co-branded rule fan-out."""
+
+    default_brand_id: Optional[str] = None
+    """Optional: used by ingest when an upload omits brand_ids."""
+
+    ingest_autonomy_mode: Optional[Literal["assisted", "autonomous"]] = None
+    """Whether uncertain brand/campaign/DAM placement asks for confirmation."""
 
     project_type: Optional[str] = None
     """Project type override: 'creative_design' or 'general'.

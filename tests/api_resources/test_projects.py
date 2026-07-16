@@ -35,6 +35,8 @@ class TestProjects:
     def test_method_create_with_all_params(self, client: ElicitClient) -> None:
         project = client.projects.create(
             name="My Research Project",
+            campaign_id="campaign_id",
+            default_brand_id="default_brand_id",
             description="A project for organizing research notes and findings",
             project_type="general",
             use_hierarchical=True,
@@ -225,6 +227,8 @@ class TestAsyncProjects:
     async def test_method_create_with_all_params(self, async_client: AsyncElicitClient) -> None:
         project = await async_client.projects.create(
             name="My Research Project",
+            campaign_id="campaign_id",
+            default_brand_id="default_brand_id",
             description="A project for organizing research notes and findings",
             project_type="general",
             use_hierarchical=True,

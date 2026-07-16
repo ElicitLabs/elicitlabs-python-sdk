@@ -127,9 +127,9 @@ client = ElicitClient()
 response = client.images.generate(
     text_input="text_input",
     user_id="user_id",
-    edit={"source_generation_id": "source_generation_id"},
+    consistency={},
 )
-print(response.edit)
+print(response.consistency)
 ```
 
 ## Handling errors

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Dict, Optional
 from typing_extensions import Literal, Required, TypedDict
 
 from .._types import SequenceNotStr
 
-__all__ = ["ImageGenerateParams", "Edit", "Relayout"]
+__all__ = ["ImageGenerateParams", "Consistency", "Edit", "Relayout"]
 
 
 class ImageGenerateParams(TypedDict, total=False):
@@ -19,6 +19,9 @@ class ImageGenerateParams(TypedDict, total=False):
 
     aspect_ratio: str
     """Aspect ratio, e.g. '1:1', '16:9', '9:16', '4:3', '3:4'."""
+
+    consistency: Optional[Consistency]
+    """Optional explicit visual references for consistency generation."""
 
     edit: Optional[Edit]
     """Options accepted only when `mode='edit'`."""
@@ -55,6 +58,14 @@ class ImageGenerateParams(TypedDict, total=False):
     """Random seed for reproducibility"""
 
 
+class Consistency(TypedDict, total=False):
+    """Optional explicit visual references for consistency generation."""
+
+    reference_ad_ids: SequenceNotStr[str]
+
+    reference_generation_ids: SequenceNotStr[str]
+
+
 class Edit(TypedDict, total=False):
     """Options accepted only when `mode='edit'`."""
 
@@ -68,8 +79,17 @@ class Edit(TypedDict, total=False):
 class Relayout(TypedDict, total=False):
     """Options accepted only when `mode='relayout'`."""
 
-    ad_id: Required[str]
+    ad_id: Optional[str]
     """The reference AdAsset node_id to recreate."""
+
+    copy_overrides: Dict[str, str]
+    """Exact per-section copy to typeset for this localized output."""
+
+    locale: Optional[str]
+    """Optional BCP-47 locale for this output."""
+
+    reuse_base_generation_id: Optional[str]
+    """Optional completed relayout generation to reuse as this variant's source."""
 
     target_aspect_ratios: Optional[SequenceNotStr[str]]
     """List of target aspect ratios (e.g.
