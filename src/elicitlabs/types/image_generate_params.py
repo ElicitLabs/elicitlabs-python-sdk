@@ -82,11 +82,25 @@ class Relayout(TypedDict, total=False):
     ad_id: Optional[str]
     """The reference AdAsset node_id to recreate."""
 
+    auto_translate_copy: bool
+    """When true and locale is set, translate source section copy automatically.
+
+    Explicit copy_overrides take precedence per section.
+    """
+
     copy_overrides: Dict[str, str]
     """Exact per-section copy to typeset for this localized output."""
 
     locale: Optional[str]
     """Optional BCP-47 locale for this output."""
+
+    output_editability: Literal["standard", "full_editable"]
+    """'standard' preserves the existing relayout output.
+
+    'full_editable' adds a design-compatible HTML reproduction, matching
+    browser-rendered PNG, and Figma layer manifest after the normal relayout
+    completes.
+    """
 
     reuse_base_generation_id: Optional[str]
     """Optional completed relayout generation to reuse as this variant's source."""
