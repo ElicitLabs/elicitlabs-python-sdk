@@ -41,6 +41,7 @@ class TestProjects:
             project_type="general",
             use_hierarchical=True,
             user_id="456e7890-e89b-12d3-a456-426614174001",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectCreateResponse, project, path=["response"])
 
@@ -84,6 +85,7 @@ class TestProjects:
         project = client.projects.retrieve(
             project_id="project_id",
             user_id="user_id",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectRetrieveResponse, project, path=["response"])
 
@@ -132,6 +134,7 @@ class TestProjects:
     def test_method_list_with_all_params(self, client: ElicitClient) -> None:
         project = client.projects.list(
             user_id="user_id",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectListResponse, project, path=["response"])
 
@@ -171,6 +174,7 @@ class TestProjects:
         project = client.projects.delete(
             project_id="project_id",
             user_id="user_id",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectDeleteResponse, project, path=["response"])
 
@@ -233,6 +237,7 @@ class TestAsyncProjects:
             project_type="general",
             use_hierarchical=True,
             user_id="456e7890-e89b-12d3-a456-426614174001",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectCreateResponse, project, path=["response"])
 
@@ -276,6 +281,7 @@ class TestAsyncProjects:
         project = await async_client.projects.retrieve(
             project_id="project_id",
             user_id="user_id",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectRetrieveResponse, project, path=["response"])
 
@@ -324,6 +330,7 @@ class TestAsyncProjects:
     async def test_method_list_with_all_params(self, async_client: AsyncElicitClient) -> None:
         project = await async_client.projects.list(
             user_id="user_id",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectListResponse, project, path=["response"])
 
@@ -363,6 +370,7 @@ class TestAsyncProjects:
         project = await async_client.projects.delete(
             project_id="project_id",
             user_id="user_id",
+            x_organization_id="X-Organization-ID",
         )
         assert_matches_type(ProjectDeleteResponse, project, path=["response"])
 

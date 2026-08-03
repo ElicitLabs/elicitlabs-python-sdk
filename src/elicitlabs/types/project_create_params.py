@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from typing import Optional
-from typing_extensions import Literal, Required, TypedDict
+from typing_extensions import Literal, Required, Annotated, TypedDict
+
+from .._utils import PropertyInfo
 
 __all__ = ["ProjectCreateParams"]
 
@@ -40,3 +42,5 @@ class ProjectCreateParams(TypedDict, total=False):
 
     If not provided, uses the authenticated user's ID.
     """
+
+    x_organization_id: Annotated[str, PropertyInfo(alias="X-Organization-ID")]

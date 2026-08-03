@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from typing import Optional
-from typing_extensions import TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from .._utils import PropertyInfo
 
 __all__ = ["ProjectDeleteParams"]
 
 
 class ProjectDeleteParams(TypedDict, total=False):
     user_id: Optional[str]
+
+    x_organization_id: Annotated[str, PropertyInfo(alias="X-Organization-ID")]

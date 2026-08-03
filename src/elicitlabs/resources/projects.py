@@ -9,7 +9,7 @@ import httpx
 
 from ..types import project_list_params, project_create_params, project_delete_params, project_retrieve_params
 from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
-from .._utils import path_template, maybe_transform, async_maybe_transform
+from .._utils import path_template, maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
 from .._response import (
@@ -57,6 +57,7 @@ class ProjectsResource(SyncAPIResource):
         project_type: Literal["creative_design", "general"] | Omit = omit,
         use_hierarchical: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -102,6 +103,7 @@ class ProjectsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return self._post(
             "/v1/projects",
             body=maybe_transform(
@@ -127,6 +129,7 @@ class ProjectsResource(SyncAPIResource):
         project_id: str,
         *,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -156,6 +159,7 @@ class ProjectsResource(SyncAPIResource):
         """
         if not project_id:
             raise ValueError(f"Expected a non-empty value for `project_id` but received {project_id!r}")
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return self._get(
             path_template("/v1/projects/{project_id}", project_id=project_id),
             options=make_request_options(
@@ -172,6 +176,7 @@ class ProjectsResource(SyncAPIResource):
         self,
         *,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -198,6 +203,7 @@ class ProjectsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return self._get(
             "/v1/projects",
             options=make_request_options(
@@ -215,6 +221,7 @@ class ProjectsResource(SyncAPIResource):
         project_id: str,
         *,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -245,6 +252,7 @@ class ProjectsResource(SyncAPIResource):
         """
         if not project_id:
             raise ValueError(f"Expected a non-empty value for `project_id` but received {project_id!r}")
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return self._delete(
             path_template("/v1/projects/{project_id}", project_id=project_id),
             options=make_request_options(
@@ -288,6 +296,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         project_type: Literal["creative_design", "general"] | Omit = omit,
         use_hierarchical: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -333,6 +342,7 @@ class AsyncProjectsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return await self._post(
             "/v1/projects",
             body=await async_maybe_transform(
@@ -358,6 +368,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         project_id: str,
         *,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -387,6 +398,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         """
         if not project_id:
             raise ValueError(f"Expected a non-empty value for `project_id` but received {project_id!r}")
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return await self._get(
             path_template("/v1/projects/{project_id}", project_id=project_id),
             options=make_request_options(
@@ -403,6 +415,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         self,
         *,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -429,6 +442,7 @@ class AsyncProjectsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return await self._get(
             "/v1/projects",
             options=make_request_options(
@@ -446,6 +460,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         project_id: str,
         *,
         user_id: Optional[str] | Omit = omit,
+        x_organization_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -476,6 +491,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         """
         if not project_id:
             raise ValueError(f"Expected a non-empty value for `project_id` but received {project_id!r}")
+        extra_headers = {**strip_not_given({"X-Organization-ID": x_organization_id}), **(extra_headers or {})}
         return await self._delete(
             path_template("/v1/projects/{project_id}", project_id=project_id),
             options=make_request_options(

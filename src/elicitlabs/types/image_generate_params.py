@@ -97,9 +97,9 @@ class Relayout(TypedDict, total=False):
     output_editability: Literal["standard", "full_editable"]
     """'standard' preserves the existing relayout output.
 
-    'full_editable' adds a design-compatible HTML reproduction, matching
-    browser-rendered PNG, and Figma layer manifest after the normal relayout
-    completes.
+    'full_editable' repositions the original editable components without
+    regenerating their content or styling, and returns matching HTML, PNG, and Figma
+    layers.
     """
 
     reuse_base_generation_id: Optional[str]
